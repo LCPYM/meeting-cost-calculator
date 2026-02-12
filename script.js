@@ -47,7 +47,19 @@ const translations = {
         'btn-delete': '刪除',
         'template-saved': '✓ 模板已儲存！',
         'template-loaded': '✓ 模板已載入！',
-        'template-deleted': '✓ 模板已刪除！'
+        'template-deleted': '✓ 模板已刪除！',
+        'budget-enable': '🎯 啟用預算警報',
+        'budget-target': '目標預算',
+        'budget-exceeded': '⚠️ 已超出預算！',
+        'budget-remaining': '剩餘',
+        'budget-over': '超出',
+        'budget-progress': '預算使用',
+        'budget-enable': '🎯 Enable Budget Alert',
+        'budget-target': 'Target Budget',
+        'budget-exceeded': '⚠️ Budget Exceeded!',
+        'budget-remaining': 'Remaining',
+        'budget-over': 'Over',
+        'budget-progress': 'Budget Used'
     },
     en: {
         'title': '💸 Meeting Cost Calculator',
@@ -215,6 +227,8 @@ function startTimer() {
     pausedTime = 0;
     isPaused = false;
     hasShownWarning = false;
+    budgetExceededShown = false; 
+    removeBudgetExceededBanner();
     
     timerInterval = setInterval(updateTimer, 100);
 }
@@ -234,6 +248,9 @@ function updateTimer() {
     const currentCost = costPerSecond * elapsedSeconds;
     
     liveCostEl.textContent = `${symbol}${currentCost.toFixed(2)}`;
+
+    // 更新預算進度（新增）
+    updateBudgetProgress(currentCost);
     
     // 成本警報（超過500）
     if (currentCost >= 500 && !hasShownWarning) {
@@ -341,6 +358,7 @@ function reset() {
     
     document.querySelector('.timer-display').classList.remove('stopped');
     document.querySelector('.timer-display').classList.remove('alert');
+    document.querySelector('.timer-display').classList.remove('budget-warning');
     document.querySelector('.status-indicator').classList.add('running');
     document.querySelector('.status-indicator').classList.remove('stopped');
     document.querySelector('[data-i18n="timer-label"]').textContent = 
@@ -359,9 +377,17 @@ function reset() {
     pauseButton.classList.remove('paused');
     document.getElementById('share-actions').style.display = 'none';
     document.getElementById('reset-button').style.display = 'none';
+
+    // 移除預算進度條
+    const budgetProgress = document.querySelector('.budget-progress');
+    const budgetInfo = document.querySelector('.budget-info');
+    if (budgetProgress) budgetProgress.remove();
+    if (budgetInfo) budgetInfo.remove();
+    removeBudgetExceededBanner();
     
     isPaused = false;
     hasShownWarning = false;
+    budgetExceededShown = false;
     
     calculateEstimate();
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -801,6 +827,132 @@ document.addEventListener('click', (e) => {
 });
 
 qrButton.addEventListener('click', showQRCode);
+
+// ========== 目標預算模式 ==========
+const budgetEnabled = document.getElementById('budget-enabled');
+const budgetInputGroup = document.getElementById('budget-input-group');
+const budgetTarget = document.getElementById('budget-target');
+let isBudgetEnabled = localStorage.getItem('budgetEnabled') === 'true';
+let budgetExceededShown = false;
+let budgetExceededBanner = null;
+
+// 載入預算設定
+if (isBudgetEnabled) {
+    budgetEnabled.checked = true;
+    budgetInputGroup.style.display = 'flex';
+}
+
+const savedBudget = localStorage.getItem('budgetTarget');
+if (savedBudget) {
+    budgetTarget.value = savedBudget;
+}
+
+// 切換預算模式
+budgetEnabled.addEventListener('change', (e) => {
+    isBudgetEnabled = e.target.checked;
+    budgetInputGroup.style.display = isBudgetEnabled ? 'flex' : 'none';
+    localStorage.setItem('budgetEnabled', isBudgetEnabled);
+    
+    if (isBudgetEnabled) {
+        budgetTarget.focus();
+    }
+});
+
+// 儲存預算目標
+budgetTarget.addEventListener('input', () => {
+    localStorage.setItem('budgetTarget', budgetTarget.value);
+});
+
+// 顯示預算超出橫幅
+function showBudgetExceededBanner() {
+    if (budgetExceededBanner) return;
+    
+    budgetExceededBanner = document.createElement('div');
+    budgetExceededBanner.className = 'budget-exceeded-banner';
+    budgetExceededBanner.innerHTML = `
+        <span class="budget-icon">🚨</span>
+        <span>${translations[currentLang]['budget-exceeded']}</span>
+    `;
+    document.body.appendChild(budgetExceededBanner);
+    
+    // 播放提示音（如果瀏覽器支援）
+    try {
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUKXh8bllHAU2jtfyz3goBS l3yPDej0EKElyx6ezqVxQJQ5zd8cBxIgUpfs7y2og3Bxpnve/mnFIMDU+k4fG7Zh4GNI3X8dJ7LgUnd8nw4JFDChFaoe3uqVkWC0OZ2/K9bCIGKX7P8diINQcZZbzv5p1QDAZMouLyv2seBy qO2fPUfS8GJ3bK8eGSRgoQWKDt7qxcGQ1Dn9vyvmwjBSh+zfHajzgIF2W+8OihUQ4NTqPj8rhrHwg2jtjy0nswBSZzyO3PkUUMDFmf6+6rWhkMQ5vb8bxsIwUog83y2YczBxdmu+/mnVIMC0yi4fG7aCAINJDY8s9+MQYmdsjv0JFECw1Zpejtr1kZC0Kb2vG7bSMGJ3/N8dmINgcYZLzv5p1SCgxLn+3yv2ohBy+M2PTRfisFJnXI7tCRRQsNWaXo7alZGQpCmtrzumwiCCR9zvPZijYHGWK68OWdTwsNTKLj8b5sIAcwj9jy1oAxByZzzO7QkUULDVmj5+ynVxkMQpvb8rpqIwgmfMzx2II0CBlhuO/lm1ANDk2k5fK8aiAGLYvX8NR8MwcldMjt0I9GDA5ZpOjvqVQXD0Sa2fK9ayMHJXzN89iEMwkZYLfu5ZtPDQ5Nn+TwvGkfBy yJ1/DTfDMHJHTH7c+QRYEMWAUG4G1yH4YsXh8Rd' + 
+        'WwqhS2Hb9l/KIcu5DphQAnBRKb+w5bqzgw5ftkGO/4BjfRSMWB6oUL1/gqD3hA03jDeLuMkJ1Q7Xp3kxfWVN1jrfKQ=='
+        );
+        audio.volume = 0.3;
+        audio.play().catch(() => {}); // 忽略自動播放限制錯誤
+    } catch (e) {}
+}
+
+// 移除預算超出橫幅
+function removeBudgetExceededBanner() {
+    if (budgetExceededBanner) {
+        budgetExceededBanner.remove();
+        budgetExceededBanner = null;
+    }
+}
+
+// 更新預算進度條
+function updateBudgetProgress(currentCost) {
+    if (!isBudgetEnabled) return;
+    
+    const target = parseFloat(budgetTarget.value) || 0;
+    if (target === 0) return;
+    
+    const percentage = Math.min((currentCost / target) * 100, 100);
+    const symbol = currencySymbols[currentCurrency];
+    
+    // 檢查是否有進度條，沒有則建立
+    let progressContainer = document.querySelector('.budget-progress');
+    if (!progressContainer) {
+        const timerDisplay = document.querySelector('.timer-display');
+        const progressHTML = `
+            <div class="budget-progress">
+                <div class="budget-progress-bar" id="budget-progress-bar"></div>
+            </div>
+            <div class="budget-info">
+                <span class="budget-current">${translations[currentLang]['budget-progress']}: <span id="budget-current-cost">${symbol}0</span></span>
+                <span class="budget-remaining" id="budget-remaining-text">${translations[currentLang]['budget-remaining']}: ${symbol}${target.toFixed(2)}</span>
+            </div>
+        `;
+        timerDisplay.insertAdjacentHTML('beforeend', progressHTML);
+        progressContainer = document.querySelector('.budget-progress');
+    }
+    
+    const progressBar = document.getElementById('budget-progress-bar');
+    const currentCostEl = document.getElementById('budget-current-cost');
+    const remainingTextEl = document.getElementById('budget-remaining-text');
+    
+    progressBar.style.width = `${percentage}%`;
+    currentCostEl.textContent = `${symbol}${currentCost.toFixed(2)}`;
+    
+    // 更新樣式和文字
+    progressBar.classList.remove('warning', 'exceeded');
+    remainingTextEl.classList.remove('warning', 'exceeded');
+    document.querySelector('.timer-display').classList.remove('budget-warning');
+    
+    if (currentCost >= target) {
+        // 超出預算
+        progressBar.classList.add('exceeded');
+        remainingTextEl.classList.add('exceeded');
+        remainingTextEl.textContent = `${translations[currentLang]['budget-over']}: ${symbol}${(currentCost - target).toFixed(2)}`;
+        document.querySelector('.timer-display').classList.add('budget-warning');
+        
+        if (!budgetExceededShown) {
+            showBudgetExceededBanner();
+            budgetExceededShown = true;
+        }
+    } else if (percentage >= 80) {
+        // 警告狀態（80%以上）
+        progressBar.classList.add('warning');
+        remainingTextEl.classList.add('warning');
+        remainingTextEl.textContent = `${translations[currentLang]['budget-remaining']}: ${symbol}${(target - currentCost).toFixed(2)}`;
+    } else {
+        // 正常狀態
+        remainingTextEl.textContent = `${translations[currentLang]['budget-remaining']}: ${symbol}${(target - currentCost).toFixed(2)}`;
+    }
+}
 
 // ========== 深色模式 ==========
 const themeToggle = document.getElementById('theme-toggle');

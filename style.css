@@ -1082,3 +1082,186 @@ body.dark-mode .template-modal-content input {
     border-color: #2c3e50;
     color: #e0e6ed;
 }
+/* ========== 目標預算模式 ========== */
+
+.budget-section {
+    background: #fff3cd;
+    border: 2px solid #ffc107;
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.budget-header {
+    margin-bottom: 12px;
+}
+
+.budget-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    color: #856404;
+    user-select: none;
+}
+
+.budget-toggle input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+}
+
+.budget-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid #ffc107;
+}
+
+.budget-input-group label {
+    font-weight: 600;
+    color: #856404;
+    font-size: 0.9em;
+}
+
+#budget-target {
+    padding: 12px;
+    border: 2px solid #ffc107;
+    border-radius: 8px;
+    font-size: 1.1em;
+    background: white;
+}
+
+#budget-target:focus {
+    outline: none;
+    border-color: #ff9800;
+}
+
+/* 預算警告狀態 */
+.budget-warning {
+    background: linear-gradient(135deg, #ff9800 0%, #ff6b6b 100%);
+}
+
+.budget-exceeded-banner {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #ff4757 0%, #ff6348 100%);
+    color: white;
+    padding: 16px 32px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1.1em;
+    box-shadow: 0 8px 24px rgba(255, 71, 87, 0.5);
+    z-index: 9999;
+    animation: budgetBounce 0.6s ease;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+@keyframes budgetBounce {
+    0%, 100% { transform: translate(-50%, 0); }
+    25% { transform: translate(-50%, -10px); }
+    50% { transform: translate(-50%, 0); }
+    75% { transform: translate(-50%, -5px); }
+}
+
+.budget-exceeded-banner .budget-icon {
+    font-size: 1.5em;
+    animation: budgetPulse 1s infinite;
+}
+
+@keyframes budgetPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
+
+/* 預算進度條 */
+.budget-progress {
+    position: relative;
+    width: 100%;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    margin-top: 15px;
+    overflow: hidden;
+}
+
+.budget-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #00b4d8 0%, #90e0ef 100%);
+    border-radius: 4px;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.budget-progress-bar.warning {
+    background: linear-gradient(90deg, #ffc107 0%, #ff9800 100%);
+}
+
+.budget-progress-bar.exceeded {
+    background: linear-gradient(90deg, #ff4757 0%, #ff6348 100%);
+    animation: budgetProgressPulse 1s infinite;
+}
+
+@keyframes budgetProgressPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.budget-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 8px;
+    font-size: 0.85em;
+    opacity: 0.9;
+}
+
+.budget-current {
+    font-weight: 600;
+}
+
+.budget-remaining {
+    font-weight: 600;
+    color: #00b4d8;
+}
+
+.budget-remaining.warning {
+    color: #ff9800;
+}
+
+.budget-remaining.exceeded {
+    color: #ff4757;
+}
+
+/* 深色模式下的預算樣式 */
+body.dark-mode .budget-section {
+    background: #2c1810;
+    border-color: #ff9800;
+}
+
+body.dark-mode .budget-toggle {
+    color: #ffc107;
+}
+
+body.dark-mode .budget-input-group label {
+    color: #ffc107;
+}
+
+body.dark-mode #budget-target {
+    background: #0f1729;
+    border-color: #ff9800;
+    color: #e0e6ed;
+}
+
+body.dark-mode .budget-progress {
+    background: rgba(255, 152, 0, 0.2);
+}
+
+body.dark-mode .budget-info {
+    color: #ffc107;
+}

@@ -74,6 +74,20 @@
             <p class="per-minute" data-i18n="per-minute">Per Minute: <span id="per-minute">$16.67</span></p>
         </div>
 
+        <!-- 目標預算設定 -->
+                <div class="budget-section">
+                    <div class="budget-header">
+                        <label class="budget-toggle">
+                            <input type="checkbox" id="budget-enabled">
+                            <span data-i18n="budget-enable">🎯 Enable Budget Alert</span>
+                        </label>
+                    </div>
+                    <div class="budget-input-group" id="budget-input-group" style="display: none;">
+                        <label for="budget-target" data-i18n="budget-target">Target Budget</label>
+                        <input type="number" id="budget-target" value="1000" min="0" step="50" placeholder="1000">
+                    </div>
+                </div>
+
         <!-- 開始按鈕 -->
         <button class="start-button" id="start-button" data-i18n="btn-start">Start Meeting Timer</button>
 
