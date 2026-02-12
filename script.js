@@ -778,6 +778,24 @@ document.addEventListener('click', (e) => {
 
 qrButton.addEventListener('click', showQRCode);
 
+// ========== 深色模式 ==========
+const themeToggle = document.getElementById('theme-toggle');
+let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+function toggleDarkMode() {
+    isDarkMode = !isDarkMode;
+    document.body.classList.toggle('dark-mode', isDarkMode);
+    themeToggle.querySelector('.theme-icon').textContent = isDarkMode ? '☀️' : '🌙';
+    localStorage.setItem('darkMode', isDarkMode);
+}
+
+// 載入保存的主題
+if (isDarkMode) {
+    document.body.classList.add('dark-mode');
+    themeToggle.querySelector('.theme-icon').textContent = '☀️';
+}
+
+themeToggle.addEventListener('click', toggleDarkMode);
 
 // 初始化
 loadSettings();
