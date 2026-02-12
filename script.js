@@ -35,7 +35,19 @@ const translations = {
         'share-saving': '透過高效會議，我們節省了寶貴的時間和金錢！',
         'cost-warning': '⚠️ 會議成本已超過 {currency}500！',
         'qr-title': '掃描以載入此會議設定',
-        'btn-close': '關閉'
+        'btn-close': '關閉',
+        'template-title': '📋 會議模板',
+        'btn-save-template': '+ 儲存為模板',
+        'template-empty': '尚無模板，儲存第一個吧！',
+        'template-modal-title': '儲存會議模板',
+        'template-name-placeholder': '例如：團隊週會、客戶簡報',
+        'btn-save': '儲存',
+        'btn-cancel': '取消',
+        'btn-load': '載入',
+        'btn-delete': '刪除',
+        'template-saved': '✓ 模板已儲存！',
+        'template-loaded': '✓ 模板已載入！',
+        'template-deleted': '✓ 模板已刪除！'
     },
     en: {
         'title': '💸 Meeting Cost Calculator',
@@ -72,7 +84,19 @@ const translations = {
         'share-saving': 'Through efficient meetings, we saved valuable time and money!',
         'cost-warning': '⚠️ Meeting cost exceeded {currency}500!',
         'qr-title': 'Scan to load these settings',
-        'btn-close': 'Close'
+        'btn-close': 'Close',
+         'template-title': '📋 Meeting Templates',
+        'btn-save-template': '+ Save as Template',
+        'template-empty': 'No templates yet. Save your first one!',
+        'template-modal-title': 'Save Meeting Template',
+        'template-name-placeholder': 'e.g., Team Weekly, Client Demo',
+        'btn-save': 'Save',
+        'btn-cancel': 'Cancel',
+        'btn-load': 'Load',
+        'btn-delete': 'Delete',
+        'template-saved': '✓ Template saved!',
+        'template-loaded': '✓ Template loaded!',
+        'template-deleted': '✓ Template deleted!'
     }
 };
 
@@ -797,9 +821,137 @@ if (isDarkMode) {
 
 themeToggle.addEventListener('click', toggleDarkMode);
 
+// ========== 預設模板管理 ==========
+let templates = JSON.parse(localStorage.getItem('meetingTemplates')) || [];
+
+// 建立模板輸入彈窗
+const templateModal = document.createElement('div');
+templateModal.className = 'template-modal';
+templateModal.innerHTML = `
+    <div class="template-modal-content">
+        <h3 data-i18n="template-modal-title">Save Meeting Template</h3>
+        <input type="text" id="template-name-input" data-i18n-placeholder="template-name-placeholder" placeholder="e.g., Team Weekly, Client Demo">
+        <div class="template-modal-buttons">
+            <button class="template-save-confirm" id="template-save-confirm" data-i18n="btn-save">Save</button>
+            <button class="template-modal-cancel" id="template-modal-cancel" data-i18n="btn-cancel">Cancel</button>
+        </div>
+    </div>
+`;
+document.body.appendChild(templateModal);
+
+// 顯示模板列表
+function renderTemplates() {
+    const templateList = document.getElementById('template-list');
+    
+    if (templates.length === 0) {
+        templateList.innerHTML = '<p class="template-empty" data-i18n="template-empty">' + 
+            translations[currentLang]['template-empty'] + '</p>';
+        return;
+    }
+    
+    templateList.innerHTML = templates.map((template, index) => `
+        <div class="template-item">
+            <div class="template-info">
+                <div class="template-name">${template.name}</div>
+                <div class="template-details">
+                    👥 ${template.attendees} · 
+                    ${currencySymbols[template.currency]}${template.hourlyRate}/hr · 
+                    ${template.duration} min
+                </div>
+            </div>
+            <div class="template-actions">
+                <button class="template-load-btn" onclick="loadTemplate(${index})" data-i18n="btn-load">
+                    ${translations[currentLang]['btn-load']}
+                </button>
+                <button class="template-delete-btn" onclick="deleteTemplate(${index})" data-i18n="btn-delete">
+                    ${translations[currentLang]['btn-delete']}
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+// 儲存模板
+document.getElementById('save-template-btn').addEventListener('click', () => {
+    templateModal.classList.add('show');
+    document.getElementById('template-name-input').value = '';
+    document.getElementById('template-name-input').focus();
+});
+
+// 確認儲存
+document.getElementById('template-save-confirm').addEventListener('click', () => {
+    const name = document.getElementById('template-name-input').value.trim();
+    
+    if (!name) {
+        document.getElementById('template-name-input').focus();
+        return;
+    }
+    
+    const newTemplate = {
+        name: name,
+        attendees: parseInt(attendeesInput.value),
+        hourlyRate: parseFloat(hourlyRateInput.value),
+        duration: parseInt(durationInput.value),
+        currency: currentCurrency
+    };
+    
+    templates.push(newTemplate);
+    localStorage.setItem('meetingTemplates', JSON.stringify(templates));
+    
+    templateModal.classList.remove('show');
+    renderTemplates();
+    showToast(translations[currentLang]['template-saved']);
+});
+
+// 取消儲存
+document.getElementById('template-modal-cancel').addEventListener('click', () => {
+    templateModal.classList.remove('show');
+});
+
+// 點擊外部關閉
+templateModal.addEventListener('click', (e) => {
+    if (e.target === templateModal) {
+        templateModal.classList.remove('show');
+    }
+});
+
+// 載入模板
+function loadTemplate(index) {
+    const template = templates[index];
+    
+    attendeesInput.value = template.attendees;
+    hourlyRateInput.value = template.hourlyRate;
+    durationInput.value = template.duration;
+    currentCurrency = template.currency;
+    currencySelect.value = template.currency;
+    
+    calculateEstimate();
+    updateCurrencyLabel();
+    
+    showToast(translations[currentLang]['template-loaded']);
+}
+
+// 刪除模板
+function deleteTemplate(index) {
+    if (confirm(currentLang === 'zh' ? '確定要刪除此模板？' : 'Delete this template?')) {
+        templates.splice(index, 1);
+        localStorage.setItem('meetingTemplates', JSON.stringify(templates));
+        renderTemplates();
+        showToast(translations[currentLang]['template-deleted']);
+    }
+}
+
+// Enter 鍵儲存
+document.getElementById('template-name-input').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('template-save-confirm').click();
+    }
+});
+
 // 初始化
 loadSettings();
 loadFromURL();
 switchLanguage('en');
 calculateEstimate();
 updateCurrencyLabel();
+renderTemplates(); 
