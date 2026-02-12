@@ -59,7 +59,16 @@ const translations = {
         'budget-exceeded': '⚠️ Budget Exceeded!',
         'budget-remaining': 'Remaining',
         'budget-over': 'Over',
-        'budget-progress': 'Budget Used'
+        'budget-progress': 'Budget Used',
+         'history-title': '📝 會議記錄',
+        'btn-clear-history': '清除全部',
+        'history-empty': '尚無會議記錄',
+        'history-total': '總會議',
+        'history-total-cost': '總成本',
+        'history-avg-duration': '平均時長',
+        'history-cleared': '✓ 記錄已清除！',
+        'history-confirm-clear': '確定要清除所有會議記錄？',
+        'minutes-short': '分鐘'
     },
     en: {
         'title': '💸 Meeting Cost Calculator',
@@ -108,7 +117,16 @@ const translations = {
         'btn-delete': 'Delete',
         'template-saved': '✓ Template saved!',
         'template-loaded': '✓ Template loaded!',
-        'template-deleted': '✓ Template deleted!'
+        'template-deleted': '✓ Template deleted!',
+        'history-title': '📝 Meeting History',
+        'btn-clear-history': 'Clear All',
+        'history-empty': 'No meeting records yet',
+        'history-total': 'Total Meetings',
+        'history-total-cost': 'Total Cost',
+        'history-avg-duration': 'Avg Duration',
+        'history-cleared': '✓ History cleared!',
+        'history-confirm-clear': 'Clear all meeting history?',
+        'minutes-short': 'min'
     }
 };
 
@@ -337,6 +355,9 @@ function stopTimer() {
     document.getElementById('share-actions').style.display = 'flex';
     document.getElementById('reset-button').style.display = 'block';
     
+    // 儲存會議記錄
+    saveMeetingRecord();
+
     if (isFullscreen) {
         setTimeout(() => {
             document.getElementById('reset-button').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -955,6 +976,115 @@ function updateBudgetProgress(currentCost) {
     }
 }
 
+// ========== 會議記錄 ==========
+let meetingHistory = JSON.parse(localStorage.getItem('meetingHistory')) || [];
+
+// 儲存會議記錄
+function saveMeetingRecord() {
+    const attendees = parseInt(attendeesInput.value);
+    const hourlyRate = parseFloat(hourlyRateInput.value);
+    const symbol = currencySymbols[currentCurrency];
+    const costPerSecond = (attendees * hourlyRate) / 3600;
+    const finalCost = costPerSecond * elapsedSeconds;
+    const duration = Math.floor(elapsedSeconds / 60);
+    
+    const record = {
+        id: Date.now(),
+        date: new Date().toISOString(),
+        attendees: attendees,
+        hourlyRate: hourlyRate,
+        currency: currentCurrency,
+        duration: duration,
+        cost: finalCost
+    };
+    
+    meetingHistory.unshift(record); // 加到開頭
+    
+    // 只保留最近50筆
+    if (meetingHistory.length > 50) {
+        meetingHistory = meetingHistory.slice(0, 50);
+    }
+    
+    localStorage.setItem('meetingHistory', JSON.stringify(meetingHistory));
+    renderHistory();
+}
+
+// 渲染會議記錄
+function renderHistory() {
+    const historySection = document.getElementById('history-section');
+    const historyList = document.getElementById('history-list');
+    
+    if (meetingHistory.length === 0) {
+        historySection.style.display = 'none';
+        return;
+    }
+    
+    historySection.style.display = 'block';
+    
+    // 計算統計數據
+    const totalMeetings = meetingHistory.length;
+    const totalCost = meetingHistory.reduce((sum, record) => sum + record.cost, 0);
+    const avgDuration = meetingHistory.reduce((sum, record) => sum + record.duration, 0) / totalMeetings;
+    
+    // 渲染統計
+    const statsHTML = `
+        <div class="history-stats">
+            <div class="history-stat">
+                <div class="history-stat-label" data-i18n="history-total">${translations[currentLang]['history-total']}</div>
+                <div class="history-stat-value">${totalMeetings}</div>
+            </div>
+            <div class="history-stat">
+                <div class="history-stat-label" data-i18n="history-total-cost">${translations[currentLang]['history-total-cost']}</div>
+                <div class="history-stat-value">${currencySymbols[meetingHistory[0].currency]}${totalCost.toFixed(0)}</div>
+            </div>
+            <div class="history-stat">
+                <div class="history-stat-label" data-i18n="history-avg-duration">${translations[currentLang]['history-avg-duration']}</div>
+                <div class="history-stat-value">${Math.round(avgDuration)} <span style="font-size: 0.7em;">${translations[currentLang]['minutes-short']}</span></div>
+            </div>
+        </div>
+    `;
+    
+    // 渲染記錄列表
+    const recordsHTML = meetingHistory.map(record => {
+        const date = new Date(record.date);
+        const dateStr = date.toLocaleDateString(currentLang === 'zh' ? 'zh-TW' : 'en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+        });
+        const timeStr = date.toLocaleTimeString(currentLang === 'zh' ? 'zh-TW' : 'en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        
+        return `
+            <div class="history-item">
+                <div class="history-item-header">
+                    <span class="history-date">${dateStr} ${timeStr}</span>
+                    <span class="history-cost">${currencySymbols[record.currency]}${record.cost.toFixed(2)}</span>
+                </div>
+                <div class="history-details">
+                    <span class="history-detail-item">👥 ${record.attendees} ${currentLang === 'zh' ? '人' : 'people'}</span>
+                    <span class="history-detail-item">⏱️ ${record.duration} ${translations[currentLang]['minutes-short']}</span>
+                    <span class="history-detail-item">💵 ${currencySymbols[record.currency]}${record.hourlyRate}/hr</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    historyList.innerHTML = recordsHTML + statsHTML;
+}
+
+// 清除所有記錄
+document.getElementById('clear-history-btn').addEventListener('click', () => {
+    if (confirm(translations[currentLang]['history-confirm-clear'])) {
+        meetingHistory = [];
+        localStorage.removeItem('meetingHistory');
+        renderHistory();
+        showToast(translations[currentLang]['history-cleared']);
+    }
+});
+
 // ========== 深色模式 ==========
 const themeToggle = document.getElementById('theme-toggle');
 let isDarkMode = localStorage.getItem('darkMode') === 'true';
@@ -1108,3 +1238,4 @@ switchLanguage('en');
 calculateEstimate();
 updateCurrencyLabel();
 renderTemplates(); 
+renderHistory();
