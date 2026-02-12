@@ -293,7 +293,7 @@ function stopTimer() {
     
     stopButton.style.display = 'none';
     pauseButton.style.display = 'none';
-    document.getElementById('share-actions').style.display = 'grid';
+    document.getElementById('share-actions').style.display = 'flex';
     document.getElementById('reset-button').style.display = 'block';
     
     if (isFullscreen) {
