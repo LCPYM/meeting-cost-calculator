@@ -235,10 +235,9 @@ function startTimer() {
     document.querySelector('.budget-section').style.display = 'none';
     document.querySelector('.template-section').style.display = 'none';
     startButton.style.display = 'none';
-    
     document.querySelector('.support-section').style.display = 'none';
     document.getElementById('history-section').style.display = 'none';
-
+    
     timerSection.classList.add('active');
     pauseButton.style.display = 'flex';
     
@@ -249,11 +248,12 @@ function startTimer() {
     pausedTime = 0;
     isPaused = false;
     hasShownWarning = false;
-    budgetExceededShown = false; 
+    budgetExceededShown = false;
     removeBudgetExceededBanner();
     
     timerInterval = setInterval(updateTimer, 100);
 }
+
 
 // 更新計時器
 function updateTimer() {
@@ -481,7 +481,7 @@ currencySelect.addEventListener('change', (e) => {
     }
 });
 
-startButton.addEventListener('click', startTimer);
+startButton.addEventListener('click', startTimer);  // ✅ 确保有这行
 stopButton.addEventListener('click', stopTimer);
 pauseButton.addEventListener('click', togglePause);
 resetButton.addEventListener('click', reset);
