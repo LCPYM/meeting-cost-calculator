@@ -869,9 +869,10 @@ function showBudgetExceededBanner() {
     
     budgetExceededBanner = document.createElement('div');
     budgetExceededBanner.className = 'budget-exceeded-banner';
+    const message = currentLang === 'zh' ? '⚠️ 已超出預算！' : '⚠️ Budget Exceeded!';
     budgetExceededBanner.innerHTML = `
         <span class="budget-icon">🚨</span>
-        <span>${translations[currentLang]['budget-exceeded']}</span>
+        <span>${message}</span>
     `;
     document.body.appendChild(budgetExceededBanner);
     
@@ -881,7 +882,7 @@ function showBudgetExceededBanner() {
         'WwqhS2Hb9l/KIcu5DphQAnBRKb+w5bqzgw5ftkGO/4BjfRSMWB6oUL1/gqD3hA03jDeLuMkJ1Q7Xp3kxfWVN1jrfKQ=='
         );
         audio.volume = 0.3;
-        audio.play().catch(() => {}); // 忽略自動播放限制錯誤
+        audio.play().catch(() => {});
     } catch (e) {}
 }
 
