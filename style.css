@@ -62,18 +62,21 @@ label {
     font-size: 0.9em;
 }
 
+/* ✅ 放大原生的增減按鈕（標準方法） */
 input[type="number"] {
     padding: 12px;
     border: 3px solid #caf0f8;
     border-radius: 8px;
-    font-size: 1.1em;
+    font-size: 1.2em;  /* 字體大一點 */
     transition: border-color 0.3s;
+    height: 50px;  /* 增加高度讓按鈕更大 */
 }
 
 input[type="number"]:focus {
     outline: none;
     border-color: #0077b6;
 }
+
 
 /* Select 下拉選單樣式 */
 select {
@@ -1479,20 +1482,7 @@ body.dark-mode .history-empty {
 }
 
 /* 數字輸入框的增減按鈕加大 */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
 
-input[type="number"] {
-    -moz-appearance: textfield;
-    padding: 12px;
-    border: 3px solid #caf0f8;
-    border-radius: 8px;
-    font-size: 1.1em;
-    transition: border-color 0.3s;
-}
 
 /* 自定義增減按鈕 */
 .input-group {
@@ -1502,41 +1492,15 @@ input[type="number"] {
     position: relative;
 }
 
-.input-with-buttons {
-    position: relative;
-    display: flex;
-}
 
 .input-with-buttons input {
     flex: 1;
     padding-right: 50px;  /* ✅ 為按鈕留空間 */
 }
 
-.input-stepper {
-    position: absolute;
-    right: 3px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
 
-.stepper-btn {
-    width: 40px;  /* ✅ 加大按鈕 */
-    height: 20px;
-    background: #0077b6;
-    border: none;
-    color: white;
-    font-size: 16px;  /* ✅ 加大圖標 */
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.2s;
-    user-select: none;
-}
+
+
 
 .stepper-btn:first-child {
     border-radius: 4px 4px 0 0;

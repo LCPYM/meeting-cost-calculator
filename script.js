@@ -1275,32 +1275,6 @@ document.getElementById('template-name-input').addEventListener('keypress', (e) 
     }
 });
 
-// ========== 數字輸入框增減按鈕 ==========
-function incrementValue(id) {
-    const input = document.getElementById(id);
-    const step = parseFloat(input.step) || 1;
-    const max = parseFloat(input.max);
-    const current = parseFloat(input.value) || 0;
-    const newValue = current + step;
-    
-    if (!max || newValue <= max) {
-        input.value = newValue;
-        calculateEstimate();
-    }
-}
-
-function decrementValue(id) {
-    const input = document.getElementById(id);
-    const step = parseFloat(input.step) || 1;
-    const min = parseFloat(input.min) || 0;
-    const current = parseFloat(input.value) || 0;
-    const newValue = current - step;
-    
-    if (newValue >= min) {
-        input.value = newValue;
-        calculateEstimate();
-    }
-}
 
 // 初始化
 loadSettings();
