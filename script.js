@@ -232,9 +232,13 @@ function calculateEstimate() {
 function startTimer() {
     document.querySelector('.input-section').style.display = 'none';
     document.querySelector('.estimate-section').style.display = 'none';
+    document.querySelector('.budget-section').style.display = 'none';
+    document.querySelector('.template-section').style.display = 'none';
     startButton.style.display = 'none';
-    document.querySelector('.support-section').style.display = 'none';
     
+    document.querySelector('.support-section').style.display = 'none';
+    document.getElementById('history-section').style.display = 'none';
+
     timerSection.classList.add('active');
     pauseButton.style.display = 'flex';
     
@@ -354,6 +358,7 @@ function stopTimer() {
     pauseButton.style.display = 'none';
     document.getElementById('share-actions').style.display = 'flex';
     document.getElementById('reset-button').style.display = 'block';
+    document.querySelector('.support-section').style.display = 'block';
     
     // 儲存會議記錄
     saveMeetingRecord();
@@ -727,24 +732,63 @@ copyLinkButton.addEventListener('click', copyShareLink);
 const exportCsvButton = document.getElementById('export-csv-button');
 
 function exportToCSV() {
-    const attendees = attendeesInput.value;
-    const hourlyRate = hourlyRateInput.value;
-    const currency = currentCurrency;
-    const symbol = currencySymbols[currency];
-    const duration = elapsedTimeEl.textContent;
-    const finalCost = liveCostEl.textContent.replace(symbol, '').replace('HK', '').replace(/[^\d.]/g, '');
-    
-    const [minutes, seconds] = duration.split(':').map(Number);
-    const totalMinutes = (minutes + seconds / 60).toFixed(2);
-    
     const now = new Date();
     const dateStr = now.toLocaleDateString('en-CA');
-    const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
     
-    const csvContent = [
-        ['Date', 'Time', 'Duration (min)', 'Attendees', 'Hourly Rate', 'Currency', 'Total Cost'],
-        [dateStr, timeStr, totalMinutes, attendees, hourlyRate, currency, finalCost]
-    ].map(row => row.join(',')).join('\n');
+    if (meetingHistory.length === 0) {
+        // 如果沒有歷史記錄，只匯出當前會議
+        const attendees = attendeesInput.value;
+        const hourlyRate = hourlyRateInput.value;
+        const currency = currentCurrency;
+        const symbol = currencySymbols[currency];
+        const duration = elapsedTimeEl.textContent;
+        const finalCost = liveCostEl.textContent.replace(symbol, '').replace('HK', '').replace(/[^\d.]/g, '');
+        
+        const [minutes, seconds] = duration.split(':').map(Number);
+        const totalMinutes = (minutes + seconds / 60).toFixed(2);
+        
+        const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
+        
+        const csvContent = [
+            ['Date', 'Time', 'Duration (min)', 'Attendees', 'Hourly Rate', 'Currency', 'Total Cost'],
+            [dateStr, timeStr, totalMinutes, attendees, hourlyRate, currency, finalCost]
+        ].map(row => row.join(',')).join('\n');
+        
+        const BOM = '\uFEFF';
+        const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+        
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `meeting-report-${dateStr}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
+        showToast(currentLang === 'zh' ? '✓ CSV已下載！' : '✓ CSV downloaded!');
+        return;
+    }
+    
+    // 匯出完整歷史記錄
+    const header = ['Date', 'Time', 'Duration (min)', 'Attendees', 'Hourly Rate', 'Currency', 'Total Cost'];
+    const rows = meetingHistory.map(record => {
+        const date = new Date(record.date);
+        const dateStr = date.toLocaleDateString('en-CA');
+        const timeStr = date.toLocaleTimeString('en-GB', { hour12: false });
+        return [
+            dateStr,
+            timeStr,
+            record.duration,
+            record.attendees,
+            record.hourlyRate,
+            record.currency,
+            record.cost.toFixed(2)
+        ];
+    });
+    
+    const csvContent = [header, ...rows].map(row => row.join(',')).join('\n');
     
     const BOM = '\uFEFF';
     const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -752,14 +796,14 @@ function exportToCSV() {
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
     link.setAttribute('href', url);
-    link.setAttribute('download', `meeting-report-${dateStr}.csv`);
+    link.setAttribute('download', `meeting-history-${dateStr}.csv`);
     link.style.visibility = 'hidden';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
     
-    showToast(currentLang === 'zh' ? '✓ CSV已下載！' : '✓ CSV downloaded!');
+    showToast(currentLang === 'zh' ? `✓ 已匯出 ${meetingHistory.length} 筆記錄！` : `✓ Exported ${meetingHistory.length} records!`);
 }
 
 exportCsvButton.addEventListener('click', exportToCSV);
@@ -1230,6 +1274,33 @@ document.getElementById('template-name-input').addEventListener('keypress', (e) 
         document.getElementById('template-save-confirm').click();
     }
 });
+
+// ========== 數字輸入框增減按鈕 ==========
+function incrementValue(id) {
+    const input = document.getElementById(id);
+    const step = parseFloat(input.step) || 1;
+    const max = parseFloat(input.max);
+    const current = parseFloat(input.value) || 0;
+    const newValue = current + step;
+    
+    if (!max || newValue <= max) {
+        input.value = newValue;
+        calculateEstimate();
+    }
+}
+
+function decrementValue(id) {
+    const input = document.getElementById(id);
+    const step = parseFloat(input.step) || 1;
+    const min = parseFloat(input.min) || 0;
+    const current = parseFloat(input.value) || 0;
+    const newValue = current - step;
+    
+    if (newValue >= min) {
+        input.value = newValue;
+        calculateEstimate();
+    }
+}
 
 // 初始化
 loadSettings();

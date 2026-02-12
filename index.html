@@ -26,21 +26,40 @@
         </header>
 
         <!-- 輸入區 -->
-        <div class="input-section">
-            <div class="input-group">
-                <label for="attendees" data-i18n="label-attendees">Number of Attendees</label>
-                <input type="number" id="attendees" value="5" min="1" max="100">
+        <!-- 修改後（✅ 所有數字輸入框都這樣改） -->
+    <div class="input-group">
+        <label for="attendees" data-i18n="label-attendees">Number of Attendees</label>
+        <div class="input-with-buttons">
+            <input type="number" id="attendees" value="5" min="1" max="100">
+            <div class="input-stepper">
+                <button class="stepper-btn" onclick="incrementValue('attendees')">▲</button>
+                <button class="stepper-btn" onclick="decrementValue('attendees')">▼</button>
             </div>
+        </div>
+    </div>
 
-            <div class="input-group">
-                <label for="hourly-rate" data-i18n="label-hourly-rate">Average Hourly Rate</label>
-                <input type="number" id="hourly-rate" value="200" min="0" step="10">
+    <!-- 同樣修改 hourly-rate 和 duration -->
+    <div class="input-group">
+        <label for="hourly-rate" data-i18n="label-hourly-rate">Average Hourly Rate</label>
+        <div class="input-with-buttons">
+            <input type="number" id="hourly-rate" value="200" min="0" step="10">
+            <div class="input-stepper">
+                <button class="stepper-btn" onclick="incrementValue('hourly-rate')">▲</button>
+                <button class="stepper-btn" onclick="decrementValue('hourly-rate')">▼</button>
             </div>
+        </div>
+    </div>
 
-            <div class="input-group">
-                <label for="duration" data-i18n="label-duration">Estimated Duration (minutes)</label>
-                <input type="number" id="duration" value="60" min="1" max="480">
+    <div class="input-group">
+        <label for="duration" data-i18n="label-duration">Estimated Duration (minutes)</label>
+        <div class="input-with-buttons">
+            <input type="number" id="duration" value="60" min="1" max="480">
+            <div class="input-stepper">
+                <button class="stepper-btn" onclick="incrementValue('duration')">▲</button>
+                <button class="stepper-btn" onclick="decrementValue('duration')">▼</button>
             </div>
+        </div>
+    </div>
 
             <!-- 貨幣選擇 -->
             <div class="input-group">
