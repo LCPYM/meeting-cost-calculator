@@ -241,8 +241,6 @@ function startTimer() {
     timerSection.classList.add('active');
     pauseButton.style.display = 'flex';
     
-    updateMeetingInfo();
-    
     startTime = Date.now();
     elapsedSeconds = 0;
     pausedTime = 0;
@@ -1275,12 +1273,11 @@ document.getElementById('template-name-input').addEventListener('keypress', (e) 
     }
 });
 
-
-// 初始化
+// ========== 初始化 ==========
 loadSettings();
 loadFromURL();
 switchLanguage('en');
 calculateEstimate();
 updateCurrencyLabel();
-renderTemplates(); 
+renderTemplates();
 renderHistory();
