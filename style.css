@@ -1379,7 +1379,7 @@ body.fullscreen-mode .budget-info {
 /* Exit 按鈕（會議進行中）- 與 Pause/End 按鈕對齊 */
 body.fullscreen-mode.meeting-active .fullscreen-button {
     position: static;
-    width: 30vw;
+    width: calc(30vw * 0.9);
     padding: 1.2vh 3vw;
     font-size: 1.3vw;
     margin: 2vh auto 1vh;
@@ -1393,7 +1393,7 @@ body.fullscreen-mode.meeting-active .timer-actions {
     gap: 1.5vw;
     margin-top: 1.5vh;
     position: static;
-    width: 30vw;
+    width: calc(30vw * 0.9);
 }
 
 body.fullscreen-mode .pause-button,
@@ -1426,7 +1426,7 @@ body.fullscreen-mode.meeting-ended .timer-display {
 /* Exit 按鈕（會議結束）- 與四大功能鍵對齊 */
 body.fullscreen-mode.meeting-ended .fullscreen-button {
     position: static;
-    width: 33vw;
+    width: calc(33vw * 0.9);
     margin: 2vh auto 2vh;
     font-size: 1.4vw;
     padding: 1.3vh 3vw;
@@ -1437,7 +1437,7 @@ body.fullscreen-mode.meeting-ended .share-actions {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr);
     gap: 1.2vw;
-    width: 33vw;
+    width: calc(33vw * 0.9);
     margin: 0 auto 1.5vh;
 }
 
@@ -1449,7 +1449,7 @@ body.fullscreen-mode.meeting-ended .share-actions button {
 
 body.fullscreen-mode.meeting-ended .reset-button {
     display: block !important;
-    width: 33vw;
+    width: calc(33vw * 0.9);
     margin: 1.5vh auto;
     font-size: 1.6vw;
     padding: 1.5vh;
@@ -1477,7 +1477,7 @@ body.fullscreen-mode.meeting-ended .bmc-icon {
 /* 響應式調整 - 小螢幕 */
 @media (max-height: 800px) {
     body.fullscreen-mode .live-cost {
-        font-size: 5.5vw;
+        font-size: calc(5.5vw* 0.9);
     }
     
     body.fullscreen-mode .elapsed-time {
@@ -1587,5 +1587,43 @@ body.dark-mode .qr-modal-url {
 .qr-modal-close:hover {
     background: var(--primary-dark);
     transform: translateY(-2px);
+}
+
+/* ==================== 全屏超支時背景變紅 ==================== */
+
+body.fullscreen-mode.budget-exceeded {
+    background: linear-gradient(135deg, #ef476f 0%, #e63946 100%) !important;
+}
+
+body.fullscreen-mode.budget-exceeded .container {
+    background: linear-gradient(135deg, #ef476f 0%, #e63946 100%) !important;
+}
+
+body.fullscreen-mode.budget-exceeded .timer-display {
+    background: transparent !important;
+}
+
+/* 超支時文字保持白色清晰 */
+body.fullscreen-mode.budget-exceeded .timer-label,
+body.fullscreen-mode.budget-exceeded .live-cost,
+body.fullscreen-mode.budget-exceeded .elapsed-time {
+    color: white !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+
+/* ==================== 全局縮小輸入界面 ==================== */
+
+/* 縮小 90%（可調整 0.85-0.95 之間）*/
+.container {
+    transform: scale(0.9);
+    transform-origin: top center;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+/* 修正縮放後的間距 */
+body {
+    padding: 10px;
 }
 

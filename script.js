@@ -333,6 +333,17 @@ function updateTimer() {
     
     liveCostEl.textContent = `${symbol}${currentCost.toFixed(2)}`;
     
+    // 檢查預算超支（添加背景顏色變化）
+    const budgetEnabled = document.getElementById('budget-enabled').checked;
+    const budgetTarget = parseFloat(document.getElementById('budget-target').value) || 0;
+    
+    if (budgetEnabled && budgetTarget > 0 && currentCost > budgetTarget) {
+        document.body.classList.add('budget-exceeded');
+    } else {
+        document.body.classList.remove('budget-exceeded');
+    }
+    
+
     // 更新預算進度
     if (typeof updateBudgetProgress === 'function') {
         updateBudgetProgress(currentCost);
