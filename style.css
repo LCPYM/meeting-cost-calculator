@@ -1991,12 +1991,6 @@ body.fullscreen-mode.theme-green:not(.dark-mode) .budget-info {
     color: #344e41 !important;
 }
 
-/* 移除可能導致淺色覆蓋的半透明層 */
-body.fullscreen-mode.budget-exceeded::before,
-body.fullscreen-mode.budget-exceeded::after {
-    display: none !important;
-}
-
 /* 確保背景保持正常（不變淺）*/
 body.fullscreen-mode:not(.dark-mode) .container {
     opacity: 1 !important;
