@@ -1074,6 +1074,16 @@ footer p {
     align-items: center;
     gap: 10px;
     animation: slideDown 0.5s ease;
+    cursor: pointer; 
+    transition: transform 0.2s ease;
+}
+
+.budget-exceeded-banner:hover {
+    transform: translateX(-50%) scale(1.05); 
+}
+
+.budget-exceeded-banner:active {
+    transform: translateX(-50%) scale(0.95);
 }
 
 .budget-icon {
@@ -1589,28 +1599,6 @@ body.dark-mode .qr-modal-url {
     transform: translateY(-2px);
 }
 
-/* ==================== 全屏超支時背景變紅 ==================== */
-
-body.fullscreen-mode.budget-exceeded {
-    background: linear-gradient(135deg, #ef476f 0%, #e63946 100%) !important;
-}
-
-body.fullscreen-mode.budget-exceeded .container {
-    background: linear-gradient(135deg, #ef476f 0%, #e63946 100%) !important;
-}
-
-body.fullscreen-mode.budget-exceeded .timer-display {
-    background: transparent !important;
-}
-
-/* 超支時文字保持白色清晰 */
-body.fullscreen-mode.budget-exceeded .timer-label,
-body.fullscreen-mode.budget-exceeded .live-cost,
-body.fullscreen-mode.budget-exceeded .elapsed-time {
-    color: white !important;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.5);
-}
-
 
 /* ==================== 全局縮小輸入界面 ==================== */
 
@@ -1627,3 +1615,78 @@ body {
     padding: 7px;
 }
 
+/* ==================== 全屏超支時：邊框警告（不刺眼但醒目）==================== */
+
+/* 移除全紅背景，改用粗邊框 */
+body.fullscreen-mode.budget-exceeded {
+    background: var(--card-bg) !important;  /* 保持原背景 */
+}
+
+body.fullscreen-mode.budget-exceeded .container {
+    background: var(--card-bg) !important;
+    border: 8px solid var(--danger-color);  /* 粗紅邊框 */
+    box-shadow: 
+        inset 0 0 50px rgba(239, 71, 111, 0.2),  /* 內發光 */
+        0 0 60px rgba(239, 71, 111, 0.4);  /* 外發光 */
+    animation: borderPulse 2s ease-in-out infinite;  /* 脈衝動畫 */
+}
+
+/* 邊框脈衝動畫 */
+@keyframes borderPulse {
+    0%, 100% { 
+        border-color: var(--danger-color);
+        box-shadow: 
+            inset 0 0 50px rgba(239, 71, 111, 0.2),
+            0 0 60px rgba(239, 71, 111, 0.4);
+    }
+    50% { 
+        border-color: #ff6b8a;
+        box-shadow: 
+            inset 0 0 80px rgba(239, 71, 111, 0.3),
+            0 0 100px rgba(239, 71, 111, 0.6);
+    }
+}
+
+/* 成本數字變成醒目的橙紅色 */
+body.fullscreen-mode.budget-exceeded .live-cost {
+    color: var(--danger-color) !important;
+    text-shadow: 
+        0 0 20px rgba(239, 71, 111, 0.6),
+        2px 2px 8px rgba(0, 0, 0, 0.3);
+    animation: costBlink 1.5s ease-in-out infinite;
+}
+
+/* 成本數字閃爍（輕微）*/
+@keyframes costBlink {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.03); }
+}
+
+/* 添加大警告圖標 */
+body.fullscreen-mode.budget-exceeded .timer-status::before {
+    content: '⚠️';
+    font-size: 3vw;
+    margin-right: 1vw;
+    animation: warningShake 0.5s ease-in-out infinite;
+}
+
+@keyframes warningShake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+
+/* 預算進度條變紅並加粗 */
+body.fullscreen-mode.budget-exceeded .budget-progress {
+    height: 12px;  /* 加粗 */
+    border: 2px solid var(--danger-color);
+}
+
+body.fullscreen-mode.budget-exceeded .budget-progress-bar {
+    background: var(--danger-color) !important;
+}
+
+/* 時間也變成淡紅色提示 */
+body.fullscreen-mode.budget-exceeded .elapsed-time {
+    color: #ff8fa3;
+}

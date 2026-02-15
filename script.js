@@ -1280,6 +1280,16 @@ qrModal.addEventListener('click', (e) => {
     }
 });
 
+// Budget Exceeded 橫幅點擊關閉功能
+document.addEventListener('click', (e) => {
+    if (e.target.closest('.budget-exceeded-banner')) {
+        const banner = e.target.closest('.budget-exceeded-banner');
+        banner.style.animation = 'slideUp 0.3s ease';
+        setTimeout(() => banner.remove(), 300);
+    }
+});
+
+
 // 初始化
 loadSettings();
 loadFromURL();
