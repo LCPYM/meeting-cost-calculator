@@ -310,17 +310,102 @@ select:focus {
     margin-bottom: 20px;
 }
 
-.input-group {
+/* 確保每個 input-group 高度一致 */
+.inputs-container .input-group {
     display: flex;
     flex-direction: column;
-    margin-bottom: 0;  /* 移除原本的 margin */
+    min-height: 74px;  /* label(22px) + gap(8px) + input(44px) */
 }
 
-/* 響應式：手機上恢復單列 */
+/* 響應式 */
 @media (max-width: 768px) {
     .inputs-container {
         grid-template-columns: 1fr;
+        gap: 15px;
     }
+}
+
+/* ==================== 統一 Input Box 尺寸 ==================== */
+
+input[type="number"],
+select {
+    padding: 10px;
+    border: 2px solid var(--border-color);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: var(--transition);
+    background: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Euphemia UCAS', 'Noto Sans TC', sans-serif;
+    
+    /* 統一高度 */
+    height: 44px;
+    min-height: 44px;
+    
+    /* 統一寬度 */
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* 移除 number input 的箭頭（可選，更整潔）*/
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type="number"] {
+    -moz-appearance: textfield;
+}
+
+/* Select 下拉箭頭位置調整 */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 20px;
+    padding-right: 40px;
+}
+
+/* Focus 狀態 */
+input[type="number"]:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
+}
+
+/* Dark Mode 適配 */
+body.dark-mode input[type="number"],
+body.dark-mode select {
+    background: rgba(0, 119, 182, 0.2);
+    border-color: var(--primary-light);
+    color: var(--accent-color);
+}
+
+body.dark-mode input[type="number"]:focus,
+body.dark-mode select:focus {
+    background: rgba(0, 119, 182, 0.3);
+    border-color: var(--secondary-color);
+}
+
+/* 確保 label 和 input 對齊 */
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;
+}
+
+label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-size: 0.95rem;
+    min-height: 22px;  /* 統一 label 高度 */
 }
 
 /* ==================== 模板區域 ==================== */
@@ -1369,6 +1454,40 @@ body.fullscreen-mode .timer-display {
     flex: none;
 }
 
+/* ==================== Bright Mode 全屏 Timer 深色 ==================== */
+
+/* 非 Dark Mode 時，全屏 Timer 數字使用深色 */
+body.fullscreen-mode:not(.dark-mode) .timer-label,
+body.fullscreen-mode:not(.dark-mode) .live-cost,
+body.fullscreen-mode:not(.dark-mode) .elapsed-time {
+    color: var(--primary-dark) !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Ocean Blue - 深藍色 */
+body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .live-cost,
+body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .elapsed-time {
+    color: #03045e !important;
+}
+
+/* Purple Dream - 深紫色 */
+body.fullscreen-mode.theme-purple:not(.dark-mode) .live-cost,
+body.fullscreen-mode.theme-purple:not(.dark-mode) .elapsed-time {
+    color: #240046 !important;
+}
+
+/* Nature Green - 深綠色 */
+body.fullscreen-mode.theme-green:not(.dark-mode) .live-cost,
+body.fullscreen-mode.theme-green:not(.dark-mode) .elapsed-time {
+    color: #344e41 !important;
+}
+
+/* 超支時保持紅色 */
+body.fullscreen-mode.budget-exceeded .live-cost {
+    color: var(--danger-color) !important;
+}
+
+
 body.fullscreen-mode .timer-display::before {
     display: none;
 }
@@ -1626,7 +1745,7 @@ body.dark-mode .qr-modal-url {
 
 /* 縮小 90%（可調整 0.85-0.95 之間）*/
 .container {
-    transform: scale(0.85);
+    transform: scale(0.9);
     transform-origin: top center;
     margin-top: 0;
     margin-bottom: 0;
