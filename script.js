@@ -21,7 +21,7 @@ const translations = {
         'btn-copy-link': '複製分享連結',
         'btn-qr-code': '顯示 QR Code',
         'btn-reset': '新會議',
-        'bmc-text': '請我喝咖啡',
+        'bmc-text': '好用？請我喝杯咖啡吧',
         'footer-tip': '💡 小提示：減少會議時間或人數可顯著節省成本',
         'shortcuts': '快捷鍵：空白鍵 = 開始/暫停 | Esc = 重置 | F = 全螢幕',
         'minutes': '分鐘',
