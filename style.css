@@ -301,6 +301,28 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
 }
 
+/* ==================== 輸入區域 2x2 佈局 ==================== */
+
+.inputs-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0;  /* 移除原本的 margin */
+}
+
+/* 響應式：手機上恢復單列 */
+@media (max-width: 768px) {
+    .inputs-container {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ==================== 模板區域 ==================== */
 
 .template-section {
@@ -1286,9 +1308,9 @@ body.fullscreen-mode .reset-button {
         max-width: 100%;
     }
 }
-/* Target Budget 輸入框在 Dark Mode 文字為白色 */
+/* Target Budget 輸入框在 Dark Mode 文字為黑色 */
 body.dark-mode .budget-input-group input {
-    color: #ffffff;
+    color: #000000;
 }
 
 /* ==================== 全螢幕模式（完整修正版）==================== */

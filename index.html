@@ -76,32 +76,35 @@
         </div>
 
         <!-- 輸入區域 -->
-        <div class="input-group">
-            <label for="attendees" data-i18n="label-attendees">Number of Attendees</label>
-            <input type="number" id="attendees" value="5" min="1" max="100">
+        <div class="inputs-container">
+            <div class="input-group">
+                <label for="attendees" data-i18n="label-attendees">參與人數</label>
+                <input type="number" id="attendees" min="1" value="5">
+            </div>
+
+            <div class="input-group">
+                <label for="hourly-rate" data-i18n="label-hourly-rate">平均時薪 (HKD)</label>
+                <input type="number" id="hourly-rate" min="0" step="0.01" value="200">
+            </div>
+
+            <div class="input-group">
+                <label for="duration" data-i18n="label-duration">預估時長（分鐘）</label>
+                <input type="number" id="duration" min="1" value="60">
+            </div>
+
+            <div class="input-group">
+                <label for="currency" data-i18n="label-currency">貨幣</label>
+                <select id="currency">
+                    <option value="HKD">HKD ($)</option>
+                    <option value="USD">USD ($)</option>
+                    <option value="EUR">EUR (€)</option>
+                    <option value="GBP">GBP (£)</option>
+                    <option value="CNY">CNY (¥)</option>
+                    <option value="JPY">JPY (¥)</option>
+                </select>
+            </div>
         </div>
 
-        <div class="input-group">
-            <label for="hourly-rate" data-i18n="label-hourly-rate">Average Hourly Rate</label>
-            <input type="number" id="hourly-rate" value="200" min="0" step="10">
-        </div>
-
-        <div class="input-group">
-            <label for="duration" data-i18n="label-duration">Estimated Duration (minutes)</label>
-            <input type="number" id="duration" value="60" min="1" max="480">
-        </div>
-
-        <div class="input-group">
-            <label for="currency" data-i18n="label-currency">Currency</label>
-            <select id="currency">
-                <option value="HKD">HKD ($)</option>
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
-                <option value="CNY">CNY (¥)</option>
-                <option value="JPY">JPY (¥)</option>
-            </select>
-        </div>
 
         <!-- 預算設定 -->
         <div class="budget-section">

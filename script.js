@@ -904,37 +904,40 @@ copyLinkButton.addEventListener('click', copyShareLink);
 const exportCsvButton = document.getElementById('export-csv-button');
 
 function exportToCSV() {
-    const now = new Date();
-    const dateStr = now.toLocaleDateString('en-CA');
-    const timeStr = now.toLocaleTimeString('en-GB', { hour12: false });
+    const exportOptions = currentLang === 'zh'
+        ? ['匯出所有記錄', '僅匯出本次會議']
+        : ['Export All Records', 'Export Current Meeting Only'];
     
-    const attendees = attendeesInput.value;
-    const hourlyRate = hourlyRateInput.value;
-    const currency = currentCurrency;
-    const symbol = currencySymbols[currency];
-    const duration = elapsedTimeEl.textContent;
-    const finalCost = liveCostEl.textContent.replace(symbol, '').replace('HK', '').replace(/,/g, '');
+    // 簡化版：直接導出所有記錄
+    const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
     
-    const [minutes, seconds] = duration.split(':').map(Number);
-    const totalMinutes = (minutes + seconds / 60).toFixed(2);
+    if (history.length === 0) {
+        showToast(currentLang === 'zh' ? '沒有會議記錄' : 'No records found');
+        return;
+    }
     
-    const header = 'Date,Time,Duration (min),Attendees,Hourly Rate,Currency,Total Cost';
-    const row = `${dateStr},${timeStr},${totalMinutes},${attendees},${hourlyRate},${currency},${finalCost}`;
-    const csvContent = `${header}\n${row}`;
+    // 表頭
+    const headers = currentLang === 'zh' 
+        ? ['日期', '人數', '時薪', '貨幣', '時長(分)', '成本']
+        : ['Date', 'People', 'Rate', 'Currency', 'Duration(min)', 'Cost'];
     
-    const BOM = '\uFEFF';
-    const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8' });
-    const link = document.createElement('a');
+    let csv = '\uFEFF' + headers.join(',') + '\n';  // 添加 BOM 支持中文
+    
+    history.forEach(r => {
+        csv += `"${r.date}",${r.attendees},${r.hourlyRate},${r.currency},${r.duration},${r.cost.toFixed(2)}\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `meeting-report-${dateStr}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `meetings-${Date.now()}.csv`;
+    a.click();
     URL.revokeObjectURL(url);
     
-    showToast(currentLang === 'zh' ? 'CSV 已匯出！' : 'CSV downloaded!');
+    showToast(currentLang === 'zh' 
+        ? `已匯出 ${history.length} 筆記錄` 
+        : `${history.length} records exported`);
 }
 
 exportCsvButton.addEventListener('click', exportToCSV);
