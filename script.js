@@ -645,22 +645,22 @@ function adjustFullscreenSize() {
     
     console.log(`🖥️ 螢幕解析率: ${screenWidth}x${screenHeight}`);
     
-    // 根據螢幕大小動態調整
+    // 根據螢幕大小動態調整（調小版本）
     if (screenWidth >= 3840) { // 4K
-        document.documentElement.style.setProperty('--fullscreen-cost-size', '24rem');
-        document.documentElement.style.setProperty('--fullscreen-time-size', '12rem');
+        document.documentElement.style.setProperty('--fullscreen-cost-size', '16rem');
+        document.documentElement.style.setProperty('--fullscreen-time-size', '8rem');
         console.log('📺 4K 模式');
     } else if (screenWidth >= 2560) { // 2K
-        document.documentElement.style.setProperty('--fullscreen-cost-size', '18rem');
-        document.documentElement.style.setProperty('--fullscreen-time-size', '9rem');
+        document.documentElement.style.setProperty('--fullscreen-cost-size', '12rem');
+        document.documentElement.style.setProperty('--fullscreen-time-size', '6rem');
         console.log('📺 2K 模式');
     } else if (screenWidth >= 1920) { // Full HD
-        document.documentElement.style.setProperty('--fullscreen-cost-size', '14rem');
-        document.documentElement.style.setProperty('--fullscreen-time-size', '7rem');
-        console.log('📺 Full HD 模式');
-    } else { // HD 或更小
         document.documentElement.style.setProperty('--fullscreen-cost-size', '10rem');
         document.documentElement.style.setProperty('--fullscreen-time-size', '5rem');
+        console.log('📺 Full HD 模式');
+    } else { // HD 或更小
+        document.documentElement.style.setProperty('--fullscreen-cost-size', '7rem');
+        document.documentElement.style.setProperty('--fullscreen-time-size', '3.5rem');
         console.log('📺 HD 模式');
     }
 }
