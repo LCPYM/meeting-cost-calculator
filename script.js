@@ -904,11 +904,6 @@ copyLinkButton.addEventListener('click', copyShareLink);
 const exportCsvButton = document.getElementById('export-csv-button');
 
 function exportToCSV() {
-    const exportOptions = currentLang === 'zh'
-        ? ['匯出所有記錄', '僅匯出本次會議']
-        : ['Export All Records', 'Export Current Meeting Only'];
-    
-    // 簡化版：直接導出所有記錄
     const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
     
     if (history.length === 0) {
@@ -916,28 +911,71 @@ function exportToCSV() {
         return;
     }
     
-    // 表頭
+    // 創建自定義彈窗
+    const modal = document.createElement('div');
+    modal.className = 'export-modal';
+    modal.innerHTML = `
+        <div class="export-modal-content">
+            <h3>${currentLang === 'zh' ? '選擇匯出範圍' : 'Choose Export Range'}</h3>
+            <p>${currentLang === 'zh' ? `找到 ${history.length} 筆會議記錄` : `Found ${history.length} meeting records`}</p>
+            <div class="export-modal-buttons">
+                <button class="export-all-btn" id="export-all-btn">
+                    📊 ${currentLang === 'zh' ? '匯出所有記錄' : 'Export All Records'}
+                </button>
+                <button class="export-current-btn" id="export-current-btn">
+                    📄 ${currentLang === 'zh' ? '僅匯出本次會議' : 'Export Current Only'}
+                </button>
+                <button class="export-cancel-btn" id="export-cancel-btn">
+                    ❌ ${currentLang === 'zh' ? '取消' : 'Cancel'}
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // 按鈕事件
+    document.getElementById('export-all-btn').addEventListener('click', () => {
+        performExport(history, `all-meetings-${Date.now()}.csv`);
+        modal.remove();
+    });
+    
+    document.getElementById('export-current-btn').addEventListener('click', () => {
+        performExport([history[history.length - 1]], `current-meeting-${Date.now()}.csv`);
+        modal.remove();
+    });
+    
+    document.getElementById('export-cancel-btn').addEventListener('click', () => {
+        modal.remove();
+    });
+    
+    // 點擊背景關閉
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+}
+
+// 執行導出的輔助函數
+function performExport(data, filename) {
     const headers = currentLang === 'zh' 
         ? ['日期', '人數', '時薪', '貨幣', '時長(分)', '成本']
-        : ['Date', 'People', 'Rate', 'Currency', 'Duration(min)', 'Cost'];
+        : ['Date', 'People', 'Rate', 'Currency', 'Duration', 'Cost'];
     
-    let csv = '\uFEFF' + headers.join(',') + '\n';  // 添加 BOM 支持中文
+    let csv = '\uFEFF' + headers.join(',') + '\n';
     
-    history.forEach(r => {
-        csv += `"${r.date}",${r.attendees},${r.hourlyRate},${r.currency},${r.duration},${r.cost.toFixed(2)}\n`;
+    data.forEach(record => {
+        csv += `"${record.date}",${record.attendees},${record.hourlyRate},${record.currency},${record.duration},${record.cost.toFixed(2)}\n`;
     });
     
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `meetings-${Date.now()}.csv`;
-    a.click();
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    link.click();
     URL.revokeObjectURL(url);
     
-    showToast(currentLang === 'zh' 
-        ? `已匯出 ${history.length} 筆記錄` 
-        : `${history.length} records exported`);
+    showToast(currentLang === 'zh' ? `已匯出 ${data.length} 筆記錄` : `Exported ${data.length} records`);
 }
 
 exportCsvButton.addEventListener('click', exportToCSV);
