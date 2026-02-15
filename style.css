@@ -25,6 +25,7 @@
         
     /* 疏密度控制變量（0.7 = 緊湊，1.0 = 正常，1.3 = 寬松）*/
     --spacing-scale: 0.7;  /* ← 調整這個值即可！ */
+    --fullscreen-spacing: 0.7;
 }
 
 /* 方案 2: Purple Dream */
@@ -1427,8 +1428,8 @@ body.fullscreen-mode .container {
 body.fullscreen-mode .budget-progress,
 body.fullscreen-mode .budget-info {
     display: block !important;
-    max-width: 35vw;
-    margin: 2vh auto;
+    max-width: calc(35vw / var(--fullscreen-spacing));
+    margin: calc(2vh * var(--fullscreen-spacing)) auto;
 }
 
 /* 隱藏不需要的元素 */
@@ -1498,7 +1499,7 @@ body.fullscreen-mode .timer-display::before {
 
 /* 狀態指示器和標籤 */
 body.fullscreen-mode .timer-status {
-    margin-bottom: 1.5vh;
+    margin-bottom: calc(1.5vh * var(--fullscreen-spacing));
 }
 
 body.fullscreen-mode .status-indicator {
@@ -1512,14 +1513,14 @@ body.fullscreen-mode .timer-label {
 
 /* 成本數字 - 縮小 */
 body.fullscreen-mode .live-cost {
-    font-size: 5.5vw;
-    margin: 1.5vh 0;
+    font-size: calc(5.5vw * var(--fullscreen-spacing) * 1.2);
+    margin: calc(1.5vh * var(--fullscreen-spacing)) 0;
 }
 
 /* 時間顯示 - 縮小 */
 body.fullscreen-mode .elapsed-time {
-    font-size: 3.2vw;
-    margin: 1vh 0 1.5vh;
+    font-size: calc(3.2vw * var(--fullscreen-spacing) * 1.2);
+    margin: calc(1vh * var(--fullscreen-spacing)) 0 calc(1.5vh * var(--fullscreen-spacing));
 }
 
 /* Budget 進度條樣式（全螢幕） */
@@ -1534,10 +1535,10 @@ body.fullscreen-mode .budget-info {
 /* Exit 按鈕（會議進行中）- 與 Pause/End 按鈕對齊 */
 body.fullscreen-mode.meeting-active .fullscreen-button {
     position: static;
-    width: calc(30vw * 0.8);
-    padding: 1.2vh 3vw;
-    font-size: 1.3vw;
-    margin: 2vh auto 1vh;
+    width: calc(35vw / var(--fullscreen-spacing));
+    padding: calc(1.2vh * var(--fullscreen-spacing)) calc(3vw * var(--fullscreen-spacing));
+    font-size: calc(1.3vw * var(--fullscreen-spacing) * 1.3);
+    margin: calc(2vh * var(--fullscreen-spacing)) auto calc(1vh * var(--fullscreen-spacing));
     z-index: 1000;
     background: rgba(0, 180, 216, 0.9);
 }
@@ -1545,16 +1546,16 @@ body.fullscreen-mode.meeting-active .fullscreen-button {
 /* 會議進行中的控制按鈕 */
 body.fullscreen-mode.meeting-active .timer-actions {
     display: flex;
-    gap: 1.5vw;
-    margin-top: 1.5vh;
+    gap: calc(1.5vw * var(--fullscreen-spacing));
+    margin-top: calc(1.5vh * var(--fullscreen-spacing));
     position: static;
-    width: calc(30vw * 0.8);
+    width: calc(35vw / var(--fullscreen-spacing));
 }
 
 body.fullscreen-mode .pause-button,
 body.fullscreen-mode .stop-button {
-    padding: 1.2vh 2.5vw;
-    font-size: 1.4vw;
+    padding: calc(1.2vh * var(--fullscreen-spacing)) calc(2.5vw * var(--fullscreen-spacing));
+    font-size: calc(1.4vw * var(--fullscreen-spacing) * 1.2);
     min-width: auto;
     flex: 1;
 }
@@ -1571,43 +1572,43 @@ body.fullscreen-mode.meeting-ended {
 
 body.fullscreen-mode.meeting-ended .container {
     justify-content: flex-start;
-    padding: 4vh 5vw;
+    padding: calc(4vh * var(--fullscreen-spacing)) calc(5vw * var(--fullscreen-spacing));
 }
 
 body.fullscreen-mode.meeting-ended .timer-display {
-    margin-bottom: 2vh;
+    margin-bottom: calc(2vh * var(--fullscreen-spacing));
 }
 
 /* Exit 按鈕（會議結束）- 與四大功能鍵對齊 */
 body.fullscreen-mode.meeting-ended .fullscreen-button {
     position: static;
-    width: calc(33vw * 0.8);
-    margin: 2vh auto 2vh;
+    width: calc(38vw / var(--fullscreen-spacing));
+    margin: calc(2vh * var(--fullscreen-spacing)) auto;
+    padding: calc(1.3vh * var(--fullscreen-spacing)) calc(3vw * var(--fullscreen-spacing));
     font-size: 1.4vw;
-    padding: 1.3vh 3vw;
 }
 
 /* 結束後顯示功能按鈕區域 - 與 Exit 對齊 */
 body.fullscreen-mode.meeting-ended .share-actions {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.2vw;
-    width: calc(33vw * 0.8);
-    margin: 0 auto 1.5vh;
+    gap: calc(1.2vw * var(--fullscreen-spacing));
+    width: calc(38vw / var(--fullscreen-spacing));
+    margin: 0 auto calc(1.5vh * var(--fullscreen-spacing));
 }
 
 body.fullscreen-mode.meeting-ended .share-actions button {
     font-size: 1.3vw;
-    padding: 1.2vh 1.8vw;
+    padding: calc(1.2vh * var(--fullscreen-spacing)) calc(1.8vw * var(--fullscreen-spacing));
     min-width: auto;
 }
 
 body.fullscreen-mode.meeting-ended .reset-button {
     display: block !important;
-    width: calc(33vw * 0.8);
-    margin: 1.5vh auto;
+    width: calc(38vw / var(--fullscreen-spacing));
+    margin: calc(1.5vh * var(--fullscreen-spacing)) auto;
+    padding: calc(1.5vh * var(--fullscreen-spacing));
     font-size: 1.6vw;
-    padding: 1.5vh;
 }
 
 /* Buy Me a Coffee 按鈕在角落 */
