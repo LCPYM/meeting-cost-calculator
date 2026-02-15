@@ -1286,20 +1286,55 @@ body.dark-mode .budget-input-group input {
 }
 
 body.fullscreen-mode .container {
-    max-width: 95vw;
-    padding: 2vh;
+    max-width: none;
+    width: 90vw;
+    min-height: auto;
+    margin: 5vh auto;
+    padding: 40px;
+    border-radius: 20px;
+    transform-origin: center center;
 }
 
 body.fullscreen-mode .timer-display {
-    padding: 60px;
+    padding: 8vh;
 }
 
 body.fullscreen-mode .live-cost {
-    font-size: 6rem;
+    font-size: 12vw;
 }
 
 body.fullscreen-mode .elapsed-time {
-    font-size: 3rem;
+    font-size: 6vw;
+}
+
+body.fullscreen-mode .timer-label {
+    font-size: 2.5vw;
+}
+
+body.fullscreen-mode .meeting-info {
+    font-size: 2vw;
+}
+
+body.fullscreen-mode .fullscreen-button {
+    font-size: 2vw;
+    padding: 2vh;
+}
+
+body.fullscreen-mode .timer-actions button {
+    font-size: 2.5vw;
+    padding: 2.5vh;
+}
+
+body.fullscreen-mode .share-actions button {
+    font-size: 1.8vw;
+    padding: 2vh;
+}
+
+body.fullscreen-mode .reset-button {
+    font-size: 2.5vw;
+    padding: 2.5vh;
+    margin-top: 5vh;
+    margin-bottom: 5vh;
 }
 
 body.fullscreen-mode .status-indicator {

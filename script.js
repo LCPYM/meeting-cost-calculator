@@ -638,33 +638,6 @@ const exitHint = document.createElement('div');
 exitHint.className = 'exit-fullscreen-hint';
 document.body.appendChild(exitHint);
 
-// 根據螢幕解析率調整全螢幕大小
-function adjustFullscreenSize() {
-    const screenWidth = window.screen.width;
-    const screenHeight = window.screen.height;
-    
-    console.log(`🖥️ 螢幕解析率: ${screenWidth}x${screenHeight}`);
-    
-    // 根據螢幕大小動態調整（調小版本）
-    if (screenWidth >= 3840) { // 4K
-        document.documentElement.style.setProperty('--fullscreen-cost-size', '16rem');
-        document.documentElement.style.setProperty('--fullscreen-time-size', '8rem');
-        console.log('📺 4K 模式');
-    } else if (screenWidth >= 2560) { // 2K
-        document.documentElement.style.setProperty('--fullscreen-cost-size', '12rem');
-        document.documentElement.style.setProperty('--fullscreen-time-size', '6rem');
-        console.log('📺 2K 模式');
-    } else if (screenWidth >= 1920) { // Full HD
-        document.documentElement.style.setProperty('--fullscreen-cost-size', '10rem');
-        document.documentElement.style.setProperty('--fullscreen-time-size', '5rem');
-        console.log('📺 Full HD 模式');
-    } else { // HD 或更小
-        document.documentElement.style.setProperty('--fullscreen-cost-size', '7rem');
-        document.documentElement.style.setProperty('--fullscreen-time-size', '3.5rem');
-        console.log('📺 HD 模式');
-    }
-}
-
 function toggleFullscreen() {
     if (!isFullscreen) {
         if (document.documentElement.requestFullscreen) {
@@ -672,12 +645,27 @@ function toggleFullscreen() {
         } else if (document.documentElement.webkitRequestFullscreen) {
             document.documentElement.webkitRequestFullscreen();
         }
+        
+        // 動態計算放大比例
+        const screenHeight = window.screen.height;
+        const screenWidth = window.screen.width;
+        
+        // 根據螢幕高度調整容器
+        const container = document.querySelector('.container');
+        if (screenHeight >= 1440) {
+            // 2K 或 4K 螢幕
+            container.style.transform = 'scale(1.5)';
+        } else if (screenHeight >= 1080) {
+            // Full HD
+            container.style.transform = 'scale(1.3)';
+        } else {
+            // 一般螢幕
+            container.style.transform = 'scale(1.1)';
+        }
+        
         document.body.classList.add('fullscreen-mode');
         isFullscreen = true;
         
-        // 根據螢幕解析率調整大小
-        adjustFullscreenSize();
-    
         exitHint.textContent = translations[currentLang]['exit-fullscreen-hint'];
         exitHint.classList.add('show');
         setTimeout(() => exitHint.classList.remove('show'), 3000);
@@ -689,6 +677,11 @@ function toggleFullscreen() {
         } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
         }
+        
+        // 重置 transform
+        const container = document.querySelector('.container');
+        container.style.transform = 'none';
+        
         document.body.classList.remove('fullscreen-mode');
         isFullscreen = false;
         
@@ -696,8 +689,11 @@ function toggleFullscreen() {
     }
 }
 
+
 document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
+        const container = document.querySelector('.container');
+        container.style.transform = 'none';
         document.body.classList.remove('fullscreen-mode');
         isFullscreen = false;
         fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[currentLang]['btn-fullscreen']}</span>`;
@@ -706,6 +702,8 @@ document.addEventListener('fullscreenchange', () => {
 
 document.addEventListener('webkitfullscreenchange', () => {
     if (!document.webkitFullscreenElement) {
+        const container = document.querySelector('.container');
+        container.style.transform = 'none';
         document.body.classList.remove('fullscreen-mode');
         isFullscreen = false;
         fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[currentLang]['btn-fullscreen']}</span>`;
