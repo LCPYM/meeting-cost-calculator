@@ -1091,30 +1091,6 @@ body.fullscreen-mode .container {
     border-radius: 20px;
 }
 
-body.fullscreen-mode .timer-display {
-    padding: 80px;
-    min-height: 80vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-body.fullscreen-mode .live-cost {
-    font-size: clamp(8rem, 15vw, 20rem);
-}
-
-body.fullscreen-mode .elapsed-time {
-    font-size: clamp(4rem, 8vw, 10rem);
-}
-
-body.fullscreen-mode .meeting-info {
-    font-size: clamp(1.5rem, 3vw, 3rem);
-}
-
-body.fullscreen-mode .timer-label {
-    font-size: clamp(1.5rem, 3vw, 3rem);
-}
-
 body.fullscreen-mode .reset-button {
     margin-top: 30px;
     margin-bottom: 30px;
