@@ -1203,10 +1203,17 @@ function removeBudgetExceededBanner() {
 }
 
 function updateBudgetProgress(currentCost) {
-    if (!isBudgetEnabled) return;
+    if (!isBudgetEnabled) {
+        // 移除超支狀態
+        document.body.classList.remove('budget-exceeded');
+        return;
+    }
     
     const target = parseFloat(budgetTarget.value) || 0;
-    if (target === 0) return;
+    if (target === 0) {
+        document.body.classList.remove('budget-exceeded');
+        return;
+    }
     
     const percentage = Math.min((currentCost / target) * 100, 100);
     const symbol = currencySymbols[currentCurrency];
@@ -1235,28 +1242,35 @@ function updateBudgetProgress(currentCost) {
     progressBar.style.width = `${percentage}%`;
     currentCostEl.textContent = `${symbol}${currentCost.toFixed(2)}`;
     
+    // 清除所有狀態
     progressBar.classList.remove('warning', 'exceeded');
     remainingTextEl.classList.remove('warning', 'exceeded');
     document.querySelector('.timer-display').classList.remove('budget-warning');
+    document.body.classList.remove('budget-exceeded');  // ← 新增：移除 body 的超支狀態
     
     if (currentCost >= target) {
+        // 超支狀態
         progressBar.classList.add('exceeded');
         remainingTextEl.classList.add('exceeded');
         remainingTextEl.textContent = `${translations[currentLang]['budget-over']}: ${symbol}${(currentCost - target).toFixed(2)}`;
         document.querySelector('.timer-display').classList.add('budget-warning');
+        document.body.classList.add('budget-exceeded');  // ← 新增：添加 body 的超支狀態（用於全屏紅色邊框）
         
         if (!budgetExceededShown) {
             showBudgetExceededBanner();
             budgetExceededShown = true;
         }
     } else if (percentage >= 80) {
+        // 警告狀態（80-99%）
         progressBar.classList.add('warning');
         remainingTextEl.classList.add('warning');
         remainingTextEl.textContent = `${translations[currentLang]['budget-remaining']}: ${symbol}${(target - currentCost).toFixed(2)}`;
     } else {
+        // 正常狀態
         remainingTextEl.textContent = `${translations[currentLang]['budget-remaining']}: ${symbol}${(target - currentCost).toFixed(2)}`;
     }
 }
+
 
 // QR Code 功能
 const qrButton = document.getElementById('qr-button');

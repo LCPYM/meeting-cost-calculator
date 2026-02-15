@@ -1991,4 +1991,40 @@ body.fullscreen-mode.theme-green:not(.dark-mode) .budget-info {
     color: #344e41 !important;
 }
 
+/* 移除可能導致淺色覆蓋的半透明層 */
+body.fullscreen-mode.budget-exceeded::before,
+body.fullscreen-mode.budget-exceeded::after {
+    display: none !important;
+}
 
+/* 確保背景保持正常（不變淺）*/
+body.fullscreen-mode:not(.dark-mode) .container {
+    opacity: 1 !important;
+    filter: none !important;
+}
+
+/* Ocean Blue 背景保持清晰 */
+body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .container {
+    background: linear-gradient(135deg, #caf0f8 0%, #90e0ef 100%) !important;
+}
+
+/* Purple Dream 背景保持清晰 */
+body.fullscreen-mode.theme-purple:not(.dark-mode) .container {
+    background: linear-gradient(135deg, #e0aaff 0%, #c77dff 100%) !important;
+}
+
+/* Nature Green 背景保持清晰 */
+body.fullscreen-mode.theme-green:not(.dark-mode) .container {
+    background: linear-gradient(135deg, #dad7cd 0%, #a3b18a 100%) !important;
+}
+
+/* 只有真正超支的數字才變紅（不影響 "Over:" 文字）*/
+body.fullscreen-mode.budget-exceeded .budget-remaining.exceeded {
+    color: var(--danger-color) !important;
+}
+
+/* Budget Used 和剩餘金額默認使用主題深色 */
+body.fullscreen-mode:not(.dark-mode) .budget-current,
+body.fullscreen-mode:not(.dark-mode) .budget-remaining {
+    color: var(--primary-dark);
+}
