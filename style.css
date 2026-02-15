@@ -829,7 +829,6 @@ body.theme-green .start-button:hover {
 .budget-remaining.exceeded {
     color: white;
     font-weight: 700;
-    background: rgba(255, 255, 255, 0.2);
     padding: 4px 8px;
     border-radius: 4px;
 }
