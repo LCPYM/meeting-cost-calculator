@@ -1302,9 +1302,13 @@ body.fullscreen-mode .container {
 body.fullscreen-mode .meeting-info,
 body.fullscreen-mode .budget-progress,
 body.fullscreen-mode .budget-info,
-body.fullscreen-mode .share-actions,
-body.fullscreen-mode .reset-button,
-body.fullscreen-mode .support-section {
+body.fullscreen-mode .history-section {
+    display: none !important;
+}
+
+/* 會議進行中時隱藏 */
+body.fullscreen-mode.meeting-active .share-actions,
+body.fullscreen-mode.meeting-active .reset-button {
     display: none !important;
 }
 
@@ -1362,10 +1366,11 @@ body.fullscreen-mode .fullscreen-button {
     font-size: 2vw;
     margin: 0;
     z-index: 1000;
+    background: rgba(0, 180, 216, 0.9);
 }
 
-/* 控制按鈕區域 */
-body.fullscreen-mode .timer-actions {
+/* 會議進行中的控制按鈕 */
+body.fullscreen-mode.meeting-active .timer-actions {
     position: fixed;
     bottom: 5vh;
     left: 50%;
@@ -1383,9 +1388,61 @@ body.fullscreen-mode .stop-button {
     min-width: 15vw;
 }
 
-body.fullscreen-mode .pause-button span,
-body.fullscreen-mode .stop-button span {
+/* 會議結束後的佈局 */
+body.fullscreen-mode.meeting-ended {
+    overflow: auto !important;
+}
+
+body.fullscreen-mode.meeting-ended .container {
+    justify-content: flex-start;
+    padding: 5vh 5vw;
+}
+
+body.fullscreen-mode.meeting-ended .timer-display {
+    flex: none;
+    margin-bottom: 5vh;
+}
+
+/* 結束後顯示功能按鈕區域 */
+body.fullscreen-mode.meeting-ended .share-actions {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2vw;
+    width: 60vw;
+    margin: 0 auto 3vh;
+}
+
+body.fullscreen-mode.meeting-ended .share-actions button {
+    font-size: 2vw;
+    padding: 2vh 3vw;
+    min-width: auto;
+}
+
+body.fullscreen-mode.meeting-ended .reset-button {
+    display: block !important;
+    width: 60vw;
+    margin: 3vh auto;
     font-size: 2.5vw;
+    padding: 2.5vh;
+}
+
+/* Buy Me a Coffee 按鈕在角落 */
+body.fullscreen-mode.meeting-ended .support-section {
+    display: block !important;
+    position: fixed;
+    bottom: 3vh;
+    right: 3vw;
+    margin: 0;
+}
+
+body.fullscreen-mode.meeting-ended .bmc-button {
+    padding: 1.5vh 2vw;
+    font-size: 1.5vw;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+body.fullscreen-mode.meeting-ended .bmc-icon {
+    font-size: 1.8vw;
 }
 
 /* 響應式調整 - 小螢幕 */

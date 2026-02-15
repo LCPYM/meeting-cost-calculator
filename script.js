@@ -261,6 +261,10 @@ function calculateEstimate() {
 function startTimer() {
     console.log('🚀 開始計時');
     
+    // 標記為會議進行中
+    document.body.classList.add('meeting-active');
+    document.body.classList.remove('meeting-ended');
+
     // 隱藏所有輸入欄位
     const inputGroups = document.querySelectorAll('.input-group');
     inputGroups.forEach(group => {
@@ -393,6 +397,10 @@ function showCostWarning() {
 function stopTimer() {
     clearInterval(timerInterval);
     
+    // 標記為會議已結束
+    document.body.classList.remove('meeting-active');
+    document.body.classList.add('meeting-ended');
+    
     const attendees = parseInt(attendeesInput.value) || 0;
     const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
     const symbol = currencySymbols[currentCurrency];
@@ -423,15 +431,20 @@ function stopTimer() {
     document.getElementById('share-actions').style.display = 'flex';
     document.getElementById('reset-button').style.display = 'block';
     
+    // 全螢幕模式下也顯示 support section
     const supportSection = document.querySelector('.support-section');
     if (supportSection) supportSection.style.display = 'block';
     
     saveMeetingRecord();
 }
 
+
 // 重置
 function reset() {
     console.log('🔄 重置中');
+    
+    // 移除狀態標記
+    document.body.classList.remove('meeting-active', 'meeting-ended');
     
     // 退出全螢幕
     if (typeof isFullscreen !== 'undefined' && isFullscreen) {
@@ -647,6 +660,18 @@ function toggleFullscreen() {
         }
         
         document.body.classList.add('fullscreen-mode');
+        
+        // 判斷當前狀態
+        if (stopButton.style.display === 'none') {
+            // 會議已結束
+            document.body.classList.add('meeting-ended');
+            document.body.classList.remove('meeting-active');
+        } else {
+            // 會議進行中
+            document.body.classList.add('meeting-active');
+            document.body.classList.remove('meeting-ended');
+        }
+        
         isFullscreen = true;
         
         exitHint.textContent = translations[currentLang]['exit-fullscreen-hint'];
@@ -661,13 +686,12 @@ function toggleFullscreen() {
             document.webkitExitFullscreen();
         }
         
-        document.body.classList.remove('fullscreen-mode');
+        document.body.classList.remove('fullscreen-mode', 'meeting-active', 'meeting-ended');
         isFullscreen = false;
         
         fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[currentLang]['btn-fullscreen']}</span>`;
     }
 }
-
 
 document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
@@ -684,6 +708,7 @@ document.addEventListener('webkitfullscreenchange', () => {
         fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[currentLang]['btn-fullscreen']}</span>`;
     }
 });
+
 
 
 fullscreenButton.addEventListener('click', toggleFullscreen);
