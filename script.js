@@ -646,21 +646,6 @@ function toggleFullscreen() {
             document.documentElement.webkitRequestFullscreen();
         }
         
-        // 動態計算放大比例
-        const screenHeight = window.screen.height;
-        const screenWidth = window.screen.width;
-        
-        // 根據螢幕高度調整容器
-        const container = document.querySelector('.container');
-        if (screenHeight >= 1440) {
-            container.style.transform = 'scale(1.1)';
-        } else if (screenHeight >= 1080) {
-            container.style.transform = 'scale(1.05)';
-        } else {
-            container.style.transform = 'scale(1.0)';
-        }  
-
-        
         document.body.classList.add('fullscreen-mode');
         isFullscreen = true;
         
@@ -676,10 +661,6 @@ function toggleFullscreen() {
             document.webkitExitFullscreen();
         }
         
-        // 重置 transform
-        const container = document.querySelector('.container');
-        container.style.transform = 'none';
-        
         document.body.classList.remove('fullscreen-mode');
         isFullscreen = false;
         
@@ -690,8 +671,6 @@ function toggleFullscreen() {
 
 document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
-        const container = document.querySelector('.container');
-        container.style.transform = 'none';
         document.body.classList.remove('fullscreen-mode');
         isFullscreen = false;
         fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[currentLang]['btn-fullscreen']}</span>`;
@@ -700,13 +679,12 @@ document.addEventListener('fullscreenchange', () => {
 
 document.addEventListener('webkitfullscreenchange', () => {
     if (!document.webkitFullscreenElement) {
-        const container = document.querySelector('.container');
-        container.style.transform = 'none';
         document.body.classList.remove('fullscreen-mode');
         isFullscreen = false;
         fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[currentLang]['btn-fullscreen']}</span>`;
     }
 });
+
 
 fullscreenButton.addEventListener('click', toggleFullscreen);
 

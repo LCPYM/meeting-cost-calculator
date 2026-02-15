@@ -1278,75 +1278,138 @@ body.dark-mode .budget-input-group input {
     color: #ffffff;
 }
 
-/* ==================== Full Screen 增強放大 ==================== */
+/* ==================== 全螢幕模式（簡化佈局）==================== */
 
-:root {
-    --fullscreen-cost-size: 8rem;
-    --fullscreen-time-size: 4rem;
+body.fullscreen-mode {
+    overflow: hidden !important;
 }
 
 body.fullscreen-mode .container {
     max-width: none;
-    width: 90vw;
-    min-height: auto;
-    margin: 5vh auto;
-    padding: 40px;
-    border-radius: 20px;
-    transform-origin: center center;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--card-bg);
 }
 
+/* 全螢幕時隱藏不需要的元素 */
+body.fullscreen-mode .meeting-info,
+body.fullscreen-mode .budget-progress,
+body.fullscreen-mode .budget-info,
+body.fullscreen-mode .share-actions,
+body.fullscreen-mode .reset-button,
+body.fullscreen-mode .support-section {
+    display: none !important;
+}
+
+/* 計時器顯示區域 */
 body.fullscreen-mode .timer-display {
-    padding: 8vh;
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
 }
 
-body.fullscreen-mode .live-cost {
-    font-size: 12vw;
+body.fullscreen-mode .timer-display::before {
+    display: none;
 }
 
-body.fullscreen-mode .elapsed-time {
-    font-size: 6vw;
-}
-
-body.fullscreen-mode .timer-label {
-    font-size: 2.5vw;
-}
-
-body.fullscreen-mode .meeting-info {
-    font-size: 2vw;
-}
-
-body.fullscreen-mode .fullscreen-button {
-    font-size: 2vw;
-    padding: 2vh;
-}
-
-body.fullscreen-mode .timer-actions button {
-    font-size: 2.5vw;
-    padding: 2.5vh;
-}
-
-body.fullscreen-mode .share-actions button {
-    font-size: 1.8vw;
-    padding: 2vh;
-}
-
-body.fullscreen-mode .reset-button {
-    font-size: 2.5vw;
-    padding: 2.5vh;
-    margin-top: 5vh;
+/* 狀態指示器和標籤 */
+body.fullscreen-mode .timer-status {
     margin-bottom: 5vh;
 }
 
 body.fullscreen-mode .status-indicator {
-    width: 24px;
-    height: 24px;
+    width: 20px;
+    height: 20px;
 }
 
-body.fullscreen-mode .timer-actions button {
-    font-size: clamp(1.5rem, 2.5vw, 2.5rem);
-    padding: 3vh 4vw;
+body.fullscreen-mode .timer-label {
+    font-size: 3vw;
 }
 
+/* 成本數字 - 超大顯示 */
+body.fullscreen-mode .live-cost {
+    font-size: 15vw;
+    margin: 3vh 0;
+}
+
+/* 時間顯示 */
+body.fullscreen-mode .elapsed-time {
+    font-size: 8vw;
+    margin: 2vh 0;
+}
+
+/* 全螢幕按鈕 */
 body.fullscreen-mode .fullscreen-button {
-    font-size: clamp(1.2rem, 2vw, 2rem);
+    position: fixed;
+    top: 3vh;
+    right: 3vw;
+    width: auto;
+    padding: 1.5vh 3vw;
+    font-size: 2vw;
+    margin: 0;
+    z-index: 1000;
+}
+
+/* 控制按鈕區域 */
+body.fullscreen-mode .timer-actions {
+    position: fixed;
+    bottom: 5vh;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 3vw;
+    margin: 0;
+    z-index: 1000;
+}
+
+body.fullscreen-mode .pause-button,
+body.fullscreen-mode .stop-button {
+    padding: 2vh 4vw;
+    font-size: 2.5vw;
+    min-width: 15vw;
+}
+
+body.fullscreen-mode .pause-button span,
+body.fullscreen-mode .stop-button span {
+    font-size: 2.5vw;
+}
+
+/* 響應式調整 - 小螢幕 */
+@media (max-height: 800px) {
+    body.fullscreen-mode .live-cost {
+        font-size: 12vw;
+    }
+    
+    body.fullscreen-mode .elapsed-time {
+        font-size: 6vw;
+    }
+    
+    body.fullscreen-mode .timer-label {
+        font-size: 2.5vw;
+    }
+}
+
+/* 響應式調整 - 大螢幕 */
+@media (min-height: 1440px) {
+    body.fullscreen-mode .live-cost {
+        font-size: 12vw;
+    }
+    
+    body.fullscreen-mode .elapsed-time {
+        font-size: 6vw;
+    }
 }
