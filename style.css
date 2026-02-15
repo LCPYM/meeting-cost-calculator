@@ -1281,7 +1281,7 @@ body.dark-mode .budget-input-group input {
     color: #ffffff;
 }
 
-/* ==================== 全螢幕模式（修正版：100% 正確顯示）==================== */
+/* ==================== 全螢幕模式（完整修正版）==================== */
 
 body.fullscreen-mode {
     overflow: hidden !important;
@@ -1302,10 +1302,16 @@ body.fullscreen-mode .container {
     position: relative;
 }
 
-/* 全螢幕時隱藏不需要的元素 */
-body.fullscreen-mode .meeting-info,
+/* 全螢幕時也顯示 Budget 進度條 */
 body.fullscreen-mode .budget-progress,
-body.fullscreen-mode .budget-info,
+body.fullscreen-mode .budget-info {
+    display: block !important;
+    max-width: 35vw;
+    margin: 2vh auto;
+}
+
+/* 隱藏不需要的元素 */
+body.fullscreen-mode .meeting-info,
 body.fullscreen-mode .history-section {
     display: none !important;
 }
@@ -1337,37 +1343,46 @@ body.fullscreen-mode .timer-display::before {
 
 /* 狀態指示器和標籤 */
 body.fullscreen-mode .timer-status {
-    margin-bottom: 2vh;
+    margin-bottom: 1.5vh;
 }
 
 body.fullscreen-mode .status-indicator {
-    width: 16px;
-    height: 16px;
+    width: 14px;
+    height: 14px;
 }
 
 body.fullscreen-mode .timer-label {
-    font-size: 2vw;
+    font-size: 1.6vw;
 }
 
-/* 成本數字 - 大顯示（縮小以適應 100% 縮放）*/
+/* 成本數字 - 縮小 */
 body.fullscreen-mode .live-cost {
-    font-size: 8vw;
-    margin: 2vh 0;
-}
-
-/* 時間顯示（縮小以適應 100% 縮放）*/
-body.fullscreen-mode .elapsed-time {
-    font-size: 4vw;
+    font-size: 5.5vw;
     margin: 1.5vh 0;
 }
 
-/* Exit 按鈕在時間下方（會議進行中）*/
+/* 時間顯示 - 縮小 */
+body.fullscreen-mode .elapsed-time {
+    font-size: 3.2vw;
+    margin: 1vh 0 1.5vh;
+}
+
+/* Budget 進度條樣式（全螢幕） */
+body.fullscreen-mode .budget-progress {
+    height: 10px;
+}
+
+body.fullscreen-mode .budget-info {
+    font-size: 1.2vw;
+}
+
+/* Exit 按鈕（會議進行中）- 與 Pause/End 按鈕對齊 */
 body.fullscreen-mode.meeting-active .fullscreen-button {
     position: static;
-    width: auto;
-    padding: 1vh 3vw;
-    font-size: 1.4vw;
-    margin: 3vh 0;
+    width: 30vw;
+    padding: 1.2vh 3vw;
+    font-size: 1.3vw;
+    margin: 2vh auto 1vh;
     z-index: 1000;
     background: rgba(0, 180, 216, 0.9);
 }
@@ -1375,21 +1390,23 @@ body.fullscreen-mode.meeting-active .fullscreen-button {
 /* 會議進行中的控制按鈕 */
 body.fullscreen-mode.meeting-active .timer-actions {
     display: flex;
-    gap: 2vw;
-    margin-top: 2vh;
+    gap: 1.5vw;
+    margin-top: 1.5vh;
     position: static;
+    width: 30vw;
 }
 
 body.fullscreen-mode .pause-button,
 body.fullscreen-mode .stop-button {
-    padding: 1.5vh 3vw;
-    font-size: 1.8vw;
-    min-width: 12vw;
+    padding: 1.2vh 2.5vw;
+    font-size: 1.4vw;
+    min-width: auto;
+    flex: 1;
 }
 
 body.fullscreen-mode .pause-button span,
 body.fullscreen-mode .stop-button span {
-    font-size: 1.8vw;
+    font-size: 1.4vw;
 }
 
 /* 會議結束後的佈局 */
@@ -1399,43 +1416,43 @@ body.fullscreen-mode.meeting-ended {
 
 body.fullscreen-mode.meeting-ended .container {
     justify-content: flex-start;
-    padding: 5vh 5vw;
+    padding: 4vh 5vw;
 }
 
 body.fullscreen-mode.meeting-ended .timer-display {
-    margin-bottom: 3vh;
+    margin-bottom: 2vh;
 }
 
-/* Exit 按鈕在時間下方（會議結束）*/
+/* Exit 按鈕（會議結束）- 與四大功能鍵對齊 */
 body.fullscreen-mode.meeting-ended .fullscreen-button {
     position: static;
-    width: 40vw;
-    margin: 3vh auto 3vh;
-    font-size: 1.6vw;
-    padding: 1.5vh 3vw;
+    width: 33vw;
+    margin: 2vh auto 2vh;
+    font-size: 1.4vw;
+    padding: 1.3vh 3vw;
 }
 
-/* 結束後顯示功能按鈕區域 */
+/* 結束後顯示功能按鈕區域 - 與 Exit 對齊 */
 body.fullscreen-mode.meeting-ended .share-actions {
     display: grid !important;
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5vw;
-    width: 45vw;
-    margin: 0 auto 2vh;
+    gap: 1.2vw;
+    width: 33vw;
+    margin: 0 auto 1.5vh;
 }
 
 body.fullscreen-mode.meeting-ended .share-actions button {
-    font-size: 1.5vw;
-    padding: 1.5vh 2vw;
+    font-size: 1.3vw;
+    padding: 1.2vh 1.8vw;
     min-width: auto;
 }
 
 body.fullscreen-mode.meeting-ended .reset-button {
     display: block !important;
-    width: 45vw;
-    margin: 2vh auto;
-    font-size: 1.8vw;
-    padding: 2vh;
+    width: 33vw;
+    margin: 1.5vh auto;
+    font-size: 1.6vw;
+    padding: 1.5vh;
 }
 
 /* Buy Me a Coffee 按鈕在角落 */
@@ -1448,38 +1465,38 @@ body.fullscreen-mode.meeting-ended .support-section {
 }
 
 body.fullscreen-mode.meeting-ended .bmc-button {
-    padding: 1vh 1.5vw;
-    font-size: 1.2vw;
+    padding: 0.8vh 1.3vw;
+    font-size: 1vw;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 body.fullscreen-mode.meeting-ended .bmc-icon {
-    font-size: 1.5vw;
+    font-size: 1.3vw;
 }
 
 /* 響應式調整 - 小螢幕 */
 @media (max-height: 800px) {
     body.fullscreen-mode .live-cost {
-        font-size: 7vw;
+        font-size: 5.5vw;
     }
     
     body.fullscreen-mode .elapsed-time {
-        font-size: 3.5vw;
+        font-size: 2.8vw;
     }
     
     body.fullscreen-mode .timer-label {
-        font-size: 1.8vw;
+        font-size: 1.4vw;
     }
 }
 
 /* 響應式調整 - 大螢幕 */
 @media (min-height: 1440px) {
     body.fullscreen-mode .live-cost {
-        font-size: 7vw;
+        font-size: 5.5vw;
     }
     
     body.fullscreen-mode .elapsed-time {
-        font-size: 3.5vw;
+        font-size: 2.8vw;
     }
 }
 

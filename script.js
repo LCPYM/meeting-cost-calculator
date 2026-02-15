@@ -60,7 +60,8 @@ const translations = {
         'history-avg-duration': '平均時長',
         'history-cleared': '歷史記錄已清除！',
         'history-confirm-clear': '確定要清除所有會議歷史嗎？',
-        'minutes-short': '分鐘'
+        'minutes-short': '分鐘',
+        'shortcuts': '快捷鍵：Enter/空白鍵 = 開始/暫停 | Esc = 重置 | F = 全螢幕'
     },
     en: {
         'title': 'Meeting Cost Calculator',
@@ -122,7 +123,8 @@ const translations = {
         'history-avg-duration': 'Avg Duration',
         'history-cleared': 'History cleared!',
         'history-confirm-clear': 'Clear all meeting history?',
-        'minutes-short': 'min'
+        'minutes-short': 'min',
+        'shortcuts': 'Shortcuts: Enter/Space = Start/Pause | Esc = Reset | F = Fullscreen'
     }
 };
 
@@ -617,8 +619,19 @@ document.querySelectorAll('.lang-btn').forEach(btn => {
 
 // 鍵盤快捷鍵
 document.addEventListener('keydown', (e) => {
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    // 如果焦點在輸入框或選擇框，允許 Enter 提交，但阻止其他快捷鍵
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+        if (e.code === 'Enter') {
+            e.preventDefault();
+            // 如果會議未開始，按 Enter 啟動會議
+            if (!timerSection.classList.contains('active')) {
+                startTimer();
+            }
+        }
+        return;
+    }
     
+    // Space - 開始/暫停
     if (e.code === 'Space') {
         e.preventDefault();
         if (timerSection.classList.contains('active')) {
@@ -630,6 +643,15 @@ document.addEventListener('keydown', (e) => {
         }
     }
     
+    // Enter - 開始會議（當會議未進行時）
+    if (e.code === 'Enter') {
+        e.preventDefault();
+        if (!timerSection.classList.contains('active')) {
+            startTimer();
+        }
+    }
+    
+    // Escape - 重置
     if (e.code === 'Escape' && !isFullscreen) {
         e.preventDefault();
         if (timerSection.classList.contains('active')) {
@@ -637,6 +659,7 @@ document.addEventListener('keydown', (e) => {
         }
     }
     
+    // F - 全螢幕
     if (e.code === 'KeyF' && timerSection.classList.contains('active')) {
         e.preventDefault();
         toggleFullscreen();
