@@ -39,8 +39,6 @@ const translations = {
         'template-title': '會議模板',
         'btn-save-template': '儲存為模板',
         'template-empty': '還沒有模板，儲存第一個吧！',
-        'template-modal-title': '儲存會議模板',
-        'template-name-placeholder': '例如：每週例會、客戶簡報',
         'btn-save': '儲存',
         'btn-cancel': '取消',
         'btn-load': '載入',
@@ -50,7 +48,7 @@ const translations = {
         'template-deleted': '模板已刪除！',
         'budget-enable': '啟用預算提醒',
         'budget-target': '目標預算',
-        'budget-exceeded': '預算已超支！',
+        'budget-exceeded': '⚠️ 預算已超支！',
         'budget-remaining': '剩餘',
         'budget-over': '超支',
         'budget-progress': '已使用預算',
@@ -103,8 +101,6 @@ const translations = {
         'template-title': 'Meeting Templates',
         'btn-save-template': 'Save as Template',
         'template-empty': 'No templates yet. Save your first one!',
-        'template-modal-title': 'Save Meeting Template',
-        'template-name-placeholder': 'e.g., Team Weekly, Client Demo',
         'btn-save': 'Save',
         'btn-cancel': 'Cancel',
         'btn-load': 'Load',
@@ -112,6 +108,12 @@ const translations = {
         'template-saved': 'Template saved!',
         'template-loaded': 'Template loaded!',
         'template-deleted': 'Template deleted!',
+        'budget-enable': 'Enable Budget Alert',
+        'budget-target': 'Target Budget',
+        'budget-exceeded': '⚠️ Budget Exceeded!',
+        'budget-remaining': 'Remaining',
+        'budget-over': 'Over',
+        'budget-progress': 'Budget Used',
         'history-title': 'Meeting History',
         'btn-clear-history': 'Clear All',
         'history-empty': 'No meeting records yet',
@@ -138,6 +140,41 @@ const currencySymbols = {
     'JPY': '¥'
 };
 
+// 配色主題
+let currentTheme = 'ocean';
+
+// 配色切換功能
+function switchColorTheme(theme) {
+    currentTheme = theme;
+    
+    // 移除所有主題 class
+    document.body.classList.remove('theme-ocean', 'theme-purple', 'theme-green');
+    
+    // 如果不是預設主題，加上對應的 class
+    if (theme !== 'ocean') {
+        document.body.classList.add(`theme-${theme}`);
+    }
+    
+    // 更新按鈕狀態
+    document.querySelectorAll('.theme-option').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.getAttribute('data-theme') === theme) {
+            btn.classList.add('active');
+        }
+    });
+    
+    // 儲存偏好
+    localStorage.setItem('colorTheme', theme);
+}
+
+// 初始化配色切換器
+document.querySelectorAll('.theme-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const theme = btn.getAttribute('data-theme');
+        switchColorTheme(theme);
+    });
+});
+
 // 切換語言
 function switchLanguage(lang) {
     currentLang = lang;
@@ -160,6 +197,7 @@ function switchLanguage(lang) {
     });
 
     updateCurrencyLabel();
+    localStorage.setItem('language', lang);
 }
 
 // 更新貨幣標籤
@@ -219,7 +257,7 @@ function calculateEstimate() {
     saveSettings();
 }
 
-// 開始計時（修正版）
+// 開始計時
 function startTimer() {
     console.log('🚀 開始計時');
     
@@ -389,15 +427,9 @@ function stopTimer() {
     if (supportSection) supportSection.style.display = 'block';
     
     saveMeetingRecord();
-    
-    if (typeof isFullscreen !== 'undefined' && isFullscreen) {
-        setTimeout(() => {
-            document.getElementById('reset-button').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 300);
-    }
 }
 
-// 重置（修正版）
+// 重置
 function reset() {
     console.log('🔄 重置中');
     
@@ -499,12 +531,20 @@ function loadSettings() {
     const savedAttendees = localStorage.getItem('meetingCalc-attendees');
     const savedRate = localStorage.getItem('meetingCalc-hourlyRate');
     const savedCurrency = localStorage.getItem('meetingCalc-currency');
+    const savedLang = localStorage.getItem('language');
+    const savedTheme = localStorage.getItem('colorTheme');
     
     if (savedAttendees) attendeesInput.value = savedAttendees;
     if (savedRate) hourlyRateInput.value = savedRate;
     if (savedCurrency) {
         currentCurrency = savedCurrency;
         currencySelect.value = savedCurrency;
+    }
+    if (savedLang) {
+        currentLang = savedLang;
+    }
+    if (savedTheme) {
+        switchColorTheme(savedTheme);
     }
 }
 
@@ -644,7 +684,7 @@ document.addEventListener('webkitfullscreenchange', () => {
 
 fullscreenButton.addEventListener('click', toggleFullscreen);
 
-// 分享功能（簡化版，避免音效錯誤）
+// 分享功能（修正版：顯示預算超支）
 const shareButton = document.getElementById('share-button');
 
 async function shareResult() {
@@ -659,51 +699,85 @@ async function shareResult() {
     const hourlyRate = hourlyRateInput.value;
     const symbol = currencySymbols[currentCurrency];
     
-    // 背景漸層
+    // 檢查是否超支
+    const finalCostNumber = parseFloat(finalCost.replace(/[^0-9.]/g, ''));
+    const budgetTarget = parseFloat(document.getElementById('budget-target').value) || 0;
+    const isBudgetEnabled = document.getElementById('budget-enabled').checked;
+    const isBudgetExceeded = isBudgetEnabled && budgetTarget > 0 && finalCostNumber > budgetTarget;
+    
+    // 背景漸層（如果超支用紅色）
     const gradient = ctx.createLinearGradient(0, 0, 0, 600);
-    gradient.addColorStop(0, '#03045e');
-    gradient.addColorStop(1, '#0077b6');
+    if (isBudgetExceeded) {
+        gradient.addColorStop(0, '#ef476f');
+        gradient.addColorStop(1, '#e63946');
+    } else {
+        gradient.addColorStop(0, '#03045e');
+        gradient.addColorStop(1, '#0077b6');
+    }
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, 800, 600);
     
+    // 如果超支，加上警告圖標和文字
+    if (isBudgetExceeded) {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 60px -apple-system, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('⚠️', 400, 80);
+        
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 28px -apple-system, sans-serif';
+        ctx.fillText(translations[currentLang]['budget-exceeded'], 400, 130);
+    }
+    
     // 標題
     ctx.fillStyle = '#caf0f8';
-    ctx.font = 'bold 48px -apple-system, sans-serif';
+    ctx.font = 'bold 40px -apple-system, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText(translations[currentLang]['share-title'], 400, 100);
+    ctx.fillText(translations[currentLang]['share-title'], 400, isBudgetExceeded ? 180 : 100);
     
-    // 成本
+    // 成本（如果超支用更大更醒目）
     ctx.fillStyle = '#ffffff';
-    ctx.font = 'bold 96px -apple-system, sans-serif';
-    ctx.fillText(finalCost, 400, 250);
+    ctx.font = isBudgetExceeded ? 'bold 110px -apple-system, sans-serif' : 'bold 96px -apple-system, sans-serif';
+    ctx.fillText(finalCost, 400, isBudgetExceeded ? 300 : 250);
+    
+    // 預算資訊（如果超支）
+    if (isBudgetExceeded) {
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 24px -apple-system, sans-serif';
+        const overAmount = finalCostNumber - budgetTarget;
+        ctx.fillText(`${translations[currentLang]['budget-over']}: ${symbol}${overAmount.toFixed(2)}`, 400, 360);
+    }
     
     // 詳細資訊
     ctx.fillStyle = '#90e0ef';
     ctx.font = '28px -apple-system, sans-serif';
-    ctx.fillText(`${duration} • ${attendees} ${translations[currentLang]['people']} • ${symbol}${hourlyRate}/hr`, 400, 330);
+    ctx.fillText(`${duration} • ${attendees} ${translations[currentLang]['people']} • ${symbol}${hourlyRate}/hr`, 400, isBudgetExceeded ? 420 : 330);
     
     // 分隔線
     ctx.strokeStyle = '#00b4d8';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.moveTo(100, 380);
-    ctx.lineTo(700, 380);
+    ctx.moveTo(100, isBudgetExceeded ? 460 : 380);
+    ctx.lineTo(700, isBudgetExceeded ? 460 : 380);
     ctx.stroke();
     
     // 底部文字
     ctx.fillStyle = '#caf0f8';
     ctx.font = '24px -apple-system, sans-serif';
-    ctx.fillText(translations[currentLang]['share-saving'], 400, 440);
+    const bottomText = isBudgetExceeded 
+        ? (currentLang === 'zh' ? '會議時間過長，建議精簡議程！' : 'Meeting too long, consider streamlining!')
+        : translations[currentLang]['share-saving'];
+    ctx.fillText(bottomText, 400, isBudgetExceeded ? 510 : 440);
     
     ctx.fillStyle = '#90e0ef';
     ctx.font = '20px -apple-system, sans-serif';
-    ctx.fillText('meeting-cost-calculator.vercel.app', 400, 500);
+    ctx.fillText('meeting-cost-calculator.vercel.app', 400, isBudgetExceeded ? 550 : 500);
     
     const shareURL = generateShareURL();
     ctx.fillStyle = '#caf0f8';
     ctx.font = 'italic 16px -apple-system, sans-serif';
     const urlText = currentLang === 'zh' ? `使用這些設定：${shareURL}` : `Use these settings: ${shareURL}`;
-    ctx.fillText(urlText, 400, 550);
+    ctx.fillText(urlText, 400, isBudgetExceeded ? 580 : 550);
     
     canvas.toBlob(function(blob) {
         const url = URL.createObjectURL(blob);
@@ -763,7 +837,7 @@ function copyShareLink() {
 
 copyLinkButton.addEventListener('click', copyShareLink);
 
-// 匯出 CSV（簡化版）
+// 匯出 CSV
 const exportCsvButton = document.getElementById('export-csv-button');
 
 function exportToCSV() {
@@ -820,7 +894,7 @@ if (isDarkMode) {
 
 themeToggle.addEventListener('click', toggleDarkMode);
 
-// 會議歷史（簡化版）
+// 會議歷史
 let meetingHistory = JSON.parse(localStorage.getItem('meetingHistory')) || [];
 
 function saveMeetingRecord() {
@@ -915,7 +989,7 @@ document.getElementById('clear-history-btn').addEventListener('click', () => {
     }
 });
 
-// 模板功能（簡化版）
+// 模板功能
 let templates = JSON.parse(localStorage.getItem('meetingTemplates')) || [];
 
 function renderTemplates() {
@@ -942,7 +1016,7 @@ function renderTemplates() {
     `).join('');
 }
 
-function loadTemplate(index) {
+window.loadTemplate = function(index) {
     const template = templates[index];
     attendeesInput.value = template.attendees;
     hourlyRateInput.value = template.hourlyRate;
@@ -952,18 +1026,17 @@ function loadTemplate(index) {
     calculateEstimate();
     updateCurrencyLabel();
     showToast(translations[currentLang]['template-loaded']);
-}
+};
 
-function deleteTemplate(index) {
+window.deleteTemplate = function(index) {
     if (confirm(currentLang === 'zh' ? '確定要刪除這個模板嗎？' : 'Delete this template?')) {
         templates.splice(index, 1);
         localStorage.setItem('meetingTemplates', JSON.stringify(templates));
         renderTemplates();
         showToast(translations[currentLang]['template-deleted']);
     }
-}
+};
 
-// 儲存模板
 document.getElementById('save-template-btn').addEventListener('click', () => {
     const name = prompt(currentLang === 'zh' ? '輸入模板名稱：' : 'Enter template name:');
     if (!name) return;
@@ -1013,7 +1086,7 @@ function showBudgetExceededBanner() {
     
     budgetExceededBanner = document.createElement('div');
     budgetExceededBanner.className = 'budget-exceeded-banner';
-    const message = currentLang === 'zh' ? '⚠️ 預算已超支！' : '⚠️ Budget Exceeded!';
+    const message = translations[currentLang]['budget-exceeded'];
     budgetExceededBanner.innerHTML = `<span class="budget-icon">⚠️</span><span>${message}</span>`;
     document.body.appendChild(budgetExceededBanner);
 }
@@ -1081,7 +1154,7 @@ function updateBudgetProgress(currentCost) {
     }
 }
 
-// QR Code 功能（簡化版）
+// QR Code 功能
 const qrButton = document.getElementById('qr-button');
 
 qrButton.addEventListener('click', () => {
@@ -1095,7 +1168,7 @@ qrButton.addEventListener('click', () => {
 // 初始化
 loadSettings();
 loadFromURL();
-switchLanguage('en');
+switchLanguage(currentLang);
 calculateEstimate();
 updateCurrencyLabel();
 renderTemplates();

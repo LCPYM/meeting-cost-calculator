@@ -1,13 +1,18 @@
-/* ==================== 基礎設定 ==================== */
+/* ==================== 字體導入 ==================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&display=swap');
+
+/* ==================== 三種配色方案 ==================== */
 
 :root {
+    /* 方案 1: Ocean Blue (預設) */
     --primary-color: #0077b6;
     --primary-dark: #03045e;
     --primary-light: #00b4d8;
     --secondary-color: #90e0ef;
     --accent-color: #caf0f8;
     --success-color: #06d6a0;
-    --warning-color: #ffd60a;
+    --warning-color: #ff8500;
     --danger-color: #ef476f;
     --text-color: #023e8a;
     --text-light: #0096c7;
@@ -19,6 +24,60 @@
     --transition: all 0.3s ease;
 }
 
+/* 方案 2: Purple Dream */
+body.theme-purple {
+    --primary-color: #7b2cbf;
+    --primary-dark: #240046;
+    --primary-light: #9d4edd;
+    --secondary-color: #c77dff;
+    --accent-color: #e0aaff;
+    --success-color: #06d6a0;
+    --warning-color: #ff8500;
+    --danger-color: #ef476f;
+    --text-color: #240046;
+    --text-light: #5a189a;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #e9ecef;
+}
+
+body.theme-purple.dark-mode {
+    --text-color: #e0aaff;
+    --text-light: #c77dff;
+    --bg-color: #240046;
+    --card-bg: #3c096c;
+    --border-color: #5a189a;
+    background: linear-gradient(135deg, #240046 0%, #3c096c 100%);
+}
+
+/* 方案 3: Nature Green */
+body.theme-green {
+    --primary-color: #588157;
+    --primary-dark: #344e41;
+    --primary-light: #3a5a40;
+    --secondary-color: #a3b18a;
+    --accent-color: #dad7cd;
+    --success-color: #06d6a0;
+    --warning-color: #ff8500;
+    --danger-color: #ef476f;
+    --text-color: #344e41;
+    --text-light: #588157;
+    --bg-color: #f8f9fa;
+    --card-bg: #ffffff;
+    --border-color: #e9ecef;
+}
+
+body.theme-green.dark-mode {
+    --text-color: #dad7cd;
+    --text-light: #a3b18a;
+    --bg-color: #344e41;
+    --card-bg: #3a5a40;
+    --border-color: #588157;
+    background: linear-gradient(135deg, #344e41 0%, #3a5a40 100%);
+}
+
+/* ==================== 基礎設定 ==================== */
+
 * {
     margin: 0;
     padding: 0;
@@ -26,7 +85,7 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-family: 'Euphemia UCAS', 'Noto Sans TC', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: linear-gradient(135deg, var(--accent-color) 0%, var(--secondary-color) 100%);
     min-height: 100vh;
     padding: 20px;
@@ -63,6 +122,14 @@ body.dark-mode select:focus {
     border-color: var(--secondary-color);
 }
 
+body.dark-mode footer p {
+    color: var(--accent-color);
+}
+
+body.dark-mode .shortcuts-hint {
+    color: var(--secondary-color);
+}
+
 /* ==================== 容器 ==================== */
 
 .container {
@@ -73,6 +140,42 @@ body.dark-mode select:focus {
     border-radius: 20px;
     box-shadow: var(--shadow-lg);
     position: relative;
+}
+
+/* ==================== 配色切換器 ==================== */
+
+.theme-selector {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+}
+
+.theme-option {
+    width: 40px;
+    height: 40px;
+    border: 3px solid transparent;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 20px;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-option:hover {
+    transform: scale(1.1);
+    box-shadow: var(--shadow);
+}
+
+.theme-option.active {
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 0 0 2px var(--primary-color);
 }
 
 /* ==================== 語言切換 ==================== */
@@ -153,6 +256,11 @@ h1 {
     font-weight: 800;
 }
 
+/* Dark Mode 標題用白色 */
+body.dark-mode h1 {
+    color: #ffffff;
+}
+
 .subtitle {
     color: var(--text-light);
     font-size: 1.1rem;
@@ -182,6 +290,7 @@ select {
     transition: var(--transition);
     background: var(--bg-color);
     color: var(--text-color);
+    font-family: 'Euphemia UCAS', 'Noto Sans TC', sans-serif;
 }
 
 input[type="number"]:focus,
@@ -241,6 +350,13 @@ select:focus {
     color: var(--text-light);
     font-style: italic;
     padding: 20px;
+}
+
+/* Dark Mode 模板空白提示更明顯 */
+body.dark-mode .template-empty {
+    color: var(--primary-dark);
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 8px;
 }
 
 .template-item {
@@ -347,6 +463,20 @@ select:focus {
     border-radius: 12px;
 }
 
+/* Dark Mode 預算區域更清楚 */
+body.dark-mode .budget-section {
+    background: var(--secondary-color);
+}
+
+body.dark-mode .budget-toggle {
+    color: var(--primary-dark);
+}
+
+/* 新增：Target Budget 標籤在 Dark Mode 顯示白色 */
+body.dark-mode .budget-input-group label {
+    color: #ffffffe9;
+}
+
 .budget-header {
     margin-bottom: 15px;
 }
@@ -356,6 +486,11 @@ select:focus {
     align-items: center;
     cursor: pointer;
     font-weight: 600;
+    color: var(--primary-dark);
+}
+
+/* 確保 Dark Mode 預算標籤可讀 */
+body.dark-mode .budget-toggle {
     color: var(--primary-dark);
 }
 
@@ -387,6 +522,34 @@ select:focus {
     box-shadow: var(--shadow);
     margin: 20px 0;
 }
+
+/* Ocean Blue - 藍色 Start Button（預設）*/
+body:not(.theme-purple):not(.theme-green) .start-button {
+    background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
+}
+
+body:not(.theme-purple):not(.theme-green) .start-button:hover {
+    background: linear-gradient(135deg, #0077b6 0%, #03045e 100%);
+}
+
+/* Purple Dream - 紫色 Start Button */
+body.theme-purple .start-button {
+    background: linear-gradient(135deg, #9d4edd 0%, #7b2cbf 100%);
+}
+
+body.theme-purple .start-button:hover {
+    background: linear-gradient(135deg, #7b2cbf 0%, #5a189a 100%);
+}
+
+/* Nature Green - 深綠色 Start Button */
+body.theme-green .start-button {
+    background: linear-gradient(135deg, #588157 0%, #3a5a40 100%);
+}
+
+body.theme-green .start-button:hover {
+    background: linear-gradient(135deg, #3a5a40 0%, #344e41 100%);
+}
+
 
 .start-button:hover {
     transform: translateY(-3px);
@@ -528,7 +691,7 @@ select:focus {
 }
 
 .budget-progress-bar.exceeded {
-    background: var(--danger-color);
+    background: white;
 }
 
 .budget-info {
@@ -545,11 +708,15 @@ select:focus {
 
 .budget-remaining.warning {
     color: var(--warning-color);
+    font-weight: 600;
 }
 
 .budget-remaining.exceeded {
-    color: var(--danger-color);
+    color: white;
     font-weight: 700;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 4px 8px;
+    border-radius: 4px;
 }
 
 /* ==================== 全螢幕按鈕 ==================== */
@@ -557,9 +724,9 @@ select:focus {
 .fullscreen-button {
     width: 100%;
     padding: 12px;
-    background: rgba(255, 255, 255, 0.1);
+    background: var(--primary-light);
     color: white;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 2px solid var(--primary-color);
     border-radius: 10px;
     cursor: pointer;
     font-size: 1rem;
@@ -573,8 +740,9 @@ select:focus {
 }
 
 .fullscreen-button:hover {
-    background: rgba(255, 255, 255, 0.2);
-    border-color: rgba(255, 255, 255, 0.5);
+    background: var(--primary-color);
+    border-color: var(--primary-dark);
+    transform: translateY(-2px);
 }
 
 .fullscreen-icon {
@@ -607,11 +775,11 @@ select:focus {
 
 .pause-button {
     background: var(--warning-color);
-    color: var(--primary-dark);
+    color: white;
 }
 
 .pause-button:hover {
-    background: #ffc300;
+    background: #e67700;
     transform: translateY(-3px);
 }
 
@@ -770,14 +938,14 @@ select:focus {
 
 .history-stat-label {
     font-size: 0.85rem;
-    color: var(--text-light);
+    color: #495057;
     margin-bottom: 8px;
 }
 
 .history-stat-value {
     font-size: 1.5rem;
     font-weight: 700;
-    color: var(--primary-dark);
+    color: #03045e;
 }
 
 .history-list {
@@ -807,20 +975,20 @@ select:focus {
 
 .history-date {
     font-size: 0.9rem;
-    color: var(--text-light);
+    color: #495057;
 }
 
 .history-cost {
     font-size: 1.2rem;
     font-weight: 700;
-    color: var(--primary-dark);
+    color: #03045e;
 }
 
 .history-details {
     display: flex;
     gap: 15px;
     font-size: 0.85rem;
-    color: var(--text-light);
+    color: #495057;
 }
 
 /* ==================== Footer ==================== */
@@ -909,17 +1077,18 @@ footer p {
     font-size: 1.5rem;
 }
 
-/* ==================== 全螢幕模式 ==================== */
+/* ==================== 全螢幕模式（修正滾動）==================== */
+
+body.fullscreen-mode {
+    overflow: auto !important;
+}
 
 body.fullscreen-mode .container {
-    max-width: 100%;
-    height: 100vh;
-    margin: 0;
+    max-width: 800px;
+    min-height: auto;
+    margin: 40px auto;
     padding: 40px;
-    border-radius: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    border-radius: 20px;
 }
 
 body.fullscreen-mode .timer-display {
@@ -932,6 +1101,11 @@ body.fullscreen-mode .live-cost {
 
 body.fullscreen-mode .elapsed-time {
     font-size: 3rem;
+}
+
+body.fullscreen-mode .reset-button {
+    margin-top: 30px;
+    margin-bottom: 30px;
 }
 
 .exit-fullscreen-hint {
@@ -971,6 +1145,17 @@ body.fullscreen-mode .elapsed-time {
     
     .subtitle {
         font-size: 0.95rem;
+    }
+    
+    .theme-selector {
+        top: 15px;
+        left: 15px;
+    }
+    
+    .theme-option {
+        width: 36px;
+        height: 36px;
+        font-size: 18px;
     }
     
     .language-toggle {
@@ -1077,21 +1262,6 @@ body.fullscreen-mode .elapsed-time {
     animation: fadeIn 0.5s ease;
 }
 
-/* ==================== 無障礙設計 ==================== */
-
-button:focus,
-input:focus,
-select:focus {
-    outline: 3px solid var(--primary-light);
-    outline-offset: 2px;
-}
-
-button:focus:not(:focus-visible),
-input:focus:not(:focus-visible),
-select:focus:not(:focus-visible) {
-    outline: none;
-}
-
 /* ==================== 列印樣式 ==================== */
 
 @media print {
@@ -1099,6 +1269,7 @@ select:focus:not(:focus-visible) {
         background: white;
     }
     
+    .theme-selector,
     .language-toggle,
     .theme-toggle,
     .start-button,
@@ -1113,4 +1284,8 @@ select:focus:not(:focus-visible) {
         box-shadow: none;
         max-width: 100%;
     }
+}
+/* Target Budget 輸入框在 Dark Mode 文字為白色 */
+body.dark-mode .budget-input-group input {
+    color: #ffffff;
 }
