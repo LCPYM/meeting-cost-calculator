@@ -230,28 +230,41 @@ function calculateEstimate() {
 
 // 開始計時
 function startTimer() {
-    document.querySelector('.input-section').style.display = 'none';
-    document.querySelector('.estimate-section').style.display = 'none';
-    document.querySelector('.budget-section').style.display = 'none';
-    document.querySelector('.template-section').style.display = 'none';
-    startButton.style.display = 'none';
-    document.querySelector('.support-section').style.display = 'none';
-    document.getElementById('history-section').style.display = 'none';
+    console.log('🚀 開始計時！');
     
-    timerSection.classList.add('active');
-    pauseButton.style.display = 'flex';
+    // 簡單方式：直接用 CSS class 控制
+    document.body.classList.add('timer-active');
     
+    // 顯示計時器
+    const timerSection = document.getElementById('timer-section');
+    if (timerSection) {
+        timerSection.classList.add('active');
+    }
+    
+    // 顯示暫停按鈕
+    if (typeof pauseButton !== 'undefined' && pauseButton) {
+        pauseButton.style.display = 'flex';
+    }
+    
+    // 初始化計時變數
     startTime = Date.now();
     elapsedSeconds = 0;
     pausedTime = 0;
     isPaused = false;
     hasShownWarning = false;
-    budgetExceededShown = false;
-    removeBudgetExceededBanner();
     
+    if (typeof budgetExceededShown !== 'undefined') {
+        budgetExceededShown = false;
+    }
+    
+    if (typeof removeBudgetExceededBanner === 'function') {
+        removeBudgetExceededBanner();
+    }
+    
+    // 開始計時
     timerInterval = setInterval(updateTimer, 100);
+    console.log('✅ 計時器已啟動！');
 }
-
 
 // 更新計時器
 function updateTimer() {
