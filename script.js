@@ -1186,12 +1186,64 @@ function updateBudgetProgress(currentCost) {
 // QR Code 功能
 const qrButton = document.getElementById('qr-button');
 
+// 創建 QR Modal
+const qrModal = document.createElement('div');
+qrModal.className = 'qr-modal';
+qrModal.innerHTML = `
+    <div class="qr-modal-content">
+        <h2 class="qr-modal-title" data-i18n="qr-title">${translations[currentLang]['qr-title']}</h2>
+        <div class="qr-code-container" id="qr-code-display"></div>
+        <div class="qr-modal-url" id="qr-modal-url"></div>
+        <button class="qr-modal-close" id="qr-modal-close" data-i18n="btn-close">${translations[currentLang]['btn-close']}</button>
+    </div>
+`;
+document.body.appendChild(qrModal);
+
 qrButton.addEventListener('click', () => {
     const shareURL = generateShareURL();
-    const message = currentLang === 'zh' 
-        ? `掃描 QR Code 或使用此連結：\n${shareURL}` 
-        : `Scan QR Code or use this link:\n${shareURL}`;
-    alert(message);
+    
+    // 清空舊的 QR Code
+    const qrContainer = document.getElementById('qr-code-display');
+    qrContainer.innerHTML = '';
+    
+    // 生成新的 QR Code
+    try {
+        new QRCode(qrContainer, {
+            text: shareURL,
+            width: 256,
+            height: 256,
+            colorDark: '#03045e',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+        
+        // 顯示 URL
+        document.getElementById('qr-modal-url').textContent = shareURL;
+        
+        // 顯示彈窗
+        qrModal.classList.add('show');
+        
+        showToast(currentLang === 'zh' ? 'QR Code 已生成！' : 'QR Code generated!');
+    } catch (error) {
+        console.error('QR Code 生成失敗:', error);
+        // 降級方案：顯示文字連結
+        const message = currentLang === 'zh' 
+            ? `掃描 QR Code 或使用此連結：\n${shareURL}` 
+            : `Scan QR Code or use this link:\n${shareURL}`;
+        alert(message);
+    }
+});
+
+// 關閉 QR Modal
+document.getElementById('qr-modal-close').addEventListener('click', () => {
+    qrModal.classList.remove('show');
+});
+
+// 點擊背景關閉
+qrModal.addEventListener('click', (e) => {
+    if (e.target === qrModal) {
+        qrModal.classList.remove('show');
+    }
 });
 
 // 初始化
