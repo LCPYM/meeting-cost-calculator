@@ -1,0 +1,17 @@
+{
+  "name": "meeting-cost-calculator",
+  "version": "1.0.0",
+  "description": "Meeting Cost Calculator - Track meeting costs in real-time",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["meeting", "cost", "calculator"],
+  "author": "LCPYM",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.4.0"
+  }
+}

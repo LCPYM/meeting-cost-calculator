@@ -1,32 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>會議成本計算機 | Meeting Cost Calculator</title>
+    <meta name="description" content="即時追蹤會議成本，提高時間效率">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
-        <!-- 語言切換按鈕 -->
+        <!-- 語言切換 -->
         <div class="language-toggle">
             <button class="lang-btn" data-lang="zh">中文</button>
             <button class="lang-btn active" data-lang="en">English</button>
         </div>
 
-        <!-- 深色模式切換 -->
+        <!-- 主題切換 -->
         <button class="theme-toggle" id="theme-toggle" aria-label="Toggle dark mode">
             <span class="theme-icon">🌙</span>
         </button>
 
-        <!-- 標題區 -->
+        <!-- 標題 -->
         <header>
-            <h1 data-i18n="title">💸 Meeting Cost Calculator</h1>
+            <h1 data-i18n="title">Meeting Cost Calculator</h1>
             <p class="subtitle" data-i18n="subtitle">See how much this meeting is costing</p>
         </header>
 
-        <!-- 輸入區 -->
-        <!-- ✅ 恢復成這樣 -->
+        <!-- 輸入區域 -->
         <div class="input-group">
             <label for="attendees" data-i18n="label-attendees">Number of Attendees</label>
             <input type="number" id="attendees" value="5" min="1" max="100">
@@ -42,26 +42,23 @@
             <input type="number" id="duration" value="60" min="1" max="480">
         </div>
 
-
-            <!-- 貨幣選擇 -->
-            <div class="input-group">
-              <div class="input-group">  <label for="currency" data-i18n="label-currency">Currency</label>
-                <select id="currency">
-                    <option value="HKD">HKD (港幣)</option>
-                    <option value="USD">USD (美元)</option>
-                    <option value="EUR">EUR (歐元)</option>
-                    <option value="GBP">GBP (英鎊)</option>
-                    <option value="CNY">CNY (人民幣)</option>
-                    <option value="JPY">JPY (日圓)</option>
-                </select>
-            </div>
+        <div class="input-group">
+            <label for="currency" data-i18n="label-currency">Currency</label>
+            <select id="currency">
+                <option value="HKD">HKD ($)</option>
+                <option value="USD">USD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+                <option value="CNY">CNY (¥)</option>
+                <option value="JPY">JPY (¥)</option>
+            </select>
         </div>
 
-                <!-- 模板管理區 -->
+        <!-- 模板區域 -->
         <div class="template-section">
             <div class="template-header">
-                <h3 data-i18n="template-title">📋 Meeting Templates</h3>
-                <button class="save-template-btn" id="save-template-btn" data-i18n="btn-save-template">+ Save as Template</button>
+                <h3 data-i18n="template-title">Meeting Templates</h3>
+                <button class="save-template-btn" id="save-template-btn" data-i18n="btn-save-template">Save as Template</button>
             </div>
             <div class="template-list" id="template-list">
                 <p class="template-empty" data-i18n="template-empty">No templates yet. Save your first one!</p>
@@ -75,24 +72,24 @@
             <p class="per-minute" data-i18n="per-minute">Per Minute: <span id="per-minute">$16.67</span></p>
         </div>
 
-        <!-- 目標預算設定 -->
-                <div class="budget-section">
-                    <div class="budget-header">
-                        <label class="budget-toggle">
-                            <input type="checkbox" id="budget-enabled">
-                            <span data-i18n="budget-enable">🎯 Enable Budget Alert</span>
-                        </label>
-                    </div>
-                    <div class="budget-input-group" id="budget-input-group" style="display: none;">
-                        <label for="budget-target" data-i18n="budget-target">Target Budget</label>
-                        <input type="number" id="budget-target" value="1000" min="0" step="50" placeholder="1000">
-                    </div>
-                </div>
+        <!-- 預算設定 -->
+        <div class="budget-section">
+            <div class="budget-header">
+                <label class="budget-toggle">
+                    <input type="checkbox" id="budget-enabled">
+                    <span data-i18n="budget-enable">Enable Budget Alert</span>
+                </label>
+            </div>
+            <div class="budget-input-group" id="budget-input-group" style="display: none;">
+                <label for="budget-target" data-i18n="budget-target">Target Budget</label>
+                <input type="number" id="budget-target" value="1000" min="0" step="50" placeholder="1000">
+            </div>
+        </div>
 
         <!-- 開始按鈕 -->
         <button class="start-button" id="start-button" data-i18n="btn-start">Start Meeting Timer</button>
 
-        <!-- 即時計時器（初始隱藏） -->
+        <!-- 計時器區域 -->
         <div class="timer-section" id="timer-section">
             <div class="timer-display">
                 <div class="timer-status" id="timer-status">
@@ -102,71 +99,71 @@
                 <div class="live-cost" id="live-cost">$0.00</div>
                 <div class="elapsed-time" id="elapsed-time">00:00</div>
                 <div class="meeting-info" id="meeting-info">
-                    <span data-i18n="info-attendees">5 attendees</span> · 
+                    <span data-i18n="info-attendees">5 attendees</span> • 
                     <span data-i18n="info-rate">$200/hr avg</span>
                 </div>
             </div>
-            
+
             <!-- 全螢幕按鈕 -->
             <button class="fullscreen-button" id="fullscreen-button">
                 <span class="fullscreen-icon">⛶</span>
                 <span data-i18n="btn-fullscreen">Full Screen Mode</span>
             </button>
-            
-            <!-- 操作按鈕區 -->
+
+            <!-- 計時器控制按鈕 -->
             <div class="timer-actions">
                 <button class="pause-button" id="pause-button" style="display: none;">
-                    <span>⏸️</span>
+                    <span>⏸</span>
                     <span data-i18n="btn-pause">Pause</span>
                 </button>
                 <button class="stop-button" id="stop-button" data-i18n="btn-stop">End Meeting</button>
-                
-                <!-- 會議結束後的按鈕組 -->
-                <div class="share-actions" id="share-actions" style="display: none;">
-                    <button class="share-button" id="share-button">
-                        <span>📸</span>
-                        <span data-i18n="btn-share">Download Image</span>
-                    </button>
-                    <button class="export-csv-button" id="export-csv-button">
-                        <span>📊</span>
-                        <span data-i18n="btn-export-csv">Export CSV</span>
-                    </button>
-                    <button class="copy-link-button" id="copy-link-button">
-                        <span>🔗</span>
-                        <span data-i18n="btn-copy-link">Copy Share Link</span>
-                    </button>
-                    <button class="qr-button" id="qr-button">
-                        <span>📱</span>
-                        <span data-i18n="btn-qr-code">Show QR Code</span>
-                    </button>
-                </div>
-                
-                <button class="reset-button" id="reset-button" style="display: none;" data-i18n="btn-reset">New Meeting</button>
             </div>
+
+            <!-- 分享按鈕 -->
+            <div class="share-actions" id="share-actions" style="display: none;">
+                <button class="share-button" id="share-button">
+                    <span>📸</span>
+                    <span data-i18n="btn-share">Download Image</span>
+                </button>
+                <button class="export-csv-button" id="export-csv-button">
+                    <span>📊</span>
+                    <span data-i18n="btn-export-csv">Export CSV</span>
+                </button>
+                <button class="copy-link-button" id="copy-link-button">
+                    <span>🔗</span>
+                    <span data-i18n="btn-copy-link">Copy Share Link</span>
+                </button>
+                <button class="qr-button" id="qr-button">
+                    <span>📱</span>
+                    <span data-i18n="btn-qr-code">Show QR Code</span>
+                </button>
+            </div>
+
+            <button class="reset-button" id="reset-button" style="display: none;" data-i18n="btn-reset">New Meeting</button>
         </div>
 
-        <!-- Buy Me a Coffee 按鈕 -->
+        <!-- Buy Me a Coffee -->
         <div class="support-section">
             <a href="https://www.buymeacoffee.com/LCPYM" target="_blank" class="bmc-button">
                 <span class="bmc-icon">☕</span>
                 <span data-i18n="bmc-text">Buy Me a Coffee</span>
             </a>
         </div>
-         <!-- 會議記錄區（✅ 在這裡加入） -->
+
+        <!-- 會議歷史 -->
         <div class="history-section" id="history-section" style="display: none;">
             <div class="history-header">
-                <h3 data-i18n="history-title">📝 Meeting History</h3>
+                <h3 data-i18n="history-title">Meeting History</h3>
                 <button class="clear-history-btn" id="clear-history-btn" data-i18n="btn-clear-history">Clear All</button>
             </div>
             <div class="history-list" id="history-list"></div>
         </div>
     </div>
-    </div>
 
     <footer>
         <p data-i18n="footer-tip">💡 Tip: Reduce meeting time or attendees to save significantly</p>
         <p class="shortcuts-hint">
-            ⌨️ <span data-i18n="shortcuts">Shortcuts: Space = Start/Pause | Esc = Reset | F = Fullscreen</span>
+            <span data-i18n="shortcuts">Shortcuts: Space = Start/Pause | Esc = Reset | F = Fullscreen</span>
         </p>
     </footer>
 
