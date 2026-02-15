@@ -653,15 +653,13 @@ function toggleFullscreen() {
         // 根據螢幕高度調整容器
         const container = document.querySelector('.container');
         if (screenHeight >= 1440) {
-            // 2K 或 4K 螢幕
-            container.style.transform = 'scale(1.5)';
+            container.style.transform = 'scale(1.25)';
         } else if (screenHeight >= 1080) {
-            // Full HD
-            container.style.transform = 'scale(1.3)';
+            container.style.transform = 'scale(1.15)';
         } else {
-            // 一般螢幕
-            container.style.transform = 'scale(1.1)';
-        }
+            container.style.transform = 'scale(1.08)';
+        }  
+
         
         document.body.classList.add('fullscreen-mode');
         isFullscreen = true;
