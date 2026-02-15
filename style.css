@@ -1296,7 +1296,7 @@ body.fullscreen-mode .container {
     border-radius: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     background: var(--card-bg);
 }
@@ -1327,7 +1327,7 @@ body.fullscreen-mode .timer-display {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    flex: 1;
+    flex: none;
 }
 
 body.fullscreen-mode .timer-display::before {
@@ -1362,7 +1362,7 @@ body.fullscreen-mode .elapsed-time {
 
 /* 全螢幕按鈕 */
 body.fullscreen-mode .fullscreen-button {
-    position: fixed;
+    position: absolute;
     top: 2vh;
     right: 2vw;
     width: auto;
@@ -1375,7 +1375,7 @@ body.fullscreen-mode .fullscreen-button {
 
 /* 會議進行中的控制按鈕 */
 body.fullscreen-mode.meeting-active .timer-actions {
-    position: fixed;
+    position: absolute;
     bottom: 3vh;
     left: 50%;
     transform: translateX(-50%);
