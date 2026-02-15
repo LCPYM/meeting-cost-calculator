@@ -638,6 +638,33 @@ const exitHint = document.createElement('div');
 exitHint.className = 'exit-fullscreen-hint';
 document.body.appendChild(exitHint);
 
+// 根據螢幕解析率調整全螢幕大小
+function adjustFullscreenSize() {
+    const screenWidth = window.screen.width;
+    const screenHeight = window.screen.height;
+    
+    console.log(`🖥️ 螢幕解析率: ${screenWidth}x${screenHeight}`);
+    
+    // 根據螢幕大小動態調整
+    if (screenWidth >= 3840) { // 4K
+        document.documentElement.style.setProperty('--fullscreen-cost-size', '24rem');
+        document.documentElement.style.setProperty('--fullscreen-time-size', '12rem');
+        console.log('📺 4K 模式');
+    } else if (screenWidth >= 2560) { // 2K
+        document.documentElement.style.setProperty('--fullscreen-cost-size', '18rem');
+        document.documentElement.style.setProperty('--fullscreen-time-size', '9rem');
+        console.log('📺 2K 模式');
+    } else if (screenWidth >= 1920) { // Full HD
+        document.documentElement.style.setProperty('--fullscreen-cost-size', '14rem');
+        document.documentElement.style.setProperty('--fullscreen-time-size', '7rem');
+        console.log('📺 Full HD 模式');
+    } else { // HD 或更小
+        document.documentElement.style.setProperty('--fullscreen-cost-size', '10rem');
+        document.documentElement.style.setProperty('--fullscreen-time-size', '5rem');
+        console.log('📺 HD 模式');
+    }
+}
+
 function toggleFullscreen() {
     if (!isFullscreen) {
         if (document.documentElement.requestFullscreen) {
@@ -648,6 +675,9 @@ function toggleFullscreen() {
         document.body.classList.add('fullscreen-mode');
         isFullscreen = true;
         
+        // 根據螢幕解析率調整大小
+        adjustFullscreenSize();
+    
         exitHint.textContent = translations[currentLang]['exit-fullscreen-hint'];
         exitHint.classList.add('show');
         setTimeout(() => exitHint.classList.remove('show'), 3000);
