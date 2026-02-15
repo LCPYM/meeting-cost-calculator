@@ -232,19 +232,31 @@ function calculateEstimate() {
 function startTimer() {
     console.log('🚀 開始計時！');
     
-    // 簡單方式：直接用 CSS class 控制
-    document.body.classList.add('timer-active');
+    // 隱藏所有輸入欄位（正確方式）
+    const inputGroups = document.querySelectorAll('.input-group');
+    inputGroups.forEach(group => {
+        group.style.display = 'none';
+    });
+    
+    // 隱藏其他區域
+    const estimateSection = document.querySelector('.estimate-section');
+    const budgetSection = document.querySelector('.budget-section');
+    const templateSection = document.querySelector('.template-section');
+    const supportSection = document.querySelector('.support-section');
+    const historySection = document.getElementById('history-section');
+    
+    if (estimateSection) estimateSection.style.display = 'none';
+    if (budgetSection) budgetSection.style.display = 'none';
+    if (templateSection) templateSection.style.display = 'none';
+    if (supportSection) supportSection.style.display = 'none';
+    if (historySection) historySection.style.display = 'none';
+    
+    // 隱藏開始按鈕
+    if (startButton) startButton.style.display = 'none';
     
     // 顯示計時器
-    const timerSection = document.getElementById('timer-section');
-    if (timerSection) {
-        timerSection.classList.add('active');
-    }
-    
-    // 顯示暫停按鈕
-    if (typeof pauseButton !== 'undefined' && pauseButton) {
-        pauseButton.style.display = 'flex';
-    }
+    timerSection.classList.add('active');
+    pauseButton.style.display = 'flex';
     
     // 初始化計時變數
     startTime = Date.now();
@@ -252,17 +264,12 @@ function startTimer() {
     pausedTime = 0;
     isPaused = false;
     hasShownWarning = false;
-    
-    if (typeof budgetExceededShown !== 'undefined') {
-        budgetExceededShown = false;
-    }
-    
-    if (typeof removeBudgetExceededBanner === 'function') {
-        removeBudgetExceededBanner();
-    }
+    budgetExceededShown = false;
+    removeBudgetExceededBanner();
     
     // 開始計時
     timerInterval = setInterval(updateTimer, 100);
+    
     console.log('✅ 計時器已啟動！');
 }
 
@@ -383,6 +390,9 @@ function stopTimer() {
 
 // 重置
 function reset() {
+    console.log('🔄 重置中...');
+    
+    // 退出全螢幕
     if (isFullscreen) {
         if (document.exitFullscreen) {
             document.exitFullscreen();
@@ -393,27 +403,81 @@ function reset() {
         isFullscreen = false;
     }
     
-    document.querySelector('.timer-display').classList.remove('stopped');
-    document.querySelector('.timer-display').classList.remove('alert');
-    document.querySelector('.timer-display').classList.remove('budget-warning');
-    document.querySelector('.status-indicator').classList.add('running');
-    document.querySelector('.status-indicator').classList.remove('stopped');
-    document.querySelector('[data-i18n="timer-label"]').textContent = 
-        translations[currentLang]['timer-label'];
-    liveCostEl.classList.remove('final');
+    // 重置計時器樣式
+    const timerDisplay = document.querySelector('.timer-display');
+    const statusIndicator = document.querySelector('.status-indicator');
+    const timerLabel = document.querySelector('[data-i18n="timer-label"]');
     
+    if (timerDisplay) {
+        timerDisplay.classList.remove('stopped', 'alert', 'budget-warning');
+    }
+    
+    if (statusIndicator) {
+        statusIndicator.classList.add('running');
+        statusIndicator.classList.remove('stopped');
+    }
+    
+    if (timerLabel) {
+        timerLabel.textContent = translations[currentLang]['timer-label'];
+    }
+    
+    if (liveCostEl) {
+        liveCostEl.classList.remove('final');
+    }
+    
+    // 隱藏計時器
     timerSection.classList.remove('active');
     
-    document.querySelector('.input-section').style.display = 'flex';
-    document.querySelector('.estimate-section').style.display = 'block';
-    startButton.style.display = 'block';
-    document.querySelector('.support-section').style.display = 'block';
+    // 顯示所有輸入欄位（正確方式）
+    const inputGroups = document.querySelectorAll('.input-group');
+    inputGroups.forEach(group => {
+        group.style.display = 'flex';
+    });
     
-    stopButton.style.display = 'block';
-    pauseButton.style.display = 'none';
-    pauseButton.classList.remove('paused');
+    // 顯示其他區域
+    const estimateSection = document.querySelector('.estimate-section');
+    const budgetSection = document.querySelector('.budget-section');
+    const templateSection = document.querySelector('.template-section');
+    const supportSection = document.querySelector('.support-section');
+    
+    if (estimateSection) estimateSection.style.display = 'block';
+    if (budgetSection) budgetSection.style.display = 'block';
+    if (templateSection) templateSection.style.display = 'block';
+    if (supportSection) supportSection.style.display = 'block';
+    if (startButton) startButton.style.display = 'block';
+    
+    // 重置按鈕狀態
+    if (stopButton) stopButton.style.display = 'block';
+    if (pauseButton) {
+        pauseButton.style.display = 'none';
+        pauseButton.classList.remove('paused');
+    }
+    
     document.getElementById('share-actions').style.display = 'none';
     document.getElementById('reset-button').style.display = 'none';
+    
+    // 移除預算相關元素
+    const budgetProgress = document.querySelector('.budget-progress');
+    const budgetInfo = document.querySelector('.budget-info');
+    
+    if (budgetProgress) budgetProgress.remove();
+    if (budgetInfo) budgetInfo.remove();
+    
+    removeBudgetExceededBanner();
+    
+    // 重置狀態變數
+    isPaused = false;
+    hasShownWarning = false;
+    budgetExceededShown = false;
+    
+    // 重新計算預估
+    calculateEstimate();
+    
+    // 滾動到頂部
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    
+    console.log('✅ 重置完成！');
+}
 
     // 移除預算進度條
     const budgetProgress = document.querySelector('.budget-progress');
@@ -945,22 +1009,29 @@ function showBudgetExceededBanner() {
     
     budgetExceededBanner = document.createElement('div');
     budgetExceededBanner.className = 'budget-exceeded-banner';
-    const message = currentLang === 'zh' ? '⚠️ 已超出預算！' : '⚠️ Budget Exceeded!';
+    
+    const message = currentLang === 'zh' ? '預算已超支！' : 'Budget Exceeded!';
     budgetExceededBanner.innerHTML = `
-        <span class="budget-icon">🚨</span>
+        <span class="budget-icon">⚠️</span>
         <span>${message}</span>
     `;
+    
     document.body.appendChild(budgetExceededBanner);
     
-    // 播放提示音（如果瀏覽器支援）
+    // 音效部分用 try-catch 包起來
     try {
-        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZiTYIG2m98OScTgwOUKXh8bllHAU2jtfyz3goBS l3yPDej0EKElyx6ezqVxQJQ5zd8cBxIgUpfs7y2og3Bxpnve/mnFIMDU+k4fG7Zh4GNI3X8dJ7LgUnd8nw4JFDChFaoe3uqVkWC0OZ2/K9bCIGKX7P8diINQcZZbzv5p1QDAZMouLyv2seBy qO2fPUfS8GJ3bK8eGSRgoQWKDt7qxcGQ1Dn9vyvmwjBSh+zfHajzgIF2W+8OihUQ4NTqPj8rhrHwg2jtjy0nswBSZzyO3PkUUMDFmf6+6rWhkMQ5vb8bxsIwUog83y2YczBxdmu+/mnVIMC0yi4fG7aCAINJDY8s9+MQYmdsjv0JFECw1Zpejtr1kZC0Kb2vG7bSMGJ3/N8dmINgcYZLzv5p1SCgxLn+3yv2ohBy+M2PTRfisFJnXI7tCRRQsNWaXo7alZGQpCmtrzumwiCCR9zvPZijYHGWK68OWdTwsNTKLj8b5sIAcwj9jy1oAxByZzzO7QkUULDVmj5+ynVxkMQpvb8rpqIwgmfMzx2II0CBlhuO/lm1ANDk2k5fK8aiAGLYvX8NR8MwcldMjt0I9GDA5ZpOjvqVQXD0Sa2fK9ayMHJXzN89iEMwkZYLfu5ZtPDQ5Nn+TwvGkfBy yJ1/DTfDMHJHTH7c+QRYEMWAUG4G1yH4YsXh8Rd' + 
-        'WwqhS2Hb9l/KIcu5DphQAnBRKb+w5bqzgw5ftkGO/4BjfRSMWB6oUL1/gqD3hA03jDeLuMkJ1Q7Xp3kxfWVN1jrfKQ=='
-        );
+        const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj...');
         audio.volume = 0.3;
-        audio.play().catch(() => {});
-    } catch (e) {}
+        audio.play().catch(() => {
+            // 音效播放失敗時不做任何事
+            console.log('⚠️ 音效播放失敗，但繼續執行');
+        });
+    } catch (e) {
+        // 音效載入失敗時不做任何事
+        console.log('⚠️ 音效載入失敗，但繼續執行');
+    }
 }
+
 
 // 移除預算超出橫幅
 function removeBudgetExceededBanner() {
