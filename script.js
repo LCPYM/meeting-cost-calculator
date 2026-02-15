@@ -653,11 +653,11 @@ function toggleFullscreen() {
         // 根據螢幕高度調整容器
         const container = document.querySelector('.container');
         if (screenHeight >= 1440) {
-            container.style.transform = 'scale(1.15)';
+            container.style.transform = 'scale(1.1)';
         } else if (screenHeight >= 1080) {
-            container.style.transform = 'scale(1.10)';
+            container.style.transform = 'scale(1.05)';
         } else {
-            container.style.transform = 'scale(1.03)';
+            container.style.transform = 'scale(1.0)';
         }  
 
         
