@@ -2026,3 +2026,29 @@ body.fullscreen-mode .reset-button {
 .share-actions.show .qr-button {
     display: flex !important;
 }
+/* 1. 修復四大功能鍵與 New Meeting 間距 */
+.share-actions.show {
+    margin-bottom: 20px !important; /* 增加底部間距 */
+}
+
+.reset-button {
+    margin-top: 20px !important; /* New Meeting 按鈕上方留白 */
+}
+
+/* 2. 修復超支時背景顏色變化 */
+body.meeting-ended.budget-exceeded {
+    background-color: inherit !important; /* 維持原本背景色 */
+}
+
+body.meeting-ended {
+    background-color: inherit !important; /* 確保不變色 */
+}
+
+/* 3. 進度條深紅色加白邊（更顯眼但不撞色）*/
+.budget-fill {
+    box-shadow: 0 0 0 2px white, 0 0 8px rgba(0,0,0,0.3) !important;
+}
+
+.timer-display.budget-warning .budget-fill {
+    box-shadow: 0 0 0 2px white, 0 0 12px rgba(255,255,255,0.5) !important;
+}
