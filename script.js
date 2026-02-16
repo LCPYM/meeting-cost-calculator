@@ -68,7 +68,9 @@ const translations = {
         'no-records': '沒有會議記錄',
         'qr-generated': 'QR Code 已生成！',
         'downloading': '正在生成圖片...',
-        'csv-exported': 'CSV 已匯出！'
+        'csv-exported': 'CSV 已匯出！',
+        'time-too-long': '會議時間過長，建議精簡議程！',
+        'use-these-settings': '使用這些設定：'
     },
     en: {
         'title': 'Meeting Cost Calculator',
@@ -138,7 +140,9 @@ const translations = {
         'no-records': 'No records found',
         'qr-generated': 'QR Code generated!',
         'downloading': 'Generating image...',
-        'csv-exported': 'CSV exported!'
+        'csv-exported': 'CSV exported!',
+        'time-too-long': 'Meeting time is too long, consider shortening the agenda!',
+        'use-these-settings': 'Use these settings:'
     }
 };
 
@@ -191,7 +195,8 @@ const app = {
             budgetInputGroup: document.getElementById('budget-input-group'),
             fullscreenButton: document.getElementById('fullscreen-button'),
             meetingInfo: document.getElementById('meeting-info'),
-            shareActions: document.getElementById('share-actions')
+            shareActions: document.getElementById('share-actions'),
+            timerDisplay: document.querySelector('.timer-display')
         };
     }
 };
@@ -405,7 +410,7 @@ function updateTimer() {
     const now = Date.now();
     app.state.elapsedSeconds = (now - app.state.startTime - app.state.pausedTime) / 1000;
 
-    const { attendeesInput, hourlyRateInput, liveCostEl, elapsedTimeEl } = app.elements;
+    const { attendeesInput, hourlyRateInput, liveCostEl, elapsedTimeEl, timerDisplay } = app.elements;
     const { currentCurrency } = app.state;
 
     const attendees = parseInt(attendeesInput.value) || 0;
@@ -422,13 +427,15 @@ function updateTimer() {
     const budgetEnabled = app.elements.budgetEnabled.checked;
     const budgetTarget = parseFloat(app.elements.budgetTarget.value) || 0;
 
-    // ✨ 修復：計時器超支時變紅色
+    // ✨ 修復：計時器超支時變紅色（數字 + 背景）
     if (budgetEnabled && budgetTarget > 0 && currentCost > budgetTarget) {
         document.body.classList.add('budget-exceeded');
         liveCostEl.classList.add('exceeded');
+        timerDisplay.classList.add('budget-warning');  // ← 新增：整個計時器變紅色
     } else {
         document.body.classList.remove('budget-exceeded');
         liveCostEl.classList.remove('exceeded');
+        timerDisplay.classList.remove('budget-warning');  // ← 新增：移除紅色背景
     }
 
     if (currentCost > 500 && !app.state.hasShownWarning) {
@@ -459,7 +466,7 @@ function togglePause() {
         pauseButton.classList.add('paused');
         pauseButton.innerHTML = `<span>▶</span><span data-i18n="btn-resume">${translations[currentLang]['btn-resume']}</span>`;
 
-        document.querySelector('.timer-display').classList.add('stopped');
+        document.querySelector('.timer-display').classList.remove('stopped');
         document.querySelector('[data-i18n="timer-label"]').textContent = translations[currentLang]['timer-label-paused'];
     }
 }
@@ -470,7 +477,7 @@ function stopTimer() {
     document.body.classList.remove('meeting-active');
     document.body.classList.add('meeting-ended');
 
-    const { attendeesInput, hourlyRateInput, liveCostEl, stopButton, pauseButton, shareActions, resetButton } = app.elements;
+    const { attendeesInput, hourlyRateInput, liveCostEl, stopButton, pauseButton, shareActions, resetButton, timerDisplay } = app.elements;
     const { currentCurrency, elapsedSeconds } = app.state;
 
     const attendees = parseInt(attendeesInput.value) || 0;
@@ -481,13 +488,13 @@ function stopTimer() {
     const finalCost = costPerSecond * elapsedSeconds;
 
     document.querySelector('.timer-display').classList.add('stopped');
-    document.querySelector('.timer-display').classList.remove('alert');
     document.querySelector('.status-indicator').classList.remove('running');
     document.querySelector('.status-indicator').classList.add('stopped');
     document.querySelector('[data-i18n="timer-label"]').textContent = translations[app.state.currentLang]['timer-label-stopped'];
 
     liveCostEl.classList.add('final');
     liveCostEl.classList.remove('exceeded');
+    timerDisplay.classList.remove('budget-warning');  // ← 結束時移除紅色背景
     liveCostEl.textContent = `${symbol}${finalCost.toFixed(2)}`;
 
     stopButton.style.display = 'none';
@@ -510,8 +517,6 @@ function showCostWarning() {
     warning.className = 'cost-warning';
     warning.textContent = translations[app.state.currentLang]['cost-warning'].replace('{currency}', symbol);
     document.body.appendChild(warning);
-
-    document.querySelector('.timer-display').classList.add('alert');
 
     setTimeout(() => {
         warning.style.animation = 'warningPulse 0.5s ease reverse';
@@ -580,6 +585,7 @@ function updateBudgetInfo(currentCost, budgetTarget) {
     }
 }
 
+// ✨ 新增：預算超支橫幅
 function showBudgetExceededBanner() {
     if (document.querySelector('.budget-exceeded-banner')) return;
 
@@ -794,14 +800,14 @@ function clearHistory() {
 
 // ==================== 導出功能 ====================
 
-// ✨ 修復：下載圖片功能
+// ✨ 修復：下載圖片功能（生成完整資訊）
 function downloadImage() {
     showToast(translations[app.state.currentLang]['downloading']);
 
     if (typeof html2canvas === 'undefined') {
-        loadHtml2Canvas().then(() => captureImage());
+        loadHtml2Canvas().then(() => prepareAndCaptureImage());
     } else {
-        captureImage();
+        prepareAndCaptureImage();
     }
 }
 
@@ -815,10 +821,86 @@ function loadHtml2Canvas() {
     });
 }
 
-function captureImage() {
-    const element = document.querySelector('.timer-display');
+// ✨ 新增：準備完整資訊並截圖
+function prepareAndCaptureImage() {
+    const { attendeesInput, hourlyRateInput, liveCostEl, elapsedTimeEl, timerDisplay } = app.elements;
+    const { currentLang, currentCurrency, elapsedSeconds } = app.state;
 
-    html2canvas(element, {
+    const attendees = parseInt(attendeesInput.value) || 0;
+    const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
+    const symbol = currencySymbols[currentCurrency];
+
+    // 計算當前成本
+    const costPerSecond = (attendees * hourlyRate) / 3600;
+    const currentCost = costPerSecond * elapsedSeconds;
+
+    // 檢查是否超支
+    const budgetEnabled = app.elements.budgetEnabled.checked;
+    const budgetTarget = parseFloat(app.elements.budgetTarget.value) || 0;
+    const isExceeded = budgetEnabled && budgetTarget > 0 && currentCost > budgetTarget;
+
+    // 生成分享URL
+    const shareURL = `${window.location.origin}${window.location.pathname}?attendees=${attendees}&rate=${hourlyRate}&currency=${currentCurrency}`;
+
+    // 建立完整資訊容器
+    const infoContainer = document.createElement('div');
+    infoContainer.style.cssText = `
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+        background: ${isExceeded ? 'linear-gradient(135deg, #ef476f 0%, #e63946 100%)' : 'linear-gradient(135deg, #0077b6 0%, #00b4d8 100%)'};
+        color: white;
+        padding: 40px;
+        border-radius: 20px;
+        font-family: 'Noto Sans TC', sans-serif;
+        width: 600px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    `;
+
+    const minutes = Math.floor(elapsedSeconds / 60);
+    const seconds = Math.floor(elapsedSeconds % 60);
+    const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+    // 建立 HTML 內容
+    let content = '';
+
+    if (isExceeded) {
+        const overAmount = currentCost - budgetTarget;
+        content = `
+            <div style="text-align: center;">
+                <div style="font-size: 1.8rem; margin-bottom: 20px;">⚠️ ${translations[currentLang]['budget-exceeded']}</div>
+                <h2 style="font-size: 1.5rem; margin-bottom: 10px;">${translations[currentLang]['share-title']}</h2>
+                <div style="font-size: 4rem; font-weight: 800; margin: 20px 0;">${symbol}${currentCost.toFixed(2)}</div>
+                <div style="font-size: 1.2rem; margin: 15px 0; color: #ffeeee;">${translations[currentLang]['budget-over']}: ${symbol}${overAmount.toFixed(2)}</div>
+                <div style="font-size: 1.1rem; margin: 10px 0; opacity: 0.9;">${timeStr} • ${attendees} ${translations[currentLang]['people']} • ${symbol}${hourlyRate}/hr</div>
+                <div style="font-size: 1rem; margin-top: 20px; opacity: 0.85;">${translations[currentLang]['time-too-long']}</div>
+                <div style="font-size: 0.85rem; margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.3);">
+                    <div>meeting-cost-calculator.vercel.app by LCPYM</div>
+                    <div style="margin-top: 10px; word-break: break-all;">${translations[currentLang]['use-these-settings']}<br/>${shareURL}</div>
+                </div>
+            </div>
+        `;
+    } else {
+        content = `
+            <div style="text-align: center;">
+                <h2 style="font-size: 1.5rem; margin-bottom: 10px;">${translations[currentLang]['share-title']}</h2>
+                <div style="font-size: 4rem; font-weight: 800; margin: 20px 0;">${symbol}${currentCost.toFixed(2)}</div>
+                <div style="font-size: 1.1rem; margin: 10px 0; opacity: 0.9;">${timeStr} • ${attendees} ${translations[currentLang]['people']} • ${symbol}${hourlyRate}/hr</div>
+                ${budgetEnabled && budgetTarget > 0 ? `<div style="font-size: 1rem; margin: 15px 0;">${translations[currentLang]['budget-remaining']}: ${symbol}${(budgetTarget - currentCost).toFixed(2)}</div>` : ''}
+                <div style="font-size: 0.95rem; margin-top: 20px; opacity: 0.85;">${translations[currentLang]['share-saving']}</div>
+                <div style="font-size: 0.85rem; margin-top: 30px; padding-top: 20px; border-top: 2px solid rgba(255,255,255,0.3);">
+                    <div>meeting-cost-calculator.vercel.app by LCPYM</div>
+                    <div style="margin-top: 10px; word-break: break-all;">${translations[currentLang]['use-these-settings']}<br/>${shareURL}</div>
+                </div>
+            </div>
+        `;
+    }
+
+    infoContainer.innerHTML = content;
+    document.body.appendChild(infoContainer);
+
+    // 截圖
+    html2canvas(infoContainer, {
         backgroundColor: null,
         scale: 2
     }).then(canvas => {
@@ -826,14 +908,18 @@ function captureImage() {
         link.download = `meeting-cost-${Date.now()}.png`;
         link.href = canvas.toDataURL();
         link.click();
+
+        // 清理
+        document.body.removeChild(infoContainer);
         showToast('Image downloaded! 📸');
     }).catch(error => {
         console.error('Screenshot failed:', error);
+        document.body.removeChild(infoContainer);
         showToast('Screenshot failed');
     });
 }
 
-// ✨ 修復：Export CSV 功能（修正邏輯）
+// Export CSV 功能
 function exportToCSV() {
     const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
 
@@ -924,7 +1010,7 @@ function copyShareLink() {
     });
 }
 
-// ✨ 修復：QR Code 功能（完整邏輯 + 關閉按鈕）
+// QR Code 功能
 let qrModal = null;
 
 function showQRCode() {
@@ -946,7 +1032,6 @@ function showQRCode() {
         `;
         document.body.appendChild(qrModal);
 
-        // ✨ 修復：確保關閉按鈕有效
         qrModal.querySelector('.qr-modal-close').addEventListener('click', (e) => {
             e.stopPropagation();
             qrModal.classList.remove('show');

@@ -477,6 +477,7 @@ body.dark-mode .budget-input-group input {
     font-weight: 600;
 }
 
+/* ✨ 新增：預算超支橫幅 */
 .budget-exceeded-banner {
     position: fixed;
     top: 20px;
@@ -716,6 +717,24 @@ body.dark-mode .template-empty {
     color: white;
     margin-bottom: calc(20px * var(--spacing-scale));
     box-shadow: var(--shadow-lg);
+    transition: background 0.3s ease;
+}
+
+/* ✨ 新增：非全螢幕時計時器超支變紅色 */
+.timer-display.budget-warning {
+    background: linear-gradient(135deg, var(--danger-color) 0%, #e63946 100%) !important;
+    animation: alertPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes alertPulse {
+    0%, 100% { 
+        transform: scale(1);
+        box-shadow: 0 0 0 0 rgba(239, 71, 111, 0.7);
+    }
+    50% { 
+        transform: scale(1.02);
+        box-shadow: 0 0 0 15px rgba(239, 71, 111, 0);
+    }
 }
 
 .timer-status {
@@ -768,10 +787,10 @@ body.dark-mode .template-empty {
     color: white !important;
 }
 
-/* ✨ 修復：計時器超支時變紅色（提高優先級）*/
+/* ✨ 計時器數字超支時變紅色 */
 .live-cost.exceeded {
-    color: #ff4444 !important;
-    text-shadow: 0 0 20px rgba(255, 68, 68, 0.8), 2px 2px 8px rgba(0, 0, 0, 0.3) !important;
+    color: #ffeeee !important;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 2px 2px 8px rgba(0, 0, 0, 0.3) !important;
     animation: costPulse 1.5s ease-in-out infinite;
 }
 
@@ -815,19 +834,6 @@ body.dark-mode .template-empty {
 
 .timer-display.stopped {
     background: linear-gradient(135deg, var(--text-light) 0%, var(--secondary-color) 100%);
-}
-
-.timer-display.alert {
-    animation: alertPulse 1s ease infinite;
-}
-
-@keyframes alertPulse {
-    0%, 100% {
-        box-shadow: 0 0 0 0 rgba(239, 71, 111, 0.7);
-    }
-    50% {
-        box-shadow: 0 0 0 15px rgba(239, 71, 111, 0);
-    }
 }
 
 /* ==================== 全螢幕按鈕 ==================== */
@@ -1328,7 +1334,6 @@ body.fullscreen-mode {
     padding: 0;
 }
 
-/* ✨ 修復：全螢幕容器不溢出 */
 body.fullscreen-mode .container {
     max-width: none;
     width: calc(100% - 80px);
@@ -1402,7 +1407,6 @@ body.fullscreen-mode .stop-button {
     font-size: calc(1.4vw / var(--fullscreen-spacing));
 }
 
-/* ✨ 修復：紅框不溢出 */
 body.fullscreen-mode.budget-exceeded .container {
     border: 6px solid var(--danger-color);
     animation: borderPulse 2s infinite;
@@ -1555,10 +1559,17 @@ body.fullscreen-mode.theme-green:not(.dark-mode) .elapsed-time {
         gap: 10px;
     }
 
-    /* ✨ 修復：手機版按鈕垂直排列 */
+    /* ✨ 修復：手機版按鈕必須垂直排列 */
     .share-actions {
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr !important;
         gap: 10px;
+    }
+
+    .share-button,
+    .export-csv-button,
+    .copy-link-button,
+    .qr-button {
+        width: 100%;
     }
 
     .history-stats {
