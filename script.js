@@ -67,7 +67,8 @@ const translations = {
         'export-current': '僅匯出本次會議',
         'no-records': '沒有會議記錄',
         'qr-generated': 'QR Code 已生成！',
-        'downloading': '正在生成圖片...'
+        'downloading': '正在生成圖片...',
+        'csv-exported': 'CSV 已匯出！'
     },
     en: {
         'title': 'Meeting Cost Calculator',
@@ -136,7 +137,8 @@ const translations = {
         'export-current': 'Export Current Only',
         'no-records': 'No records found',
         'qr-generated': 'QR Code generated!',
-        'downloading': 'Generating image...'
+        'downloading': 'Generating image...',
+        'csv-exported': 'CSV exported!'
     }
 };
 
@@ -792,11 +794,10 @@ function clearHistory() {
 
 // ==================== 導出功能 ====================
 
-// ✨ 修復：下載圖片功能（使用 html2canvas）
+// ✨ 修復：下載圖片功能
 function downloadImage() {
     showToast(translations[app.state.currentLang]['downloading']);
 
-    // 需要先引入 html2canvas 庫
     if (typeof html2canvas === 'undefined') {
         loadHtml2Canvas().then(() => captureImage());
     } else {
@@ -832,7 +833,7 @@ function captureImage() {
     });
 }
 
-// ✨ 修復：Export CSV 選擇功能
+// ✨ 修復：Export CSV 功能（修正邏輯）
 function exportToCSV() {
     const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
 
@@ -848,13 +849,13 @@ function exportToCSV() {
             <h3>${translations[app.state.currentLang]['export-range']}</h3>
             <p>${translations[app.state.currentLang]['export-found'].replace('{count}', history.length)}</p>
             <div class="export-modal-buttons">
-                <button class="export-all-btn" id="export-all-btn">
+                <button class="export-all-btn">
                     📊 ${translations[app.state.currentLang]['export-all']}
                 </button>
-                <button class="export-current-btn" id="export-current-btn">
+                <button class="export-current-btn">
                     📄 ${translations[app.state.currentLang]['export-current']}
                 </button>
-                <button class="export-cancel-btn" id="export-cancel-btn">
+                <button class="export-cancel-btn">
                     ❌ ${translations[app.state.currentLang]['btn-cancel']}
                 </button>
             </div>
@@ -863,17 +864,17 @@ function exportToCSV() {
 
     document.body.appendChild(modal);
 
-    document.getElementById('export-all-btn').addEventListener('click', () => {
+    modal.querySelector('.export-all-btn').addEventListener('click', () => {
         performExport(history, `all-meetings-${Date.now()}.csv`);
         modal.remove();
     });
 
-    document.getElementById('export-current-btn').addEventListener('click', () => {
+    modal.querySelector('.export-current-btn').addEventListener('click', () => {
         performExport([history[history.length - 1]], `current-meeting-${Date.now()}.csv`);
         modal.remove();
     });
 
-    document.getElementById('export-cancel-btn').addEventListener('click', () => {
+    modal.querySelector('.export-cancel-btn').addEventListener('click', () => {
         modal.remove();
     });
 
@@ -883,26 +884,33 @@ function exportToCSV() {
 }
 
 function performExport(data, filename) {
-    const csvContent = [
-        ['Date', 'Attendees', 'Hourly Rate', 'Currency', 'Duration (min)', 'Total Cost'],
-        ...data.map(record => [
-            record.date,
-            record.attendees,
-            record.hourlyRate,
-            record.currency,
-            record.duration,
-            record.cost
-        ])
-    ].map(row => row.join(',')).join('\n');
+    const headers = ['Date', 'Attendees', 'Hourly Rate', 'Currency', 'Duration (min)', 'Total Cost'];
+    const rows = data.map(record => [
+        `"${record.date}"`,
+        record.attendees,
+        record.hourlyRate,
+        record.currency,
+        record.duration,
+        record.cost
+    ]);
 
-    const blob = new Blob([csvContent], { type: 'text/csv' });
-    const url = URL.createObjectURL(blob);
+    const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
 
-    showToast(translations[app.state.currentLang]['btn-export-csv'] + ' ✓');
+    if (navigator.msSaveBlob) {
+        navigator.msSaveBlob(blob, filename);
+    } else {
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.style.display = 'none';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    showToast(translations[app.state.currentLang]['csv-exported']);
 }
 
 function copyShareLink() {
@@ -916,29 +924,31 @@ function copyShareLink() {
     });
 }
 
-// ✨ 修復：QR Code 美觀功能
+// ✨ 修復：QR Code 功能（完整邏輯 + 關閉按鈕）
+let qrModal = null;
+
 function showQRCode() {
     const { attendeesInput, hourlyRateInput, durationInput } = app.elements;
     const { currentCurrency, currentLang } = app.state;
 
     const url = `${window.location.origin}${window.location.pathname}?attendees=${attendeesInput.value}&rate=${hourlyRateInput.value}&duration=${durationInput.value}&currency=${currentCurrency}`;
 
-    let qrModal = document.querySelector('.qr-modal');
-
     if (!qrModal) {
         qrModal = document.createElement('div');
         qrModal.className = 'qr-modal';
         qrModal.innerHTML = `
             <div class="qr-modal-content">
-                <h2 class="qr-modal-title" data-i18n="qr-title">${translations[currentLang]['qr-title']}</h2>
+                <h2 class="qr-modal-title">${translations[currentLang]['qr-title']}</h2>
                 <div class="qr-code-container" id="qr-code-display"></div>
                 <div class="qr-modal-url" id="qr-modal-url"></div>
-                <button class="qr-modal-close" id="qr-modal-close" data-i18n="btn-close">${translations[currentLang]['btn-close']}</button>
+                <button class="qr-modal-close">${translations[currentLang]['btn-close']}</button>
             </div>
         `;
         document.body.appendChild(qrModal);
 
-        document.getElementById('qr-modal-close').addEventListener('click', () => {
+        // ✨ 修復：確保關閉按鈕有效
+        qrModal.querySelector('.qr-modal-close').addEventListener('click', (e) => {
+            e.stopPropagation();
             qrModal.classList.remove('show');
         });
 
@@ -949,7 +959,7 @@ function showQRCode() {
         });
     }
 
-    const qrContainer = document.getElementById('qr-code-display');
+    const qrContainer = qrModal.querySelector('#qr-code-display');
     qrContainer.innerHTML = '';
 
     try {
@@ -962,13 +972,13 @@ function showQRCode() {
             correctLevel: QRCode.CorrectLevel.H
         });
 
-        document.getElementById('qr-modal-url').textContent = url;
+        qrModal.querySelector('#qr-modal-url').textContent = url;
         qrModal.classList.add('show');
 
         showToast(translations[currentLang]['qr-generated']);
     } catch (error) {
         console.error('QR Code generation failed:', error);
-        alert(url);
+        alert(`QR Code failed. URL: ${url}`);
     }
 }
 
@@ -984,8 +994,12 @@ function initKeyboardShortcuts() {
             }
         }
 
-        if (e.key === 'Escape' && app.elements.resetButton.style.display !== 'none') {
-            reset();
+        if (e.key === 'Escape') {
+            if (qrModal && qrModal.classList.contains('show')) {
+                qrModal.classList.remove('show');
+            } else if (app.elements.resetButton.style.display !== 'none') {
+                reset();
+            }
         }
 
         if (e.key === 'f' || e.key === 'F') {
