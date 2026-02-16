@@ -2,10 +2,18 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700&display=swap');
 
-/* ==================== 三種配色方案 ==================== */
+/* ==================== 全局縮放控制變量 ==================== */
 
 :root {
-    /* 方案 1: Ocean Blue (預設) */
+    /* 🎛️ 全螢幕縮放控制（調整這一個參數即可控制整體大小）*/
+    --fullscreen-scale: 0.9;  /* 範圍：0.6 - 1.0，預設 0.9 */
+
+    /* 🎛️ 全螢幕佈局控制 */
+    --fs-padding: 2vh;        /* 紅框與螢幕邊緣距離 */
+    --fs-gap: 1.5vh;          /* 元素之間的間距 */
+    --fs-border-width: 6px;   /* 紅框寬度 */
+
+    /* 三種配色方案 */
     --primary-color: #0077b6;
     --primary-dark: #03045e;
     --primary-light: #00b4d8;
@@ -25,7 +33,6 @@
 
     /* 疏密度控制變量 */
     --spacing-scale: 0.7;
-    --fullscreen-spacing: 0.7;
 }
 
 /* 方案 2: Purple Dream */
@@ -135,7 +142,7 @@ body.dark-mode .shortcuts-hint {
     color: var(--secondary-color);
 }
 
-/* ✨ 修復：Dark mode 下 Meeting History 使用和 bright mode 一樣的顏色 */
+/* Dark mode 下 Meeting History 使用和 bright mode 一樣的顏色 */
 body.dark-mode .history-section {
     background: var(--accent-color);
 }
@@ -162,7 +169,7 @@ body.dark-mode .template-header h3 {
     color: var(--primary-dark);
 }
 
-/* ✨ 新增：Dark mode 下 New Meeting 按鍵顏色跟隨 Meeting History */
+/* Dark mode 下 New Meeting 按鍵顏色跟隨 Meeting History */
 body.dark-mode .reset-button {
     background: var(--accent-color);
     color: var(--primary-dark);
@@ -173,7 +180,7 @@ body.dark-mode .reset-button:hover {
     color: var(--primary-dark);
 }
 
-/* ✨ 修復：預算超支時背景不變白（使用半透明遮罩層）*/
+/* 預算超支時背景半透明遮罩 */
 body.budget-exceeded::after {
     content: '';
     position: fixed;
@@ -196,7 +203,6 @@ body.budget-exceeded::after {
     }
 }
 
-/* 確保其他元素在遮罩層之上 */
 .container,
 .budget-exceeded-banner,
 .toast {
@@ -381,7 +387,7 @@ input[type="number"] {
     appearance: textfield;
 }
 
-/* ✨ 修復：Currency 下拉選單添加向下箭頭 */
+/* Currency 下拉選單添加向下箭頭 */
 select {
     appearance: none;
     -webkit-appearance: none;
@@ -521,20 +527,14 @@ body.dark-mode .budget-input-group input {
     font-weight: 600;
 }
 
-/* ✨ 修復：計時完畢後超支時 "Over" 字眼變白色 */
-.timer-display.stopped .budget-info {
+/* ✅ 修復：超支時 "Over" 等字眼變白色（計時中和計時完畢）*/
+.timer-display.budget-warning .budget-info,
+.timer-display.budget-warning .budget-info span,
+.timer-display.budget-warning .budget-info strong {
     color: white !important;
 }
 
-.timer-display.stopped .budget-info span {
-    color: white !important;
-}
-
-.timer-display.stopped .budget-info strong {
-    color: white !important;
-}
-
-/* ✨ 新增：預算超支橫幅 */
+/* 預算超支橫幅 */
 .budget-exceeded-banner {
     position: fixed;
     top: 20px;
@@ -788,7 +788,7 @@ body.dark-mode .template-empty {
     transition: background 0.3s ease;
 }
 
-/* ✨ 新增：非全螢幕時計時器超支變紅色 */
+/* 非全螢幕時計時器超支變紅色 */
 .timer-display.budget-warning {
     background: linear-gradient(135deg, var(--danger-color) 0%, #e63946 100%) !important;
     animation: alertPulse 1.5s ease-in-out infinite;
@@ -855,7 +855,14 @@ body.dark-mode .template-empty {
     color: white !important;
 }
 
-/* ✨ 計時器數字超支時變紅色 */
+/* ✅ 修復：超支時金額、時間等變白色 */
+.timer-display.budget-warning .live-cost,
+.timer-display.budget-warning .elapsed-time,
+.timer-display.budget-warning .timer-label {
+    color: white !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
 .live-cost.exceeded {
     color: #ffeeee !important;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.8), 2px 2px 8px rgba(0, 0, 0, 0.3) !important;
@@ -873,14 +880,13 @@ body.dark-mode .template-empty {
     }
 }
 
-/* ✨ 修復：計時完畢後，保持計時時的顏色，只改變文字 */
+/* ✅ 修復：計時完畢後，超支保持紅色 */
 .timer-display.stopped.budget-warning {
-    /* 超支時：保持紅色背景 */
     background: linear-gradient(135deg, var(--danger-color) 0%, #e63946 100%) !important;
     animation: none;
 }
 
-/* ✨ 修復：計時完畢未超支時，移除黑色描邊，保持普通白色字體 */
+/* ✅ 修復：計時完畢未超支時，保持普通白色字體（無黑邊）*/
 .timer-display.stopped:not(.budget-warning) .timer-label,
 .timer-display.stopped:not(.budget-warning) .live-cost,
 .timer-display.stopped:not(.budget-warning) .elapsed-time,
@@ -1409,123 +1415,174 @@ body.dark-mode .qr-modal-url {
     transform: translateY(-2px);
 }
 
-/* ==================== 全螢幕模式 ==================== */
+/* ==================== 🎯 方案 2：全螢幕 Flexbox 佈局 ==================== */
 
 body.fullscreen-mode {
-    overflow: auto !important;
+    overflow: hidden;
     padding: 0;
+    margin: 0;
 }
 
 body.fullscreen-mode .container {
+    /* 🎛️ 使用 inset 確保容器在螢幕內，並留出紅框空間 */
+    position: fixed;
+    inset: var(--fs-padding);
     max-width: none;
-    width: 100%;
-    height: 100vh;
+    width: auto;
+    height: auto;
     margin: 0;
-    padding: 40px;
-    border-radius: 0;
+    padding: calc(var(--fs-padding) * 2);
+    border-radius: 15px;
+
+    /* Flexbox 佈局自動分配空間 */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: var(--fs-gap);
+
+    /* 背景和陰影 */
     background: var(--card-bg);
-    position: relative;
-    box-sizing: border-box;
+    box-shadow: none;
+
+    /* 🎛️ 後備縮放控制 */
+    transform: scale(var(--fullscreen-scale));
+    transform-origin: center;
+
+    /* 過渡效果 */
+    transition: transform 0.3s ease, border-color 0.3s ease;
 }
 
-/* ✨ 修復：全螢幕模式紅框 16:9 比例 */
+/* 🔴 超支時顯示紅框 */
 body.fullscreen-mode.budget-exceeded .container {
-    width: calc(100vh * 16 / 9);
-    max-width: 100vw;
-    height: calc(100vw * 9 / 16);
-    max-height: 100vh;
-    border: 6px solid var(--danger-color);
+    border: var(--fs-border-width) solid var(--danger-color);
     animation: borderPulse 2s infinite;
-    padding: 3vh 3vw;
 }
 
 @keyframes borderPulse {
     0%, 100% {
         border-color: var(--danger-color);
-        box-shadow: inset 0 0 30px rgba(239, 71, 111, 0.3);
+        box-shadow: inset 0 0 30px rgba(239, 71, 111, 0.2), 
+                    0 0 50px rgba(239, 71, 111, 0.3);
     }
     50% {
         border-color: #ff6b8a;
-        box-shadow: inset 0 0 50px rgba(239, 71, 111, 0.5);
+        box-shadow: inset 0 0 50px rgba(239, 71, 111, 0.4),
+                    0 0 80px rgba(239, 71, 111, 0.5);
     }
 }
 
-body.fullscreen-mode .budget-progress,
-body.fullscreen-mode .budget-info {
-    display: block !important;
-    max-width: 35vw;
-    margin: 2vh auto;
-}
-
+/* 全螢幕時隱藏不需要的元素 */
+body.fullscreen-mode .theme-selector,
+body.fullscreen-mode .language-toggle,
+body.fullscreen-mode .theme-toggle,
 body.fullscreen-mode .meeting-info,
 body.fullscreen-mode .history-section {
     display: none !important;
 }
 
-body.fullscreen-mode.meeting-active .share-actions,
-body.fullscreen-mode.meeting-active .reset-button,
-body.fullscreen-mode.meeting-active .support-section,
-body.fullscreen-mode.meeting-active .fullscreen-button {
-    display: none !important;
-}
-
+/* 全螢幕時計時器樣式 */
 body.fullscreen-mode .timer-display {
     background: transparent;
     box-shadow: none;
     padding: 0;
     margin: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex: none;
+    flex-shrink: 0;
 }
 
 body.fullscreen-mode .timer-label {
-    font-size: calc(1.8vw / var(--fullscreen-spacing));
+    font-size: clamp(1.2rem, 2vw, 2rem);
 }
 
 body.fullscreen-mode .live-cost {
-    font-size: calc(6.5vw / var(--fullscreen-spacing));
-    margin: calc(3vh * var(--fullscreen-spacing)) 0;
+    font-size: clamp(3rem, 8vw, 8rem);
+    margin: calc(var(--fs-gap) * 2) 0;
 }
 
 body.fullscreen-mode .elapsed-time {
-    font-size: calc(3.2vw / var(--fullscreen-spacing));
+    font-size: clamp(1.5rem, 4vw, 4rem);
 }
 
+/* 全螢幕時按鈕樣式 */
 body.fullscreen-mode .timer-actions {
-    margin-top: calc(4vh * var(--fullscreen-spacing));
-    justify-content: center;
-    gap: calc(2vw / var(--fullscreen-spacing));
+    margin: calc(var(--fs-gap) * 2) 0;
+    gap: var(--fs-gap);
+    flex-shrink: 0;
 }
 
 body.fullscreen-mode .pause-button,
 body.fullscreen-mode .stop-button {
-    min-width: calc(12vw / var(--fullscreen-spacing));
-    padding: calc(1.5vh * var(--fullscreen-spacing)) calc(2vw * var(--fullscreen-spacing));
-    font-size: calc(1.4vw / var(--fullscreen-spacing));
+    min-width: clamp(100px, 15vw, 200px);
+    padding: clamp(8px, 1.5vh, 16px) clamp(16px, 2vw, 32px);
+    font-size: clamp(0.9rem, 1.5vw, 1.3rem);
 }
 
-body.fullscreen-mode.budget-exceeded .live-cost {
-    animation: costBlink 1s infinite;
+/* 全螢幕時 Full screen 按鈕變成 Exit */
+body.fullscreen-mode .fullscreen-button {
+    flex-shrink: 0;
+    width: auto;
+    min-width: clamp(150px, 20vw, 250px);
+    padding: clamp(8px, 1vh, 12px) clamp(16px, 2vw, 24px);
+    font-size: clamp(0.85rem, 1.2vw, 1.1rem);
 }
 
-@keyframes costBlink {
-    0%, 100% {
-        opacity: 1;
-    }
-    50% {
-        opacity: 0.7;
-    }
+/* 全螢幕時四大功能按鈕 */
+body.fullscreen-mode .share-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--fs-gap);
+    width: 100%;
+    max-width: 500px;
+    flex-shrink: 0;
 }
 
-/* ✨ 修復：全螢幕 dark mode Meeting Ended 顏色跟隨金額和時間 */
+body.fullscreen-mode .share-button,
+body.fullscreen-mode .export-csv-button,
+body.fullscreen-mode .copy-link-button,
+body.fullscreen-mode .qr-button {
+    padding: clamp(8px, 1.5vh, 14px) clamp(12px, 1.5vw, 20px);
+    font-size: clamp(0.75rem, 1.2vw, 1rem);
+}
+
+/* 全螢幕時 Reset 按鈕 */
+body.fullscreen-mode .reset-button {
+    flex-shrink: 0;
+    width: auto;
+    max-width: 400px;
+    padding: clamp(8px, 1vh, 12px) clamp(20px, 2vw, 32px);
+    font-size: clamp(0.85rem, 1.2vw, 1.1rem);
+}
+
+/* ☕ Buy Me a Coffee 放在右下角 */
+body.fullscreen-mode .support-section {
+    position: fixed;
+    bottom: calc(var(--fs-padding) + 20px);
+    right: calc(var(--fs-padding) + 20px);
+    margin: 0;
+    z-index: 10;
+}
+
+body.fullscreen-mode .bmc-button {
+    padding: clamp(8px, 1vh, 12px) clamp(16px, 1.5vw, 24px);
+    font-size: clamp(0.8rem, 1vw, 1rem);
+}
+
+/* 預算進度條在全螢幕顯示 */
+body.fullscreen-mode .budget-progress,
+body.fullscreen-mode .budget-info {
+    display: block !important;
+    max-width: 400px;
+    margin: calc(var(--fs-gap) * 2) auto;
+}
+
+/* ✅ 全螢幕 dark mode Meeting Ended 顏色跟隨金額 */
+body.fullscreen-mode.dark-mode .timer-label,
+body.fullscreen-mode.dark-mode .live-cost,
+body.fullscreen-mode.dark-mode .elapsed-time {
+    color: white !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
 body.fullscreen-mode:not(.dark-mode) .timer-label,
 body.fullscreen-mode:not(.dark-mode) .live-cost,
 body.fullscreen-mode:not(.dark-mode) .elapsed-time {
@@ -1533,26 +1590,10 @@ body.fullscreen-mode:not(.dark-mode) .elapsed-time {
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-body.fullscreen-mode.dark-mode .timer-label,
-body.fullscreen-mode.dark-mode .live-cost,
-body.fullscreen-mode.dark-mode .elapsed-time {
-    color: white !important;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .live-cost:not(.exceeded),
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .elapsed-time {
-    color: #03045e !important;
-}
-
-body.fullscreen-mode.theme-purple:not(.dark-mode) .live-cost:not(.exceeded),
-body.fullscreen-mode.theme-purple:not(.dark-mode) .elapsed-time {
-    color: #240046 !important;
-}
-
-body.fullscreen-mode.theme-green:not(.dark-mode) .live-cost:not(.exceeded),
-body.fullscreen-mode.theme-green:not(.dark-mode) .elapsed-time {
-    color: #344e41 !important;
+/* 全螢幕時計時中顯示元素 */
+body.fullscreen-mode.meeting-active .share-actions,
+body.fullscreen-mode.meeting-active .reset-button {
+    display: none !important;
 }
 
 .exit-fullscreen-hint {
@@ -1656,7 +1697,7 @@ body.fullscreen-mode.theme-green:not(.dark-mode) .elapsed-time {
         gap: 10px;
     }
 
-    /* ✨ 修復：手機版按鈕垂直排列（使用!important確保優先級）*/
+    /* 手機版按鈕垂直排列 */
     .share-actions {
         display: flex !important;
         flex-direction: column !important;

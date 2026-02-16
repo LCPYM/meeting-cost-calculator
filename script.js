@@ -28,6 +28,7 @@ const translations = {
         'seconds': '秒',
         'people': '人',
         'btn-fullscreen': '全螢幕模式',
+        'btn-exit-fullscreen': '退出全螢幕',
         'exit-fullscreen-hint': '按 ESC 退出全螢幕',
         'info-attendees': '{count} 位參與者',
         'info-rate': '{currency}{rate}/小時 平均',
@@ -100,6 +101,7 @@ const translations = {
         'seconds': 'sec',
         'people': 'people',
         'btn-fullscreen': 'Full Screen Mode',
+        'btn-exit-fullscreen': 'Exit Fullscreen',
         'exit-fullscreen-hint': 'Press ESC to exit fullscreen',
         'info-attendees': '{count} attendees',
         'info-rate': '{currency}{rate}/hr avg',
@@ -516,11 +518,12 @@ function stopTimer() {
     stopButton.style.display = 'none';
     pauseButton.style.display = 'none';
 
-    // ✨ 修復：確保 share-actions 在電腦版和手機版都顯示
-    shareActions.style.display = 'grid';
-    shareActions.style.removeProperty('display'); // 移除 inline style，讓 CSS 控制
-    shareActions.removeAttribute('style');
-    shareActions.setAttribute('style', 'display: grid;');
+    // ✅ 修復：根據螢幕寬度設置正確的 display 值
+    if (window.innerWidth > 768) {
+        shareActions.style.display = 'grid';
+    } else {
+        shareActions.style.display = 'flex';
+    }
 
     resetButton.style.display = 'block';
 
@@ -624,15 +627,29 @@ function removeBudgetExceededBanner() {
 }
 
 function toggleFullscreen() {
-    if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen();
+    const { currentLang } = app.state;
+
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+        // 進入全螢幕
+        const elem = document.documentElement;
+        if (elem.requestFullscreen) {
+            elem.requestFullscreen();
+        } else if (elem.webkitRequestFullscreen) {
+            elem.webkitRequestFullscreen();
+        }
+
         document.body.classList.add('fullscreen-mode');
         app.state.isFullscreen = true;
-        app.elements.fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="exit-fullscreen-hint">${translations[app.state.currentLang]['exit-fullscreen-hint']}</span>`;
+        app.elements.fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-exit-fullscreen">${translations[currentLang]['btn-exit-fullscreen']}</span>`;
 
         showExitFullscreenHint();
     } else {
-        document.exitFullscreen();
+        // 退出全螢幕
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) {
+            document.webkitExitFullscreen();
+        }
     }
 }
 
@@ -650,21 +667,16 @@ function showExitFullscreenHint() {
     setTimeout(() => hint.classList.remove('show'), 3000);
 }
 
-document.addEventListener('fullscreenchange', () => {
-    if (!document.fullscreenElement) {
-        document.body.classList.remove('fullscreen-mode');
-        app.state.isFullscreen = false;
-        app.elements.fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[app.state.currentLang]['btn-fullscreen']}</span>`;
-    }
-});
+document.addEventListener('fullscreenchange', handleFullscreenChange);
+document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 
-document.addEventListener('webkitfullscreenchange', () => {
-    if (!document.webkitFullscreenElement) {
+function handleFullscreenChange() {
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
         document.body.classList.remove('fullscreen-mode');
         app.state.isFullscreen = false;
         app.elements.fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[app.state.currentLang]['btn-fullscreen']}</span>`;
     }
-});
+}
 
 function initTemplates() {
     document.getElementById('save-template-btn').addEventListener('click', saveTemplate);
