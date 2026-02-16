@@ -170,7 +170,8 @@ const app = {
         isPaused: false,
         hasShownWarning: false,
         isFullscreen: false,
-        budgetExceededShown: false
+        budgetExceededShown: false,
+        isBudgetExceeded: false  // ✨ 新增：追蹤是否超支
     },
 
     elements: {},
@@ -201,10 +202,14 @@ const app = {
     }
 };
 
+// ✨ 新增：預算超支橫幅變量
+let budgetExceededBanner = null;
+
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', () => {
     app.initElements();
     initializeApp();
+    initBudgetBannerClickHandler();  // ✨ 新增：初始化橫幅點擊事件
 });
 
 function initializeApp() {
@@ -220,6 +225,20 @@ function initializeApp() {
     initKeyboardShortcuts();
     loadFromURL();
     calculateEstimate();
+}
+
+// ✨ 新增：預算超支橫幅點擊關閉功能
+function initBudgetBannerClickHandler() {
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('.budget-exceeded-banner')) {
+            const banner = e.target.closest('.budget-exceeded-banner');
+            banner.style.animation = 'slideUp 0.3s ease';
+            setTimeout(() => {
+                banner.remove();
+                budgetExceededBanner = null;
+            }, 300);
+        }
+    });
 }
 
 // ==================== 配色主題 ====================
@@ -397,6 +416,7 @@ function startTimer() {
     app.state.isPaused = false;
     app.state.hasShownWarning = false;
     app.state.budgetExceededShown = false;
+    app.state.isBudgetExceeded = false;  // ✨ 重置超支狀態
 
     removeBudgetExceededBanner();
     updateMeetingInfo();
@@ -431,11 +451,13 @@ function updateTimer() {
     if (budgetEnabled && budgetTarget > 0 && currentCost > budgetTarget) {
         document.body.classList.add('budget-exceeded');
         liveCostEl.classList.add('exceeded');
-        timerDisplay.classList.add('budget-warning');  // ← 新增：整個計時器變紅色
+        timerDisplay.classList.add('budget-warning');
+        app.state.isBudgetExceeded = true;  // ✨ 記錄超支狀態
     } else {
         document.body.classList.remove('budget-exceeded');
         liveCostEl.classList.remove('exceeded');
-        timerDisplay.classList.remove('budget-warning');  // ← 新增：移除紅色背景
+        timerDisplay.classList.remove('budget-warning');
+        app.state.isBudgetExceeded = false;
     }
 
     if (currentCost > 500 && !app.state.hasShownWarning) {
@@ -487,19 +509,23 @@ function stopTimer() {
     const costPerSecond = (attendees * hourlyRate) / 3600;
     const finalCost = costPerSecond * elapsedSeconds;
 
-    document.querySelector('.timer-display').classList.add('stopped');
+    // ✨ 修復：計時完畢後保持超支時的紅色背景
+    timerDisplay.classList.add('stopped');
+    if (app.state.isBudgetExceeded) {
+        timerDisplay.classList.add('budget-warning');  // 保持紅色
+    }
+
     document.querySelector('.status-indicator').classList.remove('running');
     document.querySelector('.status-indicator').classList.add('stopped');
     document.querySelector('[data-i18n="timer-label"]').textContent = translations[app.state.currentLang]['timer-label-stopped'];
 
     liveCostEl.classList.add('final');
     liveCostEl.classList.remove('exceeded');
-    timerDisplay.classList.remove('budget-warning');  // ← 結束時移除紅色背景
     liveCostEl.textContent = `${symbol}${finalCost.toFixed(2)}`;
 
     stopButton.style.display = 'none';
     pauseButton.style.display = 'none';
-    shareActions.style.display = 'flex';
+    shareActions.style.display = 'grid';
     resetButton.style.display = 'block';
 
     document.querySelector('.support-section').style.display = 'block';
@@ -587,19 +613,20 @@ function updateBudgetInfo(currentCost, budgetTarget) {
 
 // ✨ 新增：預算超支橫幅
 function showBudgetExceededBanner() {
-    if (document.querySelector('.budget-exceeded-banner')) return;
+    if (budgetExceededBanner) return;
 
-    const banner = document.createElement('div');
-    banner.className = 'budget-exceeded-banner';
-    banner.innerHTML = `<span class="budget-icon">⚠️</span><span>${translations[app.state.currentLang]['budget-exceeded']}</span>`;
-
-    banner.addEventListener('click', () => banner.remove());
-    document.body.appendChild(banner);
+    budgetExceededBanner = document.createElement('div');
+    budgetExceededBanner.className = 'budget-exceeded-banner';
+    const message = translations[app.state.currentLang]['budget-exceeded'];
+    budgetExceededBanner.innerHTML = `<span class="budget-icon">⚠️</span><span>${message}</span>`;
+    document.body.appendChild(budgetExceededBanner);
 }
 
 function removeBudgetExceededBanner() {
-    const banner = document.querySelector('.budget-exceeded-banner');
-    if (banner) banner.remove();
+    if (budgetExceededBanner) {
+        budgetExceededBanner.remove();
+        budgetExceededBanner = null;
+    }
 }
 
 // ==================== 全屏模式 ====================
@@ -738,7 +765,7 @@ function saveMeetingRecord() {
         hourlyRate,
         currency: currentCurrency,
         duration: duration.toFixed(1),
-        cost: cost.toFixed(2)
+        cost: cost.toFixed(2)  // ✨ 修復：四捨五入至 2 decimal places
     });
 
     localStorage.setItem('meetingHistory', JSON.stringify(history));
@@ -783,7 +810,7 @@ function loadHistory() {
         <div class="history-item">
             <div class="history-date">${record.date}</div>
             <div class="history-details">${record.attendees} ${translations[app.state.currentLang]['people']} • ${record.duration} ${translations[app.state.currentLang]['minutes-short']}</div>
-            <div class="history-cost">${currencySymbols[record.currency]}${record.cost}</div>
+            <div class="history-cost">${currencySymbols[record.currency]}${parseFloat(record.cost).toFixed(2)}</div>
         </div>
     `).join('');
 
@@ -800,7 +827,7 @@ function clearHistory() {
 
 // ==================== 導出功能 ====================
 
-// ✨ 修復：下載圖片功能（生成完整資訊）
+// 下載圖片功能
 function downloadImage() {
     showToast(translations[app.state.currentLang]['downloading']);
 
@@ -821,7 +848,6 @@ function loadHtml2Canvas() {
     });
 }
 
-// ✨ 新增：準備完整資訊並截圖
 function prepareAndCaptureImage() {
     const { attendeesInput, hourlyRateInput, liveCostEl, elapsedTimeEl, timerDisplay } = app.elements;
     const { currentLang, currentCurrency, elapsedSeconds } = app.state;
@@ -830,19 +856,15 @@ function prepareAndCaptureImage() {
     const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
     const symbol = currencySymbols[currentCurrency];
 
-    // 計算當前成本
     const costPerSecond = (attendees * hourlyRate) / 3600;
     const currentCost = costPerSecond * elapsedSeconds;
 
-    // 檢查是否超支
     const budgetEnabled = app.elements.budgetEnabled.checked;
     const budgetTarget = parseFloat(app.elements.budgetTarget.value) || 0;
     const isExceeded = budgetEnabled && budgetTarget > 0 && currentCost > budgetTarget;
 
-    // 生成分享URL
     const shareURL = `${window.location.origin}${window.location.pathname}?attendees=${attendees}&rate=${hourlyRate}&currency=${currentCurrency}`;
 
-    // 建立完整資訊容器
     const infoContainer = document.createElement('div');
     infoContainer.style.cssText = `
         position: absolute;
@@ -861,7 +883,6 @@ function prepareAndCaptureImage() {
     const seconds = Math.floor(elapsedSeconds % 60);
     const timeStr = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 
-    // 建立 HTML 內容
     let content = '';
 
     if (isExceeded) {
@@ -899,7 +920,6 @@ function prepareAndCaptureImage() {
     infoContainer.innerHTML = content;
     document.body.appendChild(infoContainer);
 
-    // 截圖
     html2canvas(infoContainer, {
         backgroundColor: null,
         scale: 2
@@ -909,7 +929,6 @@ function prepareAndCaptureImage() {
         link.href = canvas.toDataURL();
         link.click();
 
-        // 清理
         document.body.removeChild(infoContainer);
         showToast('Image downloaded! 📸');
     }).catch(error => {
@@ -977,7 +996,7 @@ function performExport(data, filename) {
         record.hourlyRate,
         record.currency,
         record.duration,
-        record.cost
+        parseFloat(record.cost).toFixed(2)  // ✨ 修復：四捨五入至 2 decimal places
     ]);
 
     const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
