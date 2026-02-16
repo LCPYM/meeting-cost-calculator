@@ -6,7 +6,7 @@
 
 :root {
     /* 🎛️ 全螢幕縮放控制（調整這一個參數即可控制整體大小）*/
-    --fullscreen-scale: 0.7;  /* 範圍：0.6 - 1.0，預設 0.9 */
+    --fullscreen-scale: 0.75;  /* 範圍：0.6 - 1.0，預設 0.9 */
 
     /* 🎛️ 全螢幕佈局控制 */
     --fs-padding: 2vh;        /* 紅框與螢幕邊緣距離 */
@@ -2044,17 +2044,19 @@ body.meeting-ended {
     background-color: inherit !important; /* 確保不變色 */
 }
 
-/* 進度條深紅色加粗白邊（更顯眼）*/
+/* 進度條白邊（未滿時）*/
 .budget-fill {
     box-shadow: 
-        0 0 0 3px white,           /* 3px 白邊（原本 2px）*/
-        0 0 0 5px rgba(0,0,0,0.2), /* 外層黑色陰影 */
-        0 0 15px rgba(255,255,255,0.8) !important; /* 發光效果 */
+        0 0 0 3px white,
+        0 0 0 5px rgba(0,0,0,0.2),
+        0 0 15px rgba(255,255,255,0.8) !important;
 }
 
+/* 超支時改用金黃色發光邊（更顯眼）*/
 .timer-display.budget-warning .budget-fill {
     box-shadow: 
-        0 0 0 4px white,           /* 超支時 4px 白邊 */
-        0 0 0 6px rgba(0,0,0,0.3),
-        0 0 20px rgba(255,255,255,1) !important; /* 更強發光 */
+        0 0 0 4px #FFD700,          /* 金色邊 */
+        0 0 0 7px #FF6B00,          /* 橙色外框 */
+        0 0 25px rgba(255,215,0,1), /* 金色發光 */
+        0 0 40px rgba(255,107,0,0.8) !important; /* 橙色外發光 */
 }
