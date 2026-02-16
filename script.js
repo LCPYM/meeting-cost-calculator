@@ -23,7 +23,7 @@ const translations = {
         'btn-reset': '新會議',
         'bmc-text': '好用？請我喝杯咖啡吧',
         'footer-tip': '💡 小提示：減少會議時間或人數可顯著節省成本',
-        'shortcuts': '快捷鍵：空白鍵 = 開始/暫停 | Esc = 重置 | F = 全螢幕',
+        'shortcuts': '快捷鍵：Enter/空白鍵 = 開始/暫停 | Esc = 重置 | F = 全螢幕',
         'minutes': '分鐘',
         'seconds': '秒',
         'people': '人',
@@ -60,7 +60,14 @@ const translations = {
         'history-avg-duration': '平均時長',
         'history-cleared': '歷史記錄已清除！',
         'history-confirm-clear': '確定要清除所有會議歷史嗎？',
-        'minutes-short': '分鐘'
+        'minutes-short': '分鐘',
+        'export-range': '選擇匯出範圍',
+        'export-found': '找到 {count} 筆會議記錄',
+        'export-all': '匯出所有記錄',
+        'export-current': '僅匯出本次會議',
+        'no-records': '沒有會議記錄',
+        'qr-generated': 'QR Code 已生成！',
+        'downloading': '正在生成圖片...'
     },
     en: {
         'title': 'Meeting Cost Calculator',
@@ -85,7 +92,7 @@ const translations = {
         'btn-reset': 'New Meeting',
         'bmc-text': 'Buy Me a Coffee',
         'footer-tip': '💡 Tip: Reduce meeting time or attendees to save significantly',
-        'shortcuts': 'Shortcuts: Space = Start/Pause | Esc = Reset | F = Fullscreen',
+        'shortcuts': 'Shortcuts: Enter/Space = Start/Pause | Esc = Reset | F = Fullscreen',
         'minutes': 'min',
         'seconds': 'sec',
         'people': 'people',
@@ -122,7 +129,14 @@ const translations = {
         'history-avg-duration': 'Avg Duration',
         'history-cleared': 'History cleared!',
         'history-confirm-clear': 'Clear all meeting history?',
-        'minutes-short': 'min'
+        'minutes-short': 'min',
+        'export-range': 'Choose Export Range',
+        'export-found': 'Found {count} meeting records',
+        'export-all': 'Export All Records',
+        'export-current': 'Export Current Only',
+        'no-records': 'No records found',
+        'qr-generated': 'QR Code generated!',
+        'downloading': 'Generating image...'
     }
 };
 
@@ -138,7 +152,6 @@ const currencySymbols = {
 
 // ==================== 應用程式狀態管理 ====================
 const app = {
-    // 狀態變量
     state: {
         currentLang: 'en',
         currentCurrency: 'HKD',
@@ -154,10 +167,8 @@ const app = {
         budgetExceededShown: false
     },
 
-    // DOM 元素（延遲初始化）
     elements: {},
 
-    // 初始化 DOM 元素
     initElements() {
         this.elements = {
             attendeesInput: document.getElementById('attendees'),
@@ -190,40 +201,17 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function initializeApp() {
-    // 載入保存的設置
     loadSettings();
-
-    // 初始化配色主題
     initThemeSelector();
-
-    // 初始化語言切換
     initLanguageToggle();
-
-    // 初始化深色模式
     initDarkMode();
-
-    // 初始化輸入監聽
     initInputListeners();
-
-    // 初始化按鈕事件
     initButtonEvents();
-
-    // 初始化預算功能
     initBudget();
-
-    // 初始化模板系統
     initTemplates();
-
-    // 初始化歷史記錄
     initHistory();
-
-    // 初始化快捷鍵
     initKeyboardShortcuts();
-
-    // 初始化 URL 參數
     loadFromURL();
-
-    // 初始計算
     calculateEstimate();
 }
 
@@ -371,7 +359,6 @@ function initButtonEvents() {
     app.elements.resetButton.addEventListener('click', reset);
     app.elements.fullscreenButton.addEventListener('click', toggleFullscreen);
 
-    // 分享按鈕
     document.getElementById('share-button').addEventListener('click', downloadImage);
     document.getElementById('export-csv-button').addEventListener('click', exportToCSV);
     document.getElementById('copy-link-button').addEventListener('click', copyShareLink);
@@ -383,10 +370,8 @@ function startTimer() {
     document.body.classList.add('meeting-active');
     document.body.classList.remove('meeting-ended');
 
-    // 隱藏輸入區域
     document.querySelectorAll('.input-group').forEach(group => group.style.display = 'none');
 
-    // 隱藏其他區塊
     ['.estimate-section', '.budget-section', '.template-section', '.support-section'].forEach(selector => {
         const element = document.querySelector(selector);
         if (element) element.style.display = 'none';
@@ -399,7 +384,6 @@ function startTimer() {
     app.elements.timerSection.classList.add('active');
     app.elements.pauseButton.style.display = 'flex';
 
-    // 重置計時器狀態
     app.state.startTime = Date.now();
     app.state.elapsedSeconds = 0;
     app.state.pausedTime = 0;
@@ -431,26 +415,25 @@ function updateTimer() {
 
     liveCostEl.textContent = `${symbol}${currentCost.toFixed(2)}`;
 
-    // 更新預算進度
     updateBudgetProgress(currentCost);
 
-    // 檢查超支背景變色
     const budgetEnabled = app.elements.budgetEnabled.checked;
     const budgetTarget = parseFloat(app.elements.budgetTarget.value) || 0;
 
+    // ✨ 修復：計時器超支時變紅色
     if (budgetEnabled && budgetTarget > 0 && currentCost > budgetTarget) {
         document.body.classList.add('budget-exceeded');
+        liveCostEl.classList.add('exceeded');
     } else {
         document.body.classList.remove('budget-exceeded');
+        liveCostEl.classList.remove('exceeded');
     }
 
-    // 成本警告
     if (currentCost > 500 && !app.state.hasShownWarning) {
         showCostWarning();
         app.state.hasShownWarning = true;
     }
 
-    // 更新時間顯示
     const minutes = Math.floor(app.state.elapsedSeconds / 60);
     const seconds = Math.floor(app.state.elapsedSeconds % 60);
     elapsedTimeEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
@@ -461,7 +444,6 @@ function togglePause() {
     const { currentLang } = app.state;
 
     if (app.state.isPaused) {
-        // 繼續
         app.state.isPaused = false;
         app.state.pausedTime += (Date.now() - app.state.pauseStartTime);
         pauseButton.classList.remove('paused');
@@ -470,7 +452,6 @@ function togglePause() {
         document.querySelector('.timer-display').classList.remove('stopped');
         document.querySelector('[data-i18n="timer-label"]').textContent = translations[currentLang]['timer-label'];
     } else {
-        // 暫停
         app.state.isPaused = true;
         app.state.pauseStartTime = Date.now();
         pauseButton.classList.add('paused');
@@ -504,6 +485,7 @@ function stopTimer() {
     document.querySelector('[data-i18n="timer-label"]').textContent = translations[app.state.currentLang]['timer-label-stopped'];
 
     liveCostEl.classList.add('final');
+    liveCostEl.classList.remove('exceeded');
     liveCostEl.textContent = `${symbol}${finalCost.toFixed(2)}`;
 
     stopButton.style.display = 'none';
@@ -664,9 +646,9 @@ function initTemplates() {
 
 function saveTemplate() {
     const { attendeesInput, hourlyRateInput } = app.elements;
-    const { currentCurrency } = app.state;
+    const { currentCurrency, currentLang } = app.state;
 
-    const name = prompt(translations[app.state.currentLang]['btn-save-template'] + ':');
+    const name = prompt(translations[currentLang]['btn-save-template'] + ':');
     if (!name) return;
 
     const templates = JSON.parse(localStorage.getItem('templates') || '[]');
@@ -679,7 +661,7 @@ function saveTemplate() {
 
     localStorage.setItem('templates', JSON.stringify(templates));
     loadTemplates();
-    showToast(translations[app.state.currentLang]['template-saved']);
+    showToast(translations[currentLang]['template-saved']);
 }
 
 function loadTemplates() {
@@ -767,13 +749,11 @@ function loadHistory() {
 
     historySection.style.display = 'block';
 
-    // 計算統計
     const totalMeetings = history.length;
     const totalCost = history.reduce((sum, record) => sum + parseFloat(record.cost), 0);
     const totalDuration = history.reduce((sum, record) => sum + parseFloat(record.duration), 0);
     const avgDuration = totalDuration / totalMeetings;
 
-    // 顯示統計
     const statsHTML = `
         <div class="history-stats">
             <div class="history-stat">
@@ -791,7 +771,6 @@ function loadHistory() {
         </div>
     `;
 
-    // 顯示記錄
     const recordsHTML = history.reverse().map(record => `
         <div class="history-item">
             <div class="history-date">${record.date}</div>
@@ -812,22 +791,101 @@ function clearHistory() {
 }
 
 // ==================== 導出功能 ====================
+
+// ✨ 修復：下載圖片功能（使用 html2canvas）
 function downloadImage() {
-    showToast('Downloading image...');
-    // 需要引入 html2canvas 庫
+    showToast(translations[app.state.currentLang]['downloading']);
+
+    // 需要先引入 html2canvas 庫
+    if (typeof html2canvas === 'undefined') {
+        loadHtml2Canvas().then(() => captureImage());
+    } else {
+        captureImage();
+    }
 }
 
+function loadHtml2Canvas() {
+    return new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+function captureImage() {
+    const element = document.querySelector('.timer-display');
+
+    html2canvas(element, {
+        backgroundColor: null,
+        scale: 2
+    }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `meeting-cost-${Date.now()}.png`;
+        link.href = canvas.toDataURL();
+        link.click();
+        showToast('Image downloaded! 📸');
+    }).catch(error => {
+        console.error('Screenshot failed:', error);
+        showToast('Screenshot failed');
+    });
+}
+
+// ✨ 修復：Export CSV 選擇功能
 function exportToCSV() {
     const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
 
     if (history.length === 0) {
-        showToast('No records to export');
+        showToast(translations[app.state.currentLang]['no-records']);
         return;
     }
 
+    const modal = document.createElement('div');
+    modal.className = 'export-modal';
+    modal.innerHTML = `
+        <div class="export-modal-content">
+            <h3>${translations[app.state.currentLang]['export-range']}</h3>
+            <p>${translations[app.state.currentLang]['export-found'].replace('{count}', history.length)}</p>
+            <div class="export-modal-buttons">
+                <button class="export-all-btn" id="export-all-btn">
+                    📊 ${translations[app.state.currentLang]['export-all']}
+                </button>
+                <button class="export-current-btn" id="export-current-btn">
+                    📄 ${translations[app.state.currentLang]['export-current']}
+                </button>
+                <button class="export-cancel-btn" id="export-cancel-btn">
+                    ❌ ${translations[app.state.currentLang]['btn-cancel']}
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    document.getElementById('export-all-btn').addEventListener('click', () => {
+        performExport(history, `all-meetings-${Date.now()}.csv`);
+        modal.remove();
+    });
+
+    document.getElementById('export-current-btn').addEventListener('click', () => {
+        performExport([history[history.length - 1]], `current-meeting-${Date.now()}.csv`);
+        modal.remove();
+    });
+
+    document.getElementById('export-cancel-btn').addEventListener('click', () => {
+        modal.remove();
+    });
+
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+}
+
+function performExport(data, filename) {
     const csvContent = [
         ['Date', 'Attendees', 'Hourly Rate', 'Currency', 'Duration (min)', 'Total Cost'],
-        ...history.map(record => [
+        ...data.map(record => [
             record.date,
             record.attendees,
             record.hourlyRate,
@@ -841,7 +899,7 @@ function exportToCSV() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `meeting-history-${new Date().toISOString().split('T')[0]}.csv`;
+    link.download = filename;
     link.click();
 
     showToast(translations[app.state.currentLang]['btn-export-csv'] + ' ✓');
@@ -858,40 +916,65 @@ function copyShareLink() {
     });
 }
 
+// ✨ 修復：QR Code 美觀功能
 function showQRCode() {
     const { attendeesInput, hourlyRateInput, durationInput } = app.elements;
-    const { currentCurrency } = app.state;
+    const { currentCurrency, currentLang } = app.state;
 
     const url = `${window.location.origin}${window.location.pathname}?attendees=${attendeesInput.value}&rate=${hourlyRateInput.value}&duration=${durationInput.value}&currency=${currentCurrency}`;
 
-    const modal = document.createElement('div');
-    modal.className = 'qr-modal';
-    modal.innerHTML = `
-        <div class="qr-content">
-            <h3 data-i18n="qr-title">${translations[app.state.currentLang]['qr-title']}</h3>
-            <div id="qrcode"></div>
-            <button class="qr-close" data-i18n="btn-close">${translations[app.state.currentLang]['btn-close']}</button>
-        </div>
-    `;
+    let qrModal = document.querySelector('.qr-modal');
 
-    document.body.appendChild(modal);
+    if (!qrModal) {
+        qrModal = document.createElement('div');
+        qrModal.className = 'qr-modal';
+        qrModal.innerHTML = `
+            <div class="qr-modal-content">
+                <h2 class="qr-modal-title" data-i18n="qr-title">${translations[currentLang]['qr-title']}</h2>
+                <div class="qr-code-container" id="qr-code-display"></div>
+                <div class="qr-modal-url" id="qr-modal-url"></div>
+                <button class="qr-modal-close" id="qr-modal-close" data-i18n="btn-close">${translations[currentLang]['btn-close']}</button>
+            </div>
+        `;
+        document.body.appendChild(qrModal);
 
-    new QRCode(document.getElementById('qrcode'), {
-        text: url,
-        width: 200,
-        height: 200
-    });
+        document.getElementById('qr-modal-close').addEventListener('click', () => {
+            qrModal.classList.remove('show');
+        });
 
-    modal.querySelector('.qr-close').addEventListener('click', () => modal.remove());
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.remove();
-    });
+        qrModal.addEventListener('click', (e) => {
+            if (e.target === qrModal) {
+                qrModal.classList.remove('show');
+            }
+        });
+    }
+
+    const qrContainer = document.getElementById('qr-code-display');
+    qrContainer.innerHTML = '';
+
+    try {
+        new QRCode(qrContainer, {
+            text: url,
+            width: 256,
+            height: 256,
+            colorDark: '#03045e',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        document.getElementById('qr-modal-url').textContent = url;
+        qrModal.classList.add('show');
+
+        showToast(translations[currentLang]['qr-generated']);
+    } catch (error) {
+        console.error('QR Code generation failed:', error);
+        alert(url);
+    }
 }
 
 // ==================== 快捷鍵 ====================
 function initKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
-        // Enter 或 Space：開始/暫停
         if ((e.key === 'Enter' || e.key === ' ') && !e.target.matches('input, select')) {
             e.preventDefault();
             if (app.elements.startButton.style.display !== 'none') {
@@ -901,12 +984,10 @@ function initKeyboardShortcuts() {
             }
         }
 
-        // Esc：重置
         if (e.key === 'Escape' && app.elements.resetButton.style.display !== 'none') {
             reset();
         }
 
-        // F：全屏
         if (e.key === 'f' || e.key === 'F') {
             if (app.elements.timerSection.classList.contains('active')) {
                 e.preventDefault();
