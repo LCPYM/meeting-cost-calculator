@@ -1,4 +1,4 @@
-// 翻譯資料
+// ==================== 翻譯資料 ====================
 const translations = {
     zh: {
         'title': '會議成本計算機',
@@ -60,8 +60,7 @@ const translations = {
         'history-avg-duration': '平均時長',
         'history-cleared': '歷史記錄已清除！',
         'history-confirm-clear': '確定要清除所有會議歷史嗎？',
-        'minutes-short': '分鐘',
-        'shortcuts': '快捷鍵：Enter/空白鍵 = 開始/暫停 | Esc = 重置 | F = 全螢幕'
+        'minutes-short': '分鐘'
     },
     en: {
         'title': 'Meeting Cost Calculator',
@@ -123,16 +122,11 @@ const translations = {
         'history-avg-duration': 'Avg Duration',
         'history-cleared': 'History cleared!',
         'history-confirm-clear': 'Clear all meeting history?',
-        'minutes-short': 'min',
-        'shortcuts': 'Shortcuts: Enter/Space = Start/Pause | Esc = Reset | F = Fullscreen'
+        'minutes-short': 'min'
     }
 };
 
-// 當前語言和貨幣
-let currentLang = 'en';
-let currentCurrency = 'HKD';
-
-// 貨幣符號
+// ==================== 貨幣符號 ====================
 const currencySymbols = {
     'HKD': 'HK$',
     'USD': '$',
@@ -142,1216 +136,850 @@ const currencySymbols = {
     'JPY': '¥'
 };
 
-// 配色主題
-let currentTheme = 'ocean';
+// ==================== 應用程式狀態管理 ====================
+const app = {
+    // 狀態變量
+    state: {
+        currentLang: 'en',
+        currentCurrency: 'HKD',
+        currentTheme: 'ocean',
+        timerInterval: null,
+        startTime: null,
+        elapsedSeconds: 0,
+        pausedTime: 0,
+        pauseStartTime: 0,
+        isPaused: false,
+        hasShownWarning: false,
+        isFullscreen: false,
+        budgetExceededShown: false
+    },
 
-// 配色切換功能
+    // DOM 元素（延遲初始化）
+    elements: {},
+
+    // 初始化 DOM 元素
+    initElements() {
+        this.elements = {
+            attendeesInput: document.getElementById('attendees'),
+            hourlyRateInput: document.getElementById('hourly-rate'),
+            durationInput: document.getElementById('duration'),
+            currencySelect: document.getElementById('currency'),
+            estimateCostEl: document.getElementById('estimate-cost'),
+            perMinuteEl: document.getElementById('per-minute'),
+            startButton: document.getElementById('start-button'),
+            timerSection: document.getElementById('timer-section'),
+            liveCostEl: document.getElementById('live-cost'),
+            elapsedTimeEl: document.getElementById('elapsed-time'),
+            stopButton: document.getElementById('stop-button'),
+            pauseButton: document.getElementById('pause-button'),
+            resetButton: document.getElementById('reset-button'),
+            budgetEnabled: document.getElementById('budget-enabled'),
+            budgetTarget: document.getElementById('budget-target'),
+            budgetInputGroup: document.getElementById('budget-input-group'),
+            fullscreenButton: document.getElementById('fullscreen-button'),
+            meetingInfo: document.getElementById('meeting-info'),
+            shareActions: document.getElementById('share-actions')
+        };
+    }
+};
+
+// ==================== 初始化 ====================
+document.addEventListener('DOMContentLoaded', () => {
+    app.initElements();
+    initializeApp();
+});
+
+function initializeApp() {
+    // 載入保存的設置
+    loadSettings();
+
+    // 初始化配色主題
+    initThemeSelector();
+
+    // 初始化語言切換
+    initLanguageToggle();
+
+    // 初始化深色模式
+    initDarkMode();
+
+    // 初始化輸入監聽
+    initInputListeners();
+
+    // 初始化按鈕事件
+    initButtonEvents();
+
+    // 初始化預算功能
+    initBudget();
+
+    // 初始化模板系統
+    initTemplates();
+
+    // 初始化歷史記錄
+    initHistory();
+
+    // 初始化快捷鍵
+    initKeyboardShortcuts();
+
+    // 初始化 URL 參數
+    loadFromURL();
+
+    // 初始計算
+    calculateEstimate();
+}
+
+// ==================== 配色主題 ====================
+function initThemeSelector() {
+    const savedTheme = localStorage.getItem('colorTheme') || 'ocean';
+    switchColorTheme(savedTheme);
+
+    document.querySelectorAll('.theme-option').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const theme = btn.getAttribute('data-theme');
+            switchColorTheme(theme);
+        });
+    });
+}
+
 function switchColorTheme(theme) {
-    currentTheme = theme;
-    
-    // 移除所有主題 class
+    app.state.currentTheme = theme;
     document.body.classList.remove('theme-ocean', 'theme-purple', 'theme-green');
-    
-    // 如果不是預設主題，加上對應的 class
+
     if (theme !== 'ocean') {
         document.body.classList.add(`theme-${theme}`);
     }
-    
-    // 更新按鈕狀態
+
     document.querySelectorAll('.theme-option').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('data-theme') === theme) {
-            btn.classList.add('active');
-        }
+        btn.classList.toggle('active', btn.getAttribute('data-theme') === theme);
     });
-    
-    // 儲存偏好
+
     localStorage.setItem('colorTheme', theme);
 }
 
-// 初始化配色切換器
-document.querySelectorAll('.theme-option').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const theme = btn.getAttribute('data-theme');
-        switchColorTheme(theme);
-    });
-});
+// ==================== 語言切換 ====================
+function initLanguageToggle() {
+    const savedLang = localStorage.getItem('language') || 'en';
+    switchLanguage(savedLang);
 
-// 切換語言
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const lang = btn.getAttribute('data-lang');
+            switchLanguage(lang);
+        });
+    });
+}
+
 function switchLanguage(lang) {
-    currentLang = lang;
+    app.state.currentLang = lang;
+
     document.querySelectorAll('[data-i18n]').forEach(element => {
         const key = element.getAttribute('data-i18n');
         if (translations[lang][key]) {
-            if (key === 'per-minute') {
-                element.innerHTML = `${translations[lang][key]}<span id="per-minute">${perMinuteEl.textContent}</span>`;
-            } else {
-                element.textContent = translations[lang][key];
-            }
+            element.textContent = translations[lang][key];
         }
     });
 
     document.querySelectorAll('.lang-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.getAttribute('data-lang') === lang) {
-            btn.classList.add('active');
-        }
+        btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
     });
 
     updateCurrencyLabel();
     localStorage.setItem('language', lang);
 }
 
-// 更新貨幣標籤
 function updateCurrencyLabel() {
     const label = document.querySelector('label[for="hourly-rate"]');
+    const { currentLang, currentCurrency } = app.state;
     label.textContent = `${translations[currentLang]['label-hourly-rate']} (${currentCurrency})`;
 }
 
-// 更新會議資訊
-function updateMeetingInfo() {
-    const attendees = parseInt(attendeesInput.value) || 0;
-    const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
-    const symbol = currencySymbols[currentCurrency];
-    
-    const infoText = `${translations[currentLang]['info-attendees'].replace('{count}', attendees)} • ${translations[currentLang]['info-rate'].replace('{currency}', symbol).replace('{rate}', hourlyRate)}`;
-    
-    document.getElementById('meeting-info').innerHTML = infoText;
+// ==================== 深色模式 ====================
+function initDarkMode() {
+    const savedMode = localStorage.getItem('darkMode') === 'true';
+    if (savedMode) {
+        document.body.classList.add('dark-mode');
+        updateThemeIcon(true);
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', toggleDarkMode);
 }
 
-// DOM 元素
-const attendeesInput = document.getElementById('attendees');
-const hourlyRateInput = document.getElementById('hourly-rate');
-const durationInput = document.getElementById('duration');
-const currencySelect = document.getElementById('currency');
-const estimateCostEl = document.getElementById('estimate-cost');
-const perMinuteEl = document.getElementById('per-minute');
-const startButton = document.getElementById('start-button');
-const timerSection = document.getElementById('timer-section');
-const liveCostEl = document.getElementById('live-cost');
-const elapsedTimeEl = document.getElementById('elapsed-time');
-const stopButton = document.getElementById('stop-button');
-const pauseButton = document.getElementById('pause-button');
-const resetButton = document.getElementById('reset-button');
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('darkMode', isDark);
+    updateThemeIcon(isDark);
+}
 
-// 計時器變數
-let timerInterval = null;
-let startTime = null;
-let elapsedSeconds = 0;
-let pausedTime = 0;
-let pauseStartTime = 0;
-let isPaused = false;
-let hasShownWarning = false;
+function updateThemeIcon(isDark) {
+    const icon = document.querySelector('.theme-icon');
+    icon.textContent = isDark ? '☀️' : '🌙';
+}
 
-// 計算預估成本
+// ==================== 輸入監聽 ====================
+function initInputListeners() {
+    const { attendeesInput, hourlyRateInput, durationInput, currencySelect } = app.elements;
+
+    [attendeesInput, hourlyRateInput, durationInput].forEach(input => {
+        input.addEventListener('input', calculateEstimate);
+    });
+
+    currencySelect.addEventListener('change', () => {
+        app.state.currentCurrency = currencySelect.value;
+        updateCurrencyLabel();
+        calculateEstimate();
+        saveSettings();
+    });
+}
+
+// ==================== 計算預估成本 ====================
 function calculateEstimate() {
+    const { attendeesInput, hourlyRateInput, durationInput, estimateCostEl, perMinuteEl } = app.elements;
+    const { currentCurrency } = app.state;
+
     const attendees = parseInt(attendeesInput.value) || 0;
     const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
     const duration = parseInt(durationInput.value) || 0;
     const symbol = currencySymbols[currentCurrency];
-    
+
     const costPerMinute = (attendees * hourlyRate) / 60;
     const totalCost = costPerMinute * duration;
-    
+
     estimateCostEl.textContent = `${symbol}${totalCost.toFixed(2)}`;
     perMinuteEl.textContent = `${symbol}${costPerMinute.toFixed(2)}`;
-    
+
+    updateMeetingInfo();
     saveSettings();
 }
 
-// 開始計時
-function startTimer() {
-    console.log('🚀 開始計時');
-    
-    // 標記為會議進行中
-    document.body.classList.add('meeting-active');
-    document.body.classList.remove('meeting-ended');
+function updateMeetingInfo() {
+    const { attendeesInput, hourlyRateInput, meetingInfo } = app.elements;
+    const { currentLang, currentCurrency } = app.state;
 
-    // 隱藏所有輸入欄位
-    const inputGroups = document.querySelectorAll('.input-group');
-    inputGroups.forEach(group => {
-        group.style.display = 'none';
-    });
-    
-    // 隱藏其他區域
-    const sections = [
-        '.estimate-section',
-        '.budget-section',
-        '.template-section',
-        '.support-section'
-    ];
-    
-    sections.forEach(selector => {
-        const element = document.querySelector(selector);
-        if (element) element.style.display = 'none';
-    });
-    
-    const historySection = document.getElementById('history-section');
-    if (historySection) historySection.style.display = 'none';
-    
-    if (startButton) startButton.style.display = 'none';
-    
-    // 顯示計時器
-    timerSection.classList.add('active');
-    pauseButton.style.display = 'flex';
-    
-    // 初始化計時
-    startTime = Date.now();
-    elapsedSeconds = 0;
-    pausedTime = 0;
-    isPaused = false;
-    hasShownWarning = false;
-    
-    if (typeof budgetExceededShown !== 'undefined') {
-        budgetExceededShown = false;
-    }
-    
-    if (typeof removeBudgetExceededBanner === 'function') {
-        removeBudgetExceededBanner();
-    }
-    
-    updateMeetingInfo();
-    
-    // 開始計時
-    timerInterval = setInterval(updateTimer, 100);
-    console.log('✅ 計時器已啟動');
-}
-
-// 更新計時器
-function updateTimer() {
-    if (isPaused) return;
-    
-    const now = Date.now();
-    elapsedSeconds = (now - startTime - pausedTime) / 1000;
-    
     const attendees = parseInt(attendeesInput.value) || 0;
     const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
     const symbol = currencySymbols[currentCurrency];
-    
+
+    const infoText = `${translations[currentLang]['info-attendees'].replace('{count}', attendees)} • ${translations[currentLang]['info-rate'].replace('{currency}', symbol).replace('{rate}', hourlyRate)}`;
+
+    meetingInfo.innerHTML = infoText;
+}
+
+// ==================== 按鈕事件 ====================
+function initButtonEvents() {
+    app.elements.startButton.addEventListener('click', startTimer);
+    app.elements.stopButton.addEventListener('click', stopTimer);
+    app.elements.pauseButton.addEventListener('click', togglePause);
+    app.elements.resetButton.addEventListener('click', reset);
+    app.elements.fullscreenButton.addEventListener('click', toggleFullscreen);
+
+    // 分享按鈕
+    document.getElementById('share-button').addEventListener('click', downloadImage);
+    document.getElementById('export-csv-button').addEventListener('click', exportToCSV);
+    document.getElementById('copy-link-button').addEventListener('click', copyShareLink);
+    document.getElementById('qr-button').addEventListener('click', showQRCode);
+}
+
+// ==================== 計時器功能 ====================
+function startTimer() {
+    document.body.classList.add('meeting-active');
+    document.body.classList.remove('meeting-ended');
+
+    // 隱藏輸入區域
+    document.querySelectorAll('.input-group').forEach(group => group.style.display = 'none');
+
+    // 隱藏其他區塊
+    ['.estimate-section', '.budget-section', '.template-section', '.support-section'].forEach(selector => {
+        const element = document.querySelector(selector);
+        if (element) element.style.display = 'none';
+    });
+
+    const historySection = document.getElementById('history-section');
+    if (historySection) historySection.style.display = 'none';
+
+    app.elements.startButton.style.display = 'none';
+    app.elements.timerSection.classList.add('active');
+    app.elements.pauseButton.style.display = 'flex';
+
+    // 重置計時器狀態
+    app.state.startTime = Date.now();
+    app.state.elapsedSeconds = 0;
+    app.state.pausedTime = 0;
+    app.state.isPaused = false;
+    app.state.hasShownWarning = false;
+    app.state.budgetExceededShown = false;
+
+    removeBudgetExceededBanner();
+    updateMeetingInfo();
+
+    app.state.timerInterval = setInterval(updateTimer, 100);
+}
+
+function updateTimer() {
+    if (app.state.isPaused) return;
+
+    const now = Date.now();
+    app.state.elapsedSeconds = (now - app.state.startTime - app.state.pausedTime) / 1000;
+
+    const { attendeesInput, hourlyRateInput, liveCostEl, elapsedTimeEl } = app.elements;
+    const { currentCurrency } = app.state;
+
+    const attendees = parseInt(attendeesInput.value) || 0;
+    const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
+    const symbol = currencySymbols[currentCurrency];
+
     const costPerSecond = (attendees * hourlyRate) / 3600;
-    const currentCost = costPerSecond * elapsedSeconds;
-    
+    const currentCost = costPerSecond * app.state.elapsedSeconds;
+
     liveCostEl.textContent = `${symbol}${currentCost.toFixed(2)}`;
-    
-    // 檢查預算超支（添加背景顏色變化）
-    const budgetEnabled = document.getElementById('budget-enabled').checked;
-    const budgetTarget = parseFloat(document.getElementById('budget-target').value) || 0;
-    
+
+    // 更新預算進度
+    updateBudgetProgress(currentCost);
+
+    // 檢查超支背景變色
+    const budgetEnabled = app.elements.budgetEnabled.checked;
+    const budgetTarget = parseFloat(app.elements.budgetTarget.value) || 0;
+
     if (budgetEnabled && budgetTarget > 0 && currentCost > budgetTarget) {
         document.body.classList.add('budget-exceeded');
     } else {
         document.body.classList.remove('budget-exceeded');
     }
-    
 
-    // 更新預算進度
-    if (typeof updateBudgetProgress === 'function') {
-        updateBudgetProgress(currentCost);
-    }
-    
     // 成本警告
-    if (currentCost > 500 && !hasShownWarning) {
+    if (currentCost > 500 && !app.state.hasShownWarning) {
         showCostWarning();
-        hasShownWarning = true;
+        app.state.hasShownWarning = true;
     }
-    
-    const minutes = Math.floor(elapsedSeconds / 60);
-    const seconds = Math.floor(elapsedSeconds % 60);
+
+    // 更新時間顯示
+    const minutes = Math.floor(app.state.elapsedSeconds / 60);
+    const seconds = Math.floor(app.state.elapsedSeconds % 60);
     elapsedTimeEl.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
 }
 
-// 暫停/繼續
 function togglePause() {
-    if (isPaused) {
+    const { pauseButton } = app.elements;
+    const { currentLang } = app.state;
+
+    if (app.state.isPaused) {
         // 繼續
-        isPaused = false;
-        pausedTime += (Date.now() - pauseStartTime);
+        app.state.isPaused = false;
+        app.state.pausedTime += (Date.now() - app.state.pauseStartTime);
         pauseButton.classList.remove('paused');
         pauseButton.innerHTML = `<span>⏸</span><span data-i18n="btn-pause">${translations[currentLang]['btn-pause']}</span>`;
-        
-        const timerDisplay = document.querySelector('.timer-display');
-        if (timerDisplay) timerDisplay.classList.remove('stopped');
-        
-        const timerLabel = document.querySelector('[data-i18n="timer-label"]');
-        if (timerLabel) timerLabel.textContent = translations[currentLang]['timer-label'];
+
+        document.querySelector('.timer-display').classList.remove('stopped');
+        document.querySelector('[data-i18n="timer-label"]').textContent = translations[currentLang]['timer-label'];
     } else {
         // 暫停
-        isPaused = true;
-        pauseStartTime = Date.now();
+        app.state.isPaused = true;
+        app.state.pauseStartTime = Date.now();
         pauseButton.classList.add('paused');
         pauseButton.innerHTML = `<span>▶</span><span data-i18n="btn-resume">${translations[currentLang]['btn-resume']}</span>`;
-        
-        const timerDisplay = document.querySelector('.timer-display');
-        if (timerDisplay) timerDisplay.classList.add('stopped');
-        
-        const timerLabel = document.querySelector('[data-i18n="timer-label"]');
-        if (timerLabel) timerLabel.textContent = translations[currentLang]['timer-label-paused'];
+
+        document.querySelector('.timer-display').classList.add('stopped');
+        document.querySelector('[data-i18n="timer-label"]').textContent = translations[currentLang]['timer-label-paused'];
     }
 }
 
-// 成本警告
-function showCostWarning() {
+function stopTimer() {
+    clearInterval(app.state.timerInterval);
+
+    document.body.classList.remove('meeting-active');
+    document.body.classList.add('meeting-ended');
+
+    const { attendeesInput, hourlyRateInput, liveCostEl, stopButton, pauseButton, shareActions, resetButton } = app.elements;
+    const { currentCurrency, elapsedSeconds } = app.state;
+
+    const attendees = parseInt(attendeesInput.value) || 0;
+    const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
     const symbol = currencySymbols[currentCurrency];
+
+    const costPerSecond = (attendees * hourlyRate) / 3600;
+    const finalCost = costPerSecond * elapsedSeconds;
+
+    document.querySelector('.timer-display').classList.add('stopped');
+    document.querySelector('.timer-display').classList.remove('alert');
+    document.querySelector('.status-indicator').classList.remove('running');
+    document.querySelector('.status-indicator').classList.add('stopped');
+    document.querySelector('[data-i18n="timer-label"]').textContent = translations[app.state.currentLang]['timer-label-stopped'];
+
+    liveCostEl.classList.add('final');
+    liveCostEl.textContent = `${symbol}${finalCost.toFixed(2)}`;
+
+    stopButton.style.display = 'none';
+    pauseButton.style.display = 'none';
+    shareActions.style.display = 'flex';
+    resetButton.style.display = 'block';
+
+    document.querySelector('.support-section').style.display = 'block';
+
+    saveMeetingRecord();
+}
+
+function reset() {
+    location.reload();
+}
+
+function showCostWarning() {
+    const symbol = currencySymbols[app.state.currentCurrency];
     const warning = document.createElement('div');
     warning.className = 'cost-warning';
-    warning.textContent = translations[currentLang]['cost-warning'].replace('{currency}', symbol);
+    warning.textContent = translations[app.state.currentLang]['cost-warning'].replace('{currency}', symbol);
     document.body.appendChild(warning);
-    
-    const timerDisplay = document.querySelector('.timer-display');
-    if (timerDisplay) timerDisplay.classList.add('alert');
-    
+
+    document.querySelector('.timer-display').classList.add('alert');
+
     setTimeout(() => {
         warning.style.animation = 'warningPulse 0.5s ease reverse';
         setTimeout(() => warning.remove(), 500);
     }, 2000);
 }
 
-// 停止計時
-function stopTimer() {
-    clearInterval(timerInterval);
-    
-    // 標記為會議已結束
-    document.body.classList.remove('meeting-active');
-    document.body.classList.add('meeting-ended');
-    
-    const attendees = parseInt(attendeesInput.value) || 0;
-    const hourlyRate = parseFloat(hourlyRateInput.value) || 0;
-    const symbol = currencySymbols[currentCurrency];
-    
-    const costPerSecond = (attendees * hourlyRate) / 3600;
-    const finalCost = costPerSecond * elapsedSeconds;
-    
-    const timerDisplay = document.querySelector('.timer-display');
-    if (timerDisplay) {
-        timerDisplay.classList.add('stopped');
-        timerDisplay.classList.remove('alert');
-    }
-    
-    const statusIndicator = document.querySelector('.status-indicator');
-    if (statusIndicator) {
-        statusIndicator.classList.remove('running');
-        statusIndicator.classList.add('stopped');
-    }
-    
-    const timerLabel = document.querySelector('[data-i18n="timer-label"]');
-    if (timerLabel) timerLabel.textContent = translations[currentLang]['timer-label-stopped'];
-    
-    liveCostEl.classList.add('final');
-    liveCostEl.textContent = `${symbol}${finalCost.toFixed(2)}`;
-    
-    stopButton.style.display = 'none';
-    pauseButton.style.display = 'none';
-    document.getElementById('share-actions').style.display = 'flex';
-    document.getElementById('reset-button').style.display = 'block';
-    
-    // 全螢幕模式下也顯示 support section
-    const supportSection = document.querySelector('.support-section');
-    if (supportSection) supportSection.style.display = 'block';
-    
-    saveMeetingRecord();
+// ==================== 預算功能 ====================
+function initBudget() {
+    const { budgetEnabled, budgetTarget, budgetInputGroup } = app.elements;
+
+    budgetEnabled.addEventListener('change', () => {
+        budgetInputGroup.style.display = budgetEnabled.checked ? 'block' : 'none';
+        saveSettings();
+    });
+
+    budgetTarget.addEventListener('input', saveSettings);
 }
 
+function updateBudgetProgress(currentCost) {
+    const budgetEnabled = app.elements.budgetEnabled.checked;
+    const budgetTarget = parseFloat(app.elements.budgetTarget.value) || 0;
 
-// 重置
-function reset() {
-    console.log('🔄 重置中');
-    
-    // 移除狀態標記
-    document.body.classList.remove('meeting-active', 'meeting-ended');
-    
-    // 退出全螢幕
-    if (typeof isFullscreen !== 'undefined' && isFullscreen) {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        }
-        document.body.classList.remove('fullscreen-mode');
-        isFullscreen = false;
-    }
-    
-    // 重置計時器樣式
-    const timerDisplay = document.querySelector('.timer-display');
-    if (timerDisplay) {
-        timerDisplay.classList.remove('stopped', 'alert', 'budget-warning');
-    }
-    
-    const statusIndicator = document.querySelector('.status-indicator');
-    if (statusIndicator) {
-        statusIndicator.classList.add('running');
-        statusIndicator.classList.remove('stopped');
-    }
-    
-    const timerLabel = document.querySelector('[data-i18n="timer-label"]');
-    if (timerLabel) {
-        timerLabel.textContent = translations[currentLang]['timer-label'];
-    }
-    
-    if (liveCostEl) liveCostEl.classList.remove('final');
-    
-    // 隱藏計時器
-    timerSection.classList.remove('active');
-    
-    // 顯示所有輸入欄位
-    const inputGroups = document.querySelectorAll('.input-group');
-    inputGroups.forEach(group => {
-        group.style.display = 'flex';
-    });
-    
-    // 顯示其他區域
-    const sections = [
-        { selector: '.estimate-section', display: 'block' },
-        { selector: '.budget-section', display: 'block' },
-        { selector: '.template-section', display: 'block' },
-        { selector: '.support-section', display: 'block' }
-    ];
-    
-    sections.forEach(({ selector, display }) => {
-        const element = document.querySelector(selector);
-        if (element) element.style.display = display;
-    });
-    
-    if (startButton) startButton.style.display = 'block';
-    if (stopButton) stopButton.style.display = 'block';
-    
-    if (pauseButton) {
-        pauseButton.style.display = 'none';
-        pauseButton.classList.remove('paused');
-    }
-    
-    document.getElementById('share-actions').style.display = 'none';
-    document.getElementById('reset-button').style.display = 'none';
-    
-    // 移除預算元素
+    if (!budgetEnabled || budgetTarget <= 0) return;
+
     const budgetProgress = document.querySelector('.budget-progress');
     const budgetInfo = document.querySelector('.budget-info');
-    if (budgetProgress) budgetProgress.remove();
-    if (budgetInfo) budgetInfo.remove();
-    
-    if (typeof removeBudgetExceededBanner === 'function') {
-        removeBudgetExceededBanner();
-    }
-    
-    // 重置變數
-    isPaused = false;
-    hasShownWarning = false;
-    if (typeof budgetExceededShown !== 'undefined') {
-        budgetExceededShown = false;
-    }
-    
-    calculateEstimate();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    
-    console.log('✅ 重置完成');
-}
 
-// 儲存設定
-function saveSettings() {
-    localStorage.setItem('meetingCalc-attendees', attendeesInput.value);
-    localStorage.setItem('meetingCalc-hourlyRate', hourlyRateInput.value);
-    localStorage.setItem('meetingCalc-currency', currentCurrency);
-}
+    if (budgetProgress) budgetProgress.style.display = 'block';
+    if (budgetInfo) budgetInfo.style.display = 'flex';
 
-// 載入設定
-function loadSettings() {
-    const savedAttendees = localStorage.getItem('meetingCalc-attendees');
-    const savedRate = localStorage.getItem('meetingCalc-hourlyRate');
-    const savedCurrency = localStorage.getItem('meetingCalc-currency');
-    const savedLang = localStorage.getItem('language');
-    const savedTheme = localStorage.getItem('colorTheme');
-    
-    if (savedAttendees) attendeesInput.value = savedAttendees;
-    if (savedRate) hourlyRateInput.value = savedRate;
-    if (savedCurrency) {
-        currentCurrency = savedCurrency;
-        currencySelect.value = savedCurrency;
-    }
-    if (savedLang) {
-        currentLang = savedLang;
-    }
-    if (savedTheme) {
-        switchColorTheme(savedTheme);
-    }
-}
+    const percentage = Math.min((currentCost / budgetTarget) * 100, 100);
+    const budgetFill = document.querySelector('.budget-fill');
 
-// 從 URL 載入參數
-function loadFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    
-    if (params.has('attendees')) attendeesInput.value = params.get('attendees');
-    if (params.has('rate')) hourlyRateInput.value = params.get('rate');
-    if (params.has('currency')) {
-        const currency = params.get('currency').toUpperCase();
-        if (currencySymbols[currency]) {
-            currentCurrency = currency;
-            currencySelect.value = currency;
-        }
-    }
-}
+    if (budgetFill) {
+        budgetFill.style.width = `${percentage}%`;
+        budgetFill.classList.remove('warning', 'danger');
 
-// 生成分享URL
-function generateShareURL() {
-    const baseURL = window.location.origin + window.location.pathname;
-    const params = new URLSearchParams({
-        attendees: attendeesInput.value,
-        rate: hourlyRateInput.value,
-        currency: currentCurrency
-    });
-    return `${baseURL}?${params.toString()}`;
-}
-
-// 事件監聽器
-attendeesInput.addEventListener('input', calculateEstimate);
-hourlyRateInput.addEventListener('input', calculateEstimate);
-durationInput.addEventListener('input', calculateEstimate);
-
-currencySelect.addEventListener('change', (e) => {
-    currentCurrency = e.target.value;
-    updateCurrencyLabel();
-    calculateEstimate();
-    
-    if (timerSection.classList.contains('active')) {
-        updateMeetingInfo();
-    }
-});
-
-startButton.addEventListener('click', startTimer);
-stopButton.addEventListener('click', stopTimer);
-pauseButton.addEventListener('click', togglePause);
-resetButton.addEventListener('click', reset);
-
-// 語言切換
-document.querySelectorAll('.lang-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const lang = btn.getAttribute('data-lang');
-        switchLanguage(lang);
-    });
-});
-
-// 鍵盤快捷鍵
-document.addEventListener('keydown', (e) => {
-    // 如果焦點在輸入框或選擇框，允許 Enter 提交，但阻止其他快捷鍵
-    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
-        if (e.code === 'Enter') {
-            e.preventDefault();
-            // 如果會議未開始，按 Enter 啟動會議
-            if (!timerSection.classList.contains('active')) {
-                startTimer();
+        if (percentage >= 100) {
+            budgetFill.classList.add('danger');
+            if (!app.state.budgetExceededShown) {
+                showBudgetExceededBanner();
+                app.state.budgetExceededShown = true;
             }
-        }
-        return;
-    }
-    
-    // Space - 開始/暫停
-    if (e.code === 'Space') {
-        e.preventDefault();
-        if (timerSection.classList.contains('active')) {
-            if (stopButton.style.display !== 'none') {
-                togglePause();
-            }
-        } else {
-            startTimer();
+        } else if (percentage >= 80) {
+            budgetFill.classList.add('warning');
         }
     }
-    
-    // Enter - 開始會議（當會議未進行時）
-    if (e.code === 'Enter') {
-        e.preventDefault();
-        if (!timerSection.classList.contains('active')) {
-            startTimer();
-        }
-    }
-    
-    // Escape - 重置
-    if (e.code === 'Escape' && !isFullscreen) {
-        e.preventDefault();
-        if (timerSection.classList.contains('active')) {
-            reset();
-        }
-    }
-    
-    // F - 全螢幕
-    if (e.code === 'KeyF' && timerSection.classList.contains('active')) {
-        e.preventDefault();
-        toggleFullscreen();
-    }
-});
 
-// 全螢幕功能
-const fullscreenButton = document.getElementById('fullscreen-button');
-let isFullscreen = false;
+    updateBudgetInfo(currentCost, budgetTarget);
+}
 
-const exitHint = document.createElement('div');
-exitHint.className = 'exit-fullscreen-hint';
-document.body.appendChild(exitHint);
+function updateBudgetInfo(currentCost, budgetTarget) {
+    const budgetInfo = document.querySelector('.budget-info');
+    if (!budgetInfo) return;
 
-function toggleFullscreen() {
-    if (!isFullscreen) {
-        if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen();
-        } else if (document.documentElement.webkitRequestFullscreen) {
-            document.documentElement.webkitRequestFullscreen();
-        }
-        
-        document.body.classList.add('fullscreen-mode');
-        
-        // 判斷當前狀態
-        if (stopButton.style.display === 'none') {
-            // 會議已結束
-            document.body.classList.add('meeting-ended');
-            document.body.classList.remove('meeting-active');
-        } else {
-            // 會議進行中
-            document.body.classList.add('meeting-active');
-            document.body.classList.remove('meeting-ended');
-        }
-        
-        isFullscreen = true;
-        
-        exitHint.textContent = translations[currentLang]['exit-fullscreen-hint'];
-        exitHint.classList.add('show');
-        setTimeout(() => exitHint.classList.remove('show'), 3000);
-        
-        fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${currentLang === 'zh' ? '退出全螢幕' : 'Exit Full Screen'}</span>`;
+    const symbol = currencySymbols[app.state.currentCurrency];
+    const { currentLang } = app.state;
+
+    if (currentCost <= budgetTarget) {
+        const remaining = budgetTarget - currentCost;
+        budgetInfo.innerHTML = `<span>${translations[currentLang]['budget-remaining']}: <strong>${symbol}${remaining.toFixed(2)}</strong></span>`;
     } else {
-        if (document.exitFullscreen) {
-            document.exitFullscreen();
-        } else if (document.webkitExitFullscreen) {
-            document.webkitExitFullscreen();
-        }
-        
-        document.body.classList.remove('fullscreen-mode', 'meeting-active', 'meeting-ended');
-        isFullscreen = false;
-        
-        fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[currentLang]['btn-fullscreen']}</span>`;
+        const over = currentCost - budgetTarget;
+        budgetInfo.innerHTML = `<span style="color: var(--danger-color)">${translations[currentLang]['budget-over']}: <strong>${symbol}${over.toFixed(2)}</strong></span>`;
     }
+}
+
+function showBudgetExceededBanner() {
+    if (document.querySelector('.budget-exceeded-banner')) return;
+
+    const banner = document.createElement('div');
+    banner.className = 'budget-exceeded-banner';
+    banner.innerHTML = `<span class="budget-icon">⚠️</span><span>${translations[app.state.currentLang]['budget-exceeded']}</span>`;
+
+    banner.addEventListener('click', () => banner.remove());
+    document.body.appendChild(banner);
+}
+
+function removeBudgetExceededBanner() {
+    const banner = document.querySelector('.budget-exceeded-banner');
+    if (banner) banner.remove();
+}
+
+// ==================== 全屏模式 ====================
+function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+        document.body.classList.add('fullscreen-mode');
+        app.state.isFullscreen = true;
+        app.elements.fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="exit-fullscreen-hint">${translations[app.state.currentLang]['exit-fullscreen-hint']}</span>`;
+
+        showExitFullscreenHint();
+    } else {
+        document.exitFullscreen();
+    }
+}
+
+function showExitFullscreenHint() {
+    let hint = document.querySelector('.exit-fullscreen-hint');
+
+    if (!hint) {
+        hint = document.createElement('div');
+        hint.className = 'exit-fullscreen-hint';
+        hint.textContent = translations[app.state.currentLang]['exit-fullscreen-hint'];
+        document.body.appendChild(hint);
+    }
+
+    hint.classList.add('show');
+    setTimeout(() => hint.classList.remove('show'), 3000);
 }
 
 document.addEventListener('fullscreenchange', () => {
     if (!document.fullscreenElement) {
         document.body.classList.remove('fullscreen-mode');
-        isFullscreen = false;
-        fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[currentLang]['btn-fullscreen']}</span>`;
+        app.state.isFullscreen = false;
+        app.elements.fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[app.state.currentLang]['btn-fullscreen']}</span>`;
     }
 });
 
 document.addEventListener('webkitfullscreenchange', () => {
     if (!document.webkitFullscreenElement) {
         document.body.classList.remove('fullscreen-mode');
-        isFullscreen = false;
-        fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[currentLang]['btn-fullscreen']}</span>`;
+        app.state.isFullscreen = false;
+        app.elements.fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[app.state.currentLang]['btn-fullscreen']}</span>`;
     }
 });
 
+// ==================== 模板系統 ====================
+function initTemplates() {
+    document.getElementById('save-template-btn').addEventListener('click', saveTemplate);
+    loadTemplates();
+}
 
+function saveTemplate() {
+    const { attendeesInput, hourlyRateInput } = app.elements;
+    const { currentCurrency } = app.state;
 
-fullscreenButton.addEventListener('click', toggleFullscreen);
+    const name = prompt(translations[app.state.currentLang]['btn-save-template'] + ':');
+    if (!name) return;
 
-// 分享功能（修正版：顯示預算超支）
-const shareButton = document.getElementById('share-button');
-
-async function shareResult() {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 800;
-    canvas.height = 600;
-    
-    const finalCost = liveCostEl.textContent;
-    const duration = elapsedTimeEl.textContent;
-    const attendees = attendeesInput.value;
-    const hourlyRate = hourlyRateInput.value;
-    const symbol = currencySymbols[currentCurrency];
-    
-    // 檢查是否超支
-    const finalCostNumber = parseFloat(finalCost.replace(/[^0-9.]/g, ''));
-    const budgetTarget = parseFloat(document.getElementById('budget-target').value) || 0;
-    const isBudgetEnabled = document.getElementById('budget-enabled').checked;
-    const isBudgetExceeded = isBudgetEnabled && budgetTarget > 0 && finalCostNumber > budgetTarget;
-    
-    // 背景漸層（如果超支用紅色）
-    const gradient = ctx.createLinearGradient(0, 0, 0, 600);
-    if (isBudgetExceeded) {
-        gradient.addColorStop(0, '#ef476f');
-        gradient.addColorStop(1, '#e63946');
-    } else {
-        gradient.addColorStop(0, '#03045e');
-        gradient.addColorStop(1, '#0077b6');
-    }
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, 800, 600);
-    
-    // 如果超支，加上警告圖標和文字
-    if (isBudgetExceeded) {
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 60px -apple-system, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('⚠️', 400, 80);
-        
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 28px -apple-system, sans-serif';
-        ctx.fillText(translations[currentLang]['budget-exceeded'], 400, 130);
-    }
-    
-    // 標題
-    ctx.fillStyle = '#caf0f8';
-    ctx.font = 'bold 40px -apple-system, sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText(translations[currentLang]['share-title'], 400, isBudgetExceeded ? 180 : 100);
-    
-    // 成本（如果超支用更大更醒目）
-    ctx.fillStyle = '#ffffff';
-    ctx.font = isBudgetExceeded ? 'bold 110px -apple-system, sans-serif' : 'bold 96px -apple-system, sans-serif';
-    ctx.fillText(finalCost, 400, isBudgetExceeded ? 300 : 250);
-    
-    // 預算資訊（如果超支）
-    if (isBudgetExceeded) {
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 24px -apple-system, sans-serif';
-        const overAmount = finalCostNumber - budgetTarget;
-        ctx.fillText(`${translations[currentLang]['budget-over']}: ${symbol}${overAmount.toFixed(2)}`, 400, 360);
-    }
-    
-    // 詳細資訊
-    ctx.fillStyle = '#90e0ef';
-    ctx.font = '28px -apple-system, sans-serif';
-    ctx.fillText(`${duration} • ${attendees} ${translations[currentLang]['people']} • ${symbol}${hourlyRate}/hr`, 400, isBudgetExceeded ? 420 : 330);
-    
-    // 分隔線
-    ctx.strokeStyle = '#00b4d8';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.moveTo(100, isBudgetExceeded ? 460 : 380);
-    ctx.lineTo(700, isBudgetExceeded ? 460 : 380);
-    ctx.stroke();
-    
-    // 底部文字
-    ctx.fillStyle = '#caf0f8';
-    ctx.font = '24px -apple-system, sans-serif';
-    const bottomText = isBudgetExceeded 
-        ? (currentLang === 'zh' ? '會議時間過長，建議精簡議程！' : 'Meeting too long, consider streamlining!')
-        : translations[currentLang]['share-saving'];
-    ctx.fillText(bottomText, 400, isBudgetExceeded ? 510 : 440);
-    
-    ctx.fillStyle = '#90e0ef';
-    ctx.font = '20px -apple-system, sans-serif';
-    ctx.fillText('meeting-cost-calculator.vercel.app', 400, isBudgetExceeded ? 550 : 500);
-    
-    const shareURL = generateShareURL();
-    ctx.fillStyle = '#caf0f8';
-    ctx.font = 'italic 16px -apple-system, sans-serif';
-    const urlText = currentLang === 'zh' ? `使用這些設定：${shareURL}` : `Use these settings: ${shareURL}`;
-    ctx.fillText(urlText, 400, isBudgetExceeded ? 580 : 550);
-    
-    canvas.toBlob(function(blob) {
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.download = `meeting-cost-${Date.now()}.png`;
-        link.href = url;
-        link.click();
-        URL.revokeObjectURL(url);
-        
-        showToast(currentLang === 'zh' ? '圖片已下載！' : 'Image downloaded!');
+    const templates = JSON.parse(localStorage.getItem('templates') || '[]');
+    templates.push({
+        name,
+        attendees: parseInt(attendeesInput.value),
+        hourlyRate: parseFloat(hourlyRateInput.value),
+        currency: currentCurrency
     });
+
+    localStorage.setItem('templates', JSON.stringify(templates));
+    loadTemplates();
+    showToast(translations[app.state.currentLang]['template-saved']);
 }
 
-// 顯示提示訊息
-function showToast(message) {
-    const toast = document.createElement('div');
-    toast.textContent = message;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: #00b4d8;
-        color: white;
-        padding: 12px 24px;
-        border-radius: 8px;
-        font-weight: 600;
-        z-index: 10000;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        animation: slideDown 0.3s ease;
-    `;
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.animation = 'slideUp 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-    }, 2000);
-}
-
-shareButton.addEventListener('click', shareResult);
-
-// 複製分享連結
-const copyLinkButton = document.getElementById('copy-link-button');
-
-function copyShareLink() {
-    const shareURL = generateShareURL();
-    navigator.clipboard.writeText(shareURL).then(() => {
-        showToast(currentLang === 'zh' ? '分享連結已複製！' : 'Share link copied!');
-        copyLinkButton.innerHTML = `<span>✓</span><span>${currentLang === 'zh' ? '已複製' : 'Copied'}</span>`;
-        setTimeout(() => {
-            copyLinkButton.innerHTML = `<span>🔗</span><span data-i18n="btn-copy-link">${translations[currentLang]['btn-copy-link']}</span>`;
-        }, 2000);
-    }).catch(() => {
-        showToast(currentLang === 'zh' ? '複製失敗，請重試' : 'Failed to copy link');
-    });
-}
-
-copyLinkButton.addEventListener('click', copyShareLink);
-
-// 匯出 CSV
-const exportCsvButton = document.getElementById('export-csv-button');
-
-function exportToCSV() {
-    const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
-    
-    if (history.length === 0) {
-        showToast(currentLang === 'zh' ? '沒有會議記錄' : 'No records found');
-        return;
-    }
-    
-    // 創建自定義彈窗
-    const modal = document.createElement('div');
-    modal.className = 'export-modal';
-    modal.innerHTML = `
-        <div class="export-modal-content">
-            <h3>${currentLang === 'zh' ? '選擇匯出範圍' : 'Choose Export Range'}</h3>
-            <p>${currentLang === 'zh' ? `找到 ${history.length} 筆會議記錄` : `Found ${history.length} meeting records`}</p>
-            <div class="export-modal-buttons">
-                <button class="export-all-btn" id="export-all-btn">
-                    📊 ${currentLang === 'zh' ? '匯出所有記錄' : 'Export All Records'}
-                </button>
-                <button class="export-current-btn" id="export-current-btn">
-                    📄 ${currentLang === 'zh' ? '僅匯出本次會議' : 'Export Current Only'}
-                </button>
-                <button class="export-cancel-btn" id="export-cancel-btn">
-                    ❌ ${currentLang === 'zh' ? '取消' : 'Cancel'}
-                </button>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(modal);
-    
-    // 按鈕事件
-    document.getElementById('export-all-btn').addEventListener('click', () => {
-        performExport(history, `all-meetings-${Date.now()}.csv`);
-        modal.remove();
-    });
-    
-    document.getElementById('export-current-btn').addEventListener('click', () => {
-        performExport([history[history.length - 1]], `current-meeting-${Date.now()}.csv`);
-        modal.remove();
-    });
-    
-    document.getElementById('export-cancel-btn').addEventListener('click', () => {
-        modal.remove();
-    });
-    
-    // 點擊背景關閉
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.remove();
-    });
-}
-
-// 執行導出的輔助函數
-function performExport(data, filename) {
-    const headers = currentLang === 'zh' 
-        ? ['日期', '人數', '時薪', '貨幣', '時長(分)', '成本']
-        : ['Date', 'People', 'Rate', 'Currency', 'Duration', 'Cost'];
-    
-    let csv = '\uFEFF' + headers.join(',') + '\n';
-    
-    data.forEach(record => {
-        csv += `"${record.date}",${record.attendees},${record.hourlyRate},${record.currency},${record.duration},${record.cost.toFixed(2)}\n`;
-    });
-    
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    link.click();
-    URL.revokeObjectURL(url);
-    
-    showToast(currentLang === 'zh' ? `已匯出 ${data.length} 筆記錄` : `Exported ${data.length} records`);
-}
-
-exportCsvButton.addEventListener('click', exportToCSV);
-
-// 深色模式
-const themeToggle = document.getElementById('theme-toggle');
-let isDarkMode = localStorage.getItem('darkMode') === 'true';
-
-function toggleDarkMode() {
-    isDarkMode = !isDarkMode;
-    document.body.classList.toggle('dark-mode', isDarkMode);
-    themeToggle.querySelector('.theme-icon').textContent = isDarkMode ? '☀️' : '🌙';
-    localStorage.setItem('darkMode', isDarkMode);
-}
-
-if (isDarkMode) {
-    document.body.classList.add('dark-mode');
-    themeToggle.querySelector('.theme-icon').textContent = '☀️';
-}
-
-themeToggle.addEventListener('click', toggleDarkMode);
-
-// 會議歷史
-let meetingHistory = JSON.parse(localStorage.getItem('meetingHistory')) || [];
-
-function saveMeetingRecord() {
-    const attendees = parseInt(attendeesInput.value);
-    const hourlyRate = parseFloat(hourlyRateInput.value);
-    const symbol = currencySymbols[currentCurrency];
-    const costPerSecond = (attendees * hourlyRate) / 3600;
-    const finalCost = costPerSecond * elapsedSeconds;
-    const duration = Math.floor(elapsedSeconds / 60);
-    
-    const record = {
-        id: Date.now(),
-        date: new Date().toISOString(),
-        attendees: attendees,
-        hourlyRate: hourlyRate,
-        currency: currentCurrency,
-        duration: duration,
-        cost: finalCost
-    };
-    
-    meetingHistory.unshift(record);
-    
-    if (meetingHistory.length > 50) {
-        meetingHistory = meetingHistory.slice(0, 50);
-    }
-    
-    localStorage.setItem('meetingHistory', JSON.stringify(meetingHistory));
-    renderHistory();
-}
-
-function renderHistory() {
-    const historySection = document.getElementById('history-section');
-    const historyList = document.getElementById('history-list');
-    
-    if (meetingHistory.length === 0) {
-        historySection.style.display = 'none';
-        return;
-    }
-    
-    historySection.style.display = 'block';
-    
-    const totalMeetings = meetingHistory.length;
-    const totalCost = meetingHistory.reduce((sum, record) => sum + record.cost, 0);
-    const avgDuration = meetingHistory.reduce((sum, record) => sum + record.duration, 0) / totalMeetings;
-    
-    const statsHTML = `
-        <div class="history-stats">
-            <div class="history-stat">
-                <div class="history-stat-label" data-i18n="history-total">${translations[currentLang]['history-total']}</div>
-                <div class="history-stat-value">${totalMeetings}</div>
-            </div>
-            <div class="history-stat">
-                <div class="history-stat-label" data-i18n="history-total-cost">${translations[currentLang]['history-total-cost']}</div>
-                <div class="history-stat-value">${currencySymbols[meetingHistory[0].currency]}${totalCost.toFixed(0)}</div>
-            </div>
-            <div class="history-stat">
-                <div class="history-stat-label" data-i18n="history-avg-duration">${translations[currentLang]['history-avg-duration']}</div>
-                <div class="history-stat-value">${Math.round(avgDuration)} <span style="font-size: 0.7em">${translations[currentLang]['minutes-short']}</span></div>
-            </div>
-        </div>
-    `;
-    
-    const recordsHTML = meetingHistory.map(record => {
-        const date = new Date(record.date);
-        const dateStr = date.toLocaleDateString(currentLang === 'zh' ? 'zh-TW' : 'en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-        const timeStr = date.toLocaleTimeString(currentLang === 'zh' ? 'zh-TW' : 'en-US', { hour: '2-digit', minute: '2-digit' });
-        
-        return `
-            <div class="history-item">
-                <div class="history-item-header">
-                    <span class="history-date">${dateStr} ${timeStr}</span>
-                    <span class="history-cost">${currencySymbols[record.currency]}${record.cost.toFixed(2)}</span>
-                </div>
-                <div class="history-details">
-                    <span class="history-detail-item">${record.attendees} ${currentLang === 'zh' ? '人' : 'people'}</span>
-                    <span class="history-detail-item">${record.duration} ${translations[currentLang]['minutes-short']}</span>
-                    <span class="history-detail-item">${currencySymbols[record.currency]}${record.hourlyRate}/hr</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    historyList.innerHTML = recordsHTML + statsHTML;
-}
-
-document.getElementById('clear-history-btn').addEventListener('click', () => {
-    if (confirm(translations[currentLang]['history-confirm-clear'])) {
-        meetingHistory = [];
-        localStorage.removeItem('meetingHistory');
-        renderHistory();
-        showToast(translations[currentLang]['history-cleared']);
-    }
-});
-
-// 模板功能
-let templates = JSON.parse(localStorage.getItem('meetingTemplates')) || [];
-
-function renderTemplates() {
+function loadTemplates() {
+    const templates = JSON.parse(localStorage.getItem('templates') || '[]');
     const templateList = document.getElementById('template-list');
-    
+
     if (templates.length === 0) {
-        templateList.innerHTML = `<p class="template-empty" data-i18n="template-empty">${translations[currentLang]['template-empty']}</p>`;
+        templateList.innerHTML = `<p class="template-empty" data-i18n="template-empty">${translations[app.state.currentLang]['template-empty']}</p>`;
         return;
     }
-    
+
     templateList.innerHTML = templates.map((template, index) => `
         <div class="template-item">
             <div class="template-info">
                 <div class="template-name">${template.name}</div>
-                <div class="template-details">
-                    ${template.attendees} • ${currencySymbols[template.currency]}${template.hourlyRate}/hr • ${template.duration} min
-                </div>
+                <div class="template-details">${template.attendees} ${translations[app.state.currentLang]['people']} • ${currencySymbols[template.currency]}${template.hourlyRate}/hr</div>
             </div>
             <div class="template-actions">
-                <button class="template-load-btn" onclick="loadTemplate(${index})" data-i18n="btn-load">${translations[currentLang]['btn-load']}</button>
-                <button class="template-delete-btn" onclick="deleteTemplate(${index})" data-i18n="btn-delete">${translations[currentLang]['btn-delete']}</button>
+                <button class="template-load-btn" onclick="loadTemplate(${index})" data-i18n="btn-load">${translations[app.state.currentLang]['btn-load']}</button>
+                <button class="template-delete-btn" onclick="deleteTemplate(${index})" data-i18n="btn-delete">${translations[app.state.currentLang]['btn-delete']}</button>
             </div>
         </div>
     `).join('');
 }
 
-window.loadTemplate = function(index) {
+function loadTemplate(index) {
+    const templates = JSON.parse(localStorage.getItem('templates') || '[]');
     const template = templates[index];
-    attendeesInput.value = template.attendees;
-    hourlyRateInput.value = template.hourlyRate;
-    durationInput.value = template.duration;
-    currentCurrency = template.currency;
-    currencySelect.value = template.currency;
+
+    app.elements.attendeesInput.value = template.attendees;
+    app.elements.hourlyRateInput.value = template.hourlyRate;
+    app.elements.currencySelect.value = template.currency;
+    app.state.currentCurrency = template.currency;
+
     calculateEstimate();
-    updateCurrencyLabel();
-    showToast(translations[currentLang]['template-loaded']);
-};
-
-window.deleteTemplate = function(index) {
-    if (confirm(currentLang === 'zh' ? '確定要刪除這個模板嗎？' : 'Delete this template?')) {
-        templates.splice(index, 1);
-        localStorage.setItem('meetingTemplates', JSON.stringify(templates));
-        renderTemplates();
-        showToast(translations[currentLang]['template-deleted']);
-    }
-};
-
-document.getElementById('save-template-btn').addEventListener('click', () => {
-    const name = prompt(currentLang === 'zh' ? '輸入模板名稱：' : 'Enter template name:');
-    if (!name) return;
-    
-    const newTemplate = {
-        name: name,
-        attendees: parseInt(attendeesInput.value),
-        hourlyRate: parseFloat(hourlyRateInput.value),
-        duration: parseInt(durationInput.value),
-        currency: currentCurrency
-    };
-    
-    templates.push(newTemplate);
-    localStorage.setItem('meetingTemplates', JSON.stringify(templates));
-    renderTemplates();
-    showToast(translations[currentLang]['template-saved']);
-});
-
-// 預算功能
-const budgetEnabled = document.getElementById('budget-enabled');
-const budgetInputGroup = document.getElementById('budget-input-group');
-const budgetTarget = document.getElementById('budget-target');
-let isBudgetEnabled = localStorage.getItem('budgetEnabled') === 'true';
-let budgetExceededShown = false;
-let budgetExceededBanner = null;
-
-if (isBudgetEnabled) {
-    budgetEnabled.checked = true;
-    budgetInputGroup.style.display = 'flex';
-    const savedBudget = localStorage.getItem('budgetTarget');
-    if (savedBudget) budgetTarget.value = savedBudget;
+    showToast(translations[app.state.currentLang]['template-loaded']);
 }
 
-budgetEnabled.addEventListener('change', (e) => {
-    isBudgetEnabled = e.target.checked;
-    budgetInputGroup.style.display = isBudgetEnabled ? 'flex' : 'none';
-    localStorage.setItem('budgetEnabled', isBudgetEnabled);
-    if (isBudgetEnabled) budgetTarget.focus();
-});
-
-budgetTarget.addEventListener('input', () => {
-    localStorage.setItem('budgetTarget', budgetTarget.value);
-});
-
-function showBudgetExceededBanner() {
-    if (budgetExceededBanner) return;
-    
-    budgetExceededBanner = document.createElement('div');
-    budgetExceededBanner.className = 'budget-exceeded-banner';
-    const message = translations[currentLang]['budget-exceeded'];
-    budgetExceededBanner.innerHTML = `<span class="budget-icon">⚠️</span><span>${message}</span>`;
-    document.body.appendChild(budgetExceededBanner);
+function deleteTemplate(index) {
+    const templates = JSON.parse(localStorage.getItem('templates') || '[]');
+    templates.splice(index, 1);
+    localStorage.setItem('templates', JSON.stringify(templates));
+    loadTemplates();
+    showToast(translations[app.state.currentLang]['template-deleted']);
 }
 
-function removeBudgetExceededBanner() {
-    if (budgetExceededBanner) {
-        budgetExceededBanner.remove();
-        budgetExceededBanner = null;
-    }
+// ==================== 會議歷史 ====================
+function initHistory() {
+    loadHistory();
+    document.getElementById('clear-history-btn').addEventListener('click', clearHistory);
 }
 
-function updateBudgetProgress(currentCost) {
-    if (!isBudgetEnabled) {
-        // 移除超支狀態
-        document.body.classList.remove('budget-exceeded');
+function saveMeetingRecord() {
+    const { attendeesInput, hourlyRateInput } = app.elements;
+    const { currentCurrency, elapsedSeconds } = app.state;
+
+    const attendees = parseInt(attendeesInput.value);
+    const hourlyRate = parseFloat(hourlyRateInput.value);
+    const duration = elapsedSeconds / 60;
+    const cost = (attendees * hourlyRate * duration) / 60;
+
+    const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
+    history.push({
+        date: new Date().toLocaleString(),
+        attendees,
+        hourlyRate,
+        currency: currentCurrency,
+        duration: duration.toFixed(1),
+        cost: cost.toFixed(2)
+    });
+
+    localStorage.setItem('meetingHistory', JSON.stringify(history));
+    loadHistory();
+}
+
+function loadHistory() {
+    const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
+    const historySection = document.getElementById('history-section');
+    const historyList = document.getElementById('history-list');
+
+    if (history.length === 0) {
+        historySection.style.display = 'none';
         return;
     }
-    
-    const target = parseFloat(budgetTarget.value) || 0;
-    if (target === 0) {
-        document.body.classList.remove('budget-exceeded');
+
+    historySection.style.display = 'block';
+
+    // 計算統計
+    const totalMeetings = history.length;
+    const totalCost = history.reduce((sum, record) => sum + parseFloat(record.cost), 0);
+    const totalDuration = history.reduce((sum, record) => sum + parseFloat(record.duration), 0);
+    const avgDuration = totalDuration / totalMeetings;
+
+    // 顯示統計
+    const statsHTML = `
+        <div class="history-stats">
+            <div class="history-stat">
+                <div class="stat-label" data-i18n="history-total">${translations[app.state.currentLang]['history-total']}</div>
+                <div class="stat-value">${totalMeetings}</div>
+            </div>
+            <div class="history-stat">
+                <div class="stat-label" data-i18n="history-total-cost">${translations[app.state.currentLang]['history-total-cost']}</div>
+                <div class="stat-value">${currencySymbols[app.state.currentCurrency]}${totalCost.toFixed(2)}</div>
+            </div>
+            <div class="history-stat">
+                <div class="stat-label" data-i18n="history-avg-duration">${translations[app.state.currentLang]['history-avg-duration']}</div>
+                <div class="stat-value">${avgDuration.toFixed(1)} ${translations[app.state.currentLang]['minutes-short']}</div>
+            </div>
+        </div>
+    `;
+
+    // 顯示記錄
+    const recordsHTML = history.reverse().map(record => `
+        <div class="history-item">
+            <div class="history-date">${record.date}</div>
+            <div class="history-details">${record.attendees} ${translations[app.state.currentLang]['people']} • ${record.duration} ${translations[app.state.currentLang]['minutes-short']}</div>
+            <div class="history-cost">${currencySymbols[record.currency]}${record.cost}</div>
+        </div>
+    `).join('');
+
+    historyList.innerHTML = statsHTML + recordsHTML;
+}
+
+function clearHistory() {
+    if (confirm(translations[app.state.currentLang]['history-confirm-clear'])) {
+        localStorage.removeItem('meetingHistory');
+        document.getElementById('history-section').style.display = 'none';
+        showToast(translations[app.state.currentLang]['history-cleared']);
+    }
+}
+
+// ==================== 導出功能 ====================
+function downloadImage() {
+    showToast('Downloading image...');
+    // 需要引入 html2canvas 庫
+}
+
+function exportToCSV() {
+    const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
+
+    if (history.length === 0) {
+        showToast('No records to export');
         return;
     }
-    
-    const percentage = Math.min((currentCost / target) * 100, 100);
-    const symbol = currencySymbols[currentCurrency];
-    
-    let progressContainer = document.querySelector('.budget-progress');
-    
-    if (!progressContainer) {
-        const timerDisplay = document.querySelector('.timer-display');
-        const progressHTML = `
-            <div class="budget-progress">
-                <div class="budget-progress-bar" id="budget-progress-bar"></div>
-            </div>
-            <div class="budget-info">
-                <span class="budget-current">${translations[currentLang]['budget-progress']}: <span id="budget-current-cost">${symbol}0</span></span>
-                <span class="budget-remaining" id="budget-remaining-text">${translations[currentLang]['budget-remaining']}: ${symbol}${target.toFixed(2)}</span>
-            </div>
-        `;
-        timerDisplay.insertAdjacentHTML('beforeend', progressHTML);
-        progressContainer = document.querySelector('.budget-progress');
-    }
-    
-    const progressBar = document.getElementById('budget-progress-bar');
-    const currentCostEl = document.getElementById('budget-current-cost');
-    const remainingTextEl = document.getElementById('budget-remaining-text');
-    
-    progressBar.style.width = `${percentage}%`;
-    currentCostEl.textContent = `${symbol}${currentCost.toFixed(2)}`;
-    
-    // 清除所有狀態
-    progressBar.classList.remove('warning', 'exceeded');
-    remainingTextEl.classList.remove('warning', 'exceeded');
-    document.querySelector('.timer-display').classList.remove('budget-warning');
-    document.body.classList.remove('budget-exceeded');  // ← 新增：移除 body 的超支狀態
-    
-    if (currentCost >= target) {
-        // 超支狀態
-        progressBar.classList.add('exceeded');
-        remainingTextEl.classList.add('exceeded');
-        remainingTextEl.textContent = `${translations[currentLang]['budget-over']}: ${symbol}${(currentCost - target).toFixed(2)}`;
-        document.querySelector('.timer-display').classList.add('budget-warning');
-        document.body.classList.add('budget-exceeded');  // ← 新增：添加 body 的超支狀態（用於全屏紅色邊框）
-        
-        if (!budgetExceededShown) {
-            showBudgetExceededBanner();
-            budgetExceededShown = true;
+
+    const csvContent = [
+        ['Date', 'Attendees', 'Hourly Rate', 'Currency', 'Duration (min)', 'Total Cost'],
+        ...history.map(record => [
+            record.date,
+            record.attendees,
+            record.hourlyRate,
+            record.currency,
+            record.duration,
+            record.cost
+        ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `meeting-history-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+
+    showToast(translations[app.state.currentLang]['btn-export-csv'] + ' ✓');
+}
+
+function copyShareLink() {
+    const { attendeesInput, hourlyRateInput, durationInput } = app.elements;
+    const { currentCurrency } = app.state;
+
+    const url = `${window.location.origin}${window.location.pathname}?attendees=${attendeesInput.value}&rate=${hourlyRateInput.value}&duration=${durationInput.value}&currency=${currentCurrency}`;
+
+    navigator.clipboard.writeText(url).then(() => {
+        showToast('Link copied! 🔗');
+    });
+}
+
+function showQRCode() {
+    const { attendeesInput, hourlyRateInput, durationInput } = app.elements;
+    const { currentCurrency } = app.state;
+
+    const url = `${window.location.origin}${window.location.pathname}?attendees=${attendeesInput.value}&rate=${hourlyRateInput.value}&duration=${durationInput.value}&currency=${currentCurrency}`;
+
+    const modal = document.createElement('div');
+    modal.className = 'qr-modal';
+    modal.innerHTML = `
+        <div class="qr-content">
+            <h3 data-i18n="qr-title">${translations[app.state.currentLang]['qr-title']}</h3>
+            <div id="qrcode"></div>
+            <button class="qr-close" data-i18n="btn-close">${translations[app.state.currentLang]['btn-close']}</button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    new QRCode(document.getElementById('qrcode'), {
+        text: url,
+        width: 200,
+        height: 200
+    });
+
+    modal.querySelector('.qr-close').addEventListener('click', () => modal.remove());
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
+}
+
+// ==================== 快捷鍵 ====================
+function initKeyboardShortcuts() {
+    document.addEventListener('keydown', (e) => {
+        // Enter 或 Space：開始/暫停
+        if ((e.key === 'Enter' || e.key === ' ') && !e.target.matches('input, select')) {
+            e.preventDefault();
+            if (app.elements.startButton.style.display !== 'none') {
+                startTimer();
+            } else if (app.elements.pauseButton.style.display !== 'none') {
+                togglePause();
+            }
         }
-    } else if (percentage >= 80) {
-        // 警告狀態（80-99%）
-        progressBar.classList.add('warning');
-        remainingTextEl.classList.add('warning');
-        remainingTextEl.textContent = `${translations[currentLang]['budget-remaining']}: ${symbol}${(target - currentCost).toFixed(2)}`;
-    } else {
-        // 正常狀態
-        remainingTextEl.textContent = `${translations[currentLang]['budget-remaining']}: ${symbol}${(target - currentCost).toFixed(2)}`;
-    }
+
+        // Esc：重置
+        if (e.key === 'Escape' && app.elements.resetButton.style.display !== 'none') {
+            reset();
+        }
+
+        // F：全屏
+        if (e.key === 'f' || e.key === 'F') {
+            if (app.elements.timerSection.classList.contains('active')) {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        }
+    });
 }
 
+// ==================== URL 參數載入 ====================
+function loadFromURL() {
+    const params = new URLSearchParams(window.location.search);
 
-// QR Code 功能
-const qrButton = document.getElementById('qr-button');
-
-// 創建 QR Modal
-const qrModal = document.createElement('div');
-qrModal.className = 'qr-modal';
-qrModal.innerHTML = `
-    <div class="qr-modal-content">
-        <h2 class="qr-modal-title" data-i18n="qr-title">${translations[currentLang]['qr-title']}</h2>
-        <div class="qr-code-container" id="qr-code-display"></div>
-        <div class="qr-modal-url" id="qr-modal-url"></div>
-        <button class="qr-modal-close" id="qr-modal-close" data-i18n="btn-close">${translations[currentLang]['btn-close']}</button>
-    </div>
-`;
-document.body.appendChild(qrModal);
-
-qrButton.addEventListener('click', () => {
-    const shareURL = generateShareURL();
-    
-    // 清空舊的 QR Code
-    const qrContainer = document.getElementById('qr-code-display');
-    qrContainer.innerHTML = '';
-    
-    // 生成新的 QR Code
-    try {
-        new QRCode(qrContainer, {
-            text: shareURL,
-            width: 256,
-            height: 256,
-            colorDark: '#03045e',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.H
-        });
-        
-        // 顯示 URL
-        document.getElementById('qr-modal-url').textContent = shareURL;
-        
-        // 顯示彈窗
-        qrModal.classList.add('show');
-        
-        showToast(currentLang === 'zh' ? 'QR Code 已生成！' : 'QR Code generated!');
-    } catch (error) {
-        console.error('QR Code 生成失敗:', error);
-        // 降級方案：顯示文字連結
-        const message = currentLang === 'zh' 
-            ? `掃描 QR Code 或使用此連結：\n${shareURL}` 
-            : `Scan QR Code or use this link:\n${shareURL}`;
-        alert(message);
+    if (params.has('attendees')) {
+        app.elements.attendeesInput.value = params.get('attendees');
     }
-});
 
-// 關閉 QR Modal
-document.getElementById('qr-modal-close').addEventListener('click', () => {
-    qrModal.classList.remove('show');
-});
-
-// 點擊背景關閉
-qrModal.addEventListener('click', (e) => {
-    if (e.target === qrModal) {
-        qrModal.classList.remove('show');
+    if (params.has('rate')) {
+        app.elements.hourlyRateInput.value = params.get('rate');
     }
-});
 
-// Budget Exceeded 橫幅點擊關閉功能
-document.addEventListener('click', (e) => {
-    if (e.target.closest('.budget-exceeded-banner')) {
-        const banner = e.target.closest('.budget-exceeded-banner');
-        banner.style.animation = 'slideUp 0.3s ease';
-        setTimeout(() => banner.remove(), 300);
+    if (params.has('duration')) {
+        app.elements.durationInput.value = params.get('duration');
     }
-});
 
+    if (params.has('currency')) {
+        app.elements.currencySelect.value = params.get('currency');
+        app.state.currentCurrency = params.get('currency');
+    }
 
-// 初始化
-loadSettings();
-loadFromURL();
-switchLanguage(currentLang);
-calculateEstimate();
-updateCurrencyLabel();
-renderTemplates();
-renderHistory();
+    calculateEstimate();
+}
 
-console.log('✅ Meeting Cost Calculator 已載入');
+// ==================== 設置持久化 ====================
+function saveSettings() {
+    const settings = {
+        attendees: app.elements.attendeesInput.value,
+        hourlyRate: app.elements.hourlyRateInput.value,
+        duration: app.elements.durationInput.value,
+        currency: app.state.currentCurrency,
+        budgetEnabled: app.elements.budgetEnabled.checked,
+        budgetTarget: app.elements.budgetTarget.value
+    };
+
+    localStorage.setItem('meetingSettings', JSON.stringify(settings));
+}
+
+function loadSettings() {
+    const settings = JSON.parse(localStorage.getItem('meetingSettings') || '{}');
+
+    if (settings.attendees) app.elements.attendeesInput.value = settings.attendees;
+    if (settings.hourlyRate) app.elements.hourlyRateInput.value = settings.hourlyRate;
+    if (settings.duration) app.elements.durationInput.value = settings.duration;
+    if (settings.currency) {
+        app.elements.currencySelect.value = settings.currency;
+        app.state.currentCurrency = settings.currency;
+    }
+    if (settings.budgetEnabled) {
+        app.elements.budgetEnabled.checked = settings.budgetEnabled;
+        app.elements.budgetInputGroup.style.display = 'block';
+    }
+    if (settings.budgetTarget) app.elements.budgetTarget.value = settings.budgetTarget;
+}
+
+// ==================== Toast 提示 ====================
+function showToast(message) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'toastSlide 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
