@@ -91,7 +91,7 @@ const translations = {
         'btn-resume': 'Resume',
         'btn-share': 'Download Image',
         'btn-export-csv': 'Export CSV',
-        'btn-copy-link': 'Copy Share Link',
+        'btn-copy-link': 'Share your settings',
         'btn-qr-code': 'Show QR Code',
         'btn-reset': 'New Meeting',
         'bmc-text': 'Buy Me a Coffee',

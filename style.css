@@ -2012,3 +2012,17 @@ body.fullscreen-mode .reset-button {
         flex-direction: column !important;
     }
 }
+/* 🔥 強制顯示 Download Image 按鈕 */
+#share-button,
+.share-button {
+    display: flex !important;
+}
+
+/* 確保所有四個按鈕都顯示 */
+.share-actions.show button,
+.share-actions.show .share-button,
+.share-actions.show .export-csv-button,
+.share-actions.show .copy-link-button,
+.share-actions.show .qr-button {
+    display: flex !important;
+}
