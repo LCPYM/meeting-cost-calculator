@@ -1997,3 +1997,18 @@ body.fullscreen-mode .reset-button {
     color: white !important;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3) !important;
 }
+/* 🔥 終極修復 */
+#share-actions.show {
+    display: grid !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    position: relative !important;
+    z-index: 100 !important;
+}
+
+@media (max-width: 768px) {
+    #share-actions.show {
+        display: flex !important;
+        flex-direction: column !important;
+    }
+}
