@@ -518,17 +518,12 @@ function stopTimer() {
     stopButton.style.display = 'none';
     pauseButton.style.display = 'none';
 
-    // ✅ 修復：根據螢幕寬度設置正確的 display 值
-    if (window.innerWidth > 768) {
-        shareActions.style.display = 'grid';
-    } else {
-        shareActions.style.display = 'flex';
-    }
-
+    // ✅ 關鍵修改：用 classList 替代 style.display
+    shareActions.classList.add('show');
+    
     resetButton.style.display = 'block';
-
+    
     document.querySelector('.support-section').style.display = 'block';
-
     saveMeetingRecord();
 }
 

@@ -6,7 +6,7 @@
 
 :root {
     /* 🎛️ 全螢幕縮放控制（調整這一個參數即可控制整體大小）*/
-    --fullscreen-scale: 0.9;  /* 範圍：0.6 - 1.0，預設 0.9 */
+    --fullscreen-scale: 0.8;  /* 範圍：0.6 - 1.0，預設 0.9 */
 
     /* 🎛️ 全螢幕佈局控制 */
     --fs-padding: 2vh;        /* 紅框與螢幕邊緣距離 */
@@ -1787,4 +1787,107 @@ body.fullscreen-mode.meeting-active .reset-button {
         box-shadow: none;
         max-width: 100%;
     }
+}
+
+/* ==================== 關鍵修復 1: Share Actions 顯示控制 ==================== */
+
+/* ✅ 默認隱藏四大功能按鈕 */
+.share-actions {
+    display: none; /* 默認隱藏 */
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    width: 100%;
+    max-width: 500px;
+    margin: 20px auto 0;
+}
+
+/* ✅ 顯示時使用 grid（電腦版）*/
+.share-actions.show {
+    display: grid !important;
+}
+
+/* ✅ 手機版使用 flex */
+@media (max-width: 768px) {
+    .share-actions.show {
+        display: flex !important;
+        flex-direction: column;
+    }
+}
+
+/* ==================== 關鍵修復 2: Bright Mode Full Screen 顏色統一 ==================== */
+
+/* ✅ Bright mode 計時中的顏色 */
+.timer-display .timer-label,
+.timer-display .live-cost,
+.timer-display .elapsed-time {
+    color: white;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ✅ Bright mode 計時完畢 - 顏色保持一致（無黑邊）*/
+.timer-display.stopped .timer-label,
+.timer-display.stopped .live-cost,
+.timer-display.stopped .elapsed-time {
+    color: white !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2) !important;
+    text-stroke: none !important;
+    -webkit-text-stroke: 0 !important;
+}
+
+/* ✅ Full screen bright mode 顏色統一 */
+body.fullscreen-mode:not(.dark-mode) .timer-display .timer-label,
+body.fullscreen-mode:not(.dark-mode) .timer-display .live-cost,
+body.fullscreen-mode:not(.dark-mode) .timer-display .elapsed-time {
+    color: white !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* ==================== 關鍵修復 3: 按鈕寬度對齊 ==================== */
+
+/* ✅ Full screen 模式下按鈕寬度統一 */
+body.fullscreen-mode .fullscreen-button,
+body.fullscreen-mode .reset-button {
+    width: 100%;
+    max-width: 500px; /* 與四大功能按鈕對齊 */
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* ✅ Full screen share actions 寬度 */
+body.fullscreen-mode .share-actions {
+    display: none; /* 默認隱藏 */
+    width: 100%;
+    max-width: 500px;
+}
+
+body.fullscreen-mode .share-actions.show {
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--fs-gap);
+}
+
+@media (max-width: 768px) {
+    body.fullscreen-mode .share-actions.show {
+        display: flex !important;
+        flex-direction: column;
+    }
+}
+
+/* ==================== 關鍵修復 4: 超支時顏色（全白）==================== */
+
+/* ✅ 超支時所有文字變白色 */
+.timer-display.budget-warning .timer-label,
+.timer-display.budget-warning .live-cost,
+.timer-display.budget-warning .elapsed-time,
+.timer-display.budget-warning .meeting-info,
+.timer-display.budget-warning .budget-info span {
+    color: white !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ✅ Full screen + Dark mode 顏色統一 */
+body.fullscreen-mode.dark-mode .timer-label,
+body.fullscreen-mode.dark-mode .live-cost,
+body.fullscreen-mode.dark-mode .elapsed-time {
+    color: white !important;
 }
