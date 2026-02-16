@@ -2044,19 +2044,101 @@ body.meeting-ended {
     background-color: inherit !important; /* 確保不變色 */
 }
 
-/* 進度條白邊（未滿時）*/
-.budget-fill {
+/* ==================== 进度条霓虹灯效果 ==================== */
+
+/* 1. 进度条容器（外框）- 浮起阴影 */
+.budget-bar {
+    background: rgba(0, 0, 0, 0.3) !important;
+    border-radius: 8px !important;
+    padding: 4px !important; /* 创造间隙 */
     box-shadow: 
-        0 0 0 3px white,
-        0 0 0 5px rgba(0,0,0,0.2),
-        0 0 15px rgba(255,255,255,0.8) !important;
+        0 4px 12px rgba(0, 0, 0, 0.3),     /* 浮起阴影 */
+        0 2px 6px rgba(0, 0, 0, 0.2),
+        inset 0 1px 2px rgba(255,255,255,0.1) !important; /* 内发光 */
 }
 
-/* 超支時改用金黃色發光邊（更顯眼）*/
+/* 2. 进度条填充（未满时）- 蓝/绿色霓虹 */
+.budget-fill {
+    border-radius: 4px !important; /* 与容器有 4px 间隙 */
+    box-shadow: 
+        0 0 10px currentColor,              /* 内发光 */
+        0 0 20px currentColor,              /* 中发光 */
+        0 0 30px rgba(0, 200, 255, 0.5),   /* 外发光（蓝色）*/
+        inset 0 -2px 5px rgba(0,0,0,0.3) !important; /* 内阴影（立体感）*/
+    animation: pulse-glow 2s ease-in-out infinite; /* 脉冲动画 */
+}
+
+/* 3. 超支时 - 橙/金色霓虹灯 */
+.timer-display.budget-warning .budget-bar {
+    background: rgba(139, 0, 0, 0.4) !important; /* 深红背景 */
+    box-shadow: 
+        0 6px 20px rgba(255, 0, 0, 0.5),   /* 红色浮起阴影 */
+        0 3px 10px rgba(255, 0, 0, 0.3),
+        inset 0 1px 3px rgba(255, 100, 0, 0.3) !important;
+}
+
 .timer-display.budget-warning .budget-fill {
     box-shadow: 
-        0 0 0 4px #FFD700,          /* 金色邊 */
-        0 0 0 7px #FF6B00,          /* 橙色外框 */
-        0 0 25px rgba(255,215,0,1), /* 金色發光 */
-        0 0 40px rgba(255,107,0,0.8) !important; /* 橙色外發光 */
+        0 0 15px #FF6B00,                  /* 橙色内发光 */
+        0 0 30px #FF6B00,                  /* 橙色中发光 */
+        0 0 45px #FFD700,                  /* 金色外发光 */
+        0 0 60px rgba(255, 107, 0, 0.6),  /* 橙色超外发光 */
+        inset 0 -3px 8px rgba(0,0,0,0.4) !important;
+    animation: pulse-glow-warning 1.5s ease-in-out infinite; /* 更快脉冲 */
 }
+
+/* 4. 脉冲动画（正常状态）*/
+@keyframes pulse-glow {
+    0%, 100% {
+        filter: brightness(1);
+        box-shadow: 
+            0 0 10px currentColor,
+            0 0 20px currentColor,
+            0 0 30px rgba(0, 200, 255, 0.5),
+            inset 0 -2px 5px rgba(0,0,0,0.3);
+    }
+    50% {
+        filter: brightness(1.2);
+        box-shadow: 
+            0 0 15px currentColor,
+            0 0 30px currentColor,
+            0 0 45px rgba(0, 200, 255, 0.7),
+            inset 0 -2px 5px rgba(0,0,0,0.3);
+    }
+}
+
+/* 5. 脉冲动画（超支状态 - 更强烈）*/
+@keyframes pulse-glow-warning {
+    0%, 100% {
+        filter: brightness(1);
+        box-shadow: 
+            0 0 15px #FF6B00,
+            0 0 30px #FF6B00,
+            0 0 45px #FFD700,
+            0 0 60px rgba(255, 107, 0, 0.6),
+            inset 0 -3px 8px rgba(0,0,0,0.4);
+    }
+    50% {
+        filter: brightness(1.3);
+        box-shadow: 
+            0 0 25px #FF6B00,
+            0 0 50px #FF6B00,
+            0 0 75px #FFD700,
+            0 0 100px rgba(255, 107, 0, 0.8),
+            inset 0 -3px 8px rgba(0,0,0,0.4);
+    }
+}
+
+/* 6. Full Screen 时增强效果 */
+body.fullscreen-mode .budget-bar {
+    padding: 6px !important; /* 更大间隙 */
+    box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.4),
+        0 3px 10px rgba(0, 0, 0, 0.3),
+        inset 0 2px 4px rgba(255,255,255,0.15) !important;
+}
+
+body.fullscreen-mode.budget-warning .budget-fill {
+    animation: pulse-glow-warning 1s ease-in-out infinite; /* 全螢幕更快 */
+}
+
