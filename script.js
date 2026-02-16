@@ -385,7 +385,7 @@ function initButtonEvents() {
     document.getElementById('qr-button').addEventListener('click', showQRCode);
 }
 
-// ==================== 計時器功能 ====================
+// ==================== 修復後的 startTimer() 函數 ====================
 function startTimer() {
     document.body.classList.add('meeting-active');
     document.body.classList.remove('meeting-ended');
@@ -403,6 +403,9 @@ function startTimer() {
     app.elements.startButton.style.display = 'none';
     app.elements.timerSection.classList.add('active');
     app.elements.pauseButton.style.display = 'flex';
+
+    // ✅ 確保隱藏四大功能按鈕
+    app.elements.shareActions.classList.remove('show');
 
     app.state.startTime = Date.now();
     app.state.elapsedSeconds = 0;
@@ -486,6 +489,7 @@ function togglePause() {
     }
 }
 
+// ==================== 修復後的 stopTimer() 函數 ====================
 function stopTimer() {
     clearInterval(app.state.timerInterval);
 
@@ -518,16 +522,20 @@ function stopTimer() {
     stopButton.style.display = 'none';
     pauseButton.style.display = 'none';
 
-    // ✅ 關鍵修改：用 classList 替代 style.display
+    // ✅ 關鍵修復：使用 classList 顯示四大功能按鈕
     shareActions.classList.add('show');
-    
+
     resetButton.style.display = 'block';
-    
+
     document.querySelector('.support-section').style.display = 'block';
+
     saveMeetingRecord();
 }
 
+// ==================== 修復後的 reset() 函數 ====================
 function reset() {
+    // ✅ 清除 show class
+    app.elements.shareActions.classList.remove('show');
     location.reload();
 }
 
