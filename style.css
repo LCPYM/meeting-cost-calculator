@@ -162,6 +162,17 @@ body.dark-mode .template-header h3 {
     color: var(--primary-dark);
 }
 
+/* ✨ 新增：Dark mode 下 New Meeting 按鍵顏色跟隨 Meeting History */
+body.dark-mode .reset-button {
+    background: var(--accent-color);
+    color: var(--primary-dark);
+}
+
+body.dark-mode .reset-button:hover {
+    background: var(--secondary-color);
+    color: var(--primary-dark);
+}
+
 /* ✨ 修復：預算超支時背景不變白（使用半透明遮罩層）*/
 body.budget-exceeded::after {
     content: '';
@@ -510,6 +521,19 @@ body.dark-mode .budget-input-group input {
     font-weight: 600;
 }
 
+/* ✨ 修復：計時完畢後超支時 "Over" 字眼變白色 */
+.timer-display.stopped .budget-info {
+    color: white !important;
+}
+
+.timer-display.stopped .budget-info span {
+    color: white !important;
+}
+
+.timer-display.stopped .budget-info strong {
+    color: white !important;
+}
+
 /* ✨ 新增：預算超支橫幅 */
 .budget-exceeded-banner {
     position: fixed;
@@ -856,19 +880,13 @@ body.dark-mode .template-empty {
     animation: none;
 }
 
+/* ✨ 修復：計時完畢未超支時，移除黑色描邊，保持普通白色字體 */
 .timer-display.stopped:not(.budget-warning) .timer-label,
 .timer-display.stopped:not(.budget-warning) .live-cost,
 .timer-display.stopped:not(.budget-warning) .elapsed-time,
 .timer-display.stopped:not(.budget-warning) .meeting-info {
-    /* ✨ 修復：未超支時使用白色字體 + 黑色描邊 + 立體陰影 */
     color: white !important;
-    text-shadow: 
-        -1px -1px 0 #000,
-        1px -1px 0 #000,
-        -1px 1px 0 #000,
-        1px 1px 0 #000,
-        2px 2px 4px rgba(0, 0, 0, 0.5),
-        4px 4px 8px rgba(0, 0, 0, 0.3) !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2) !important;
 }
 
 .live-cost.final {
@@ -1400,9 +1418,9 @@ body.fullscreen-mode {
 
 body.fullscreen-mode .container {
     max-width: none;
-    width: calc(100% - 80px);
-    min-height: calc(100vh - 80px);
-    margin: 40px;
+    width: 100%;
+    height: 100vh;
+    margin: 0;
     padding: 40px;
     border-radius: 0;
     display: flex;
@@ -1414,11 +1432,33 @@ body.fullscreen-mode .container {
     box-sizing: border-box;
 }
 
+/* ✨ 修復：全螢幕模式紅框 16:9 比例 */
+body.fullscreen-mode.budget-exceeded .container {
+    width: calc(100vh * 16 / 9);
+    max-width: 100vw;
+    height: calc(100vw * 9 / 16);
+    max-height: 100vh;
+    border: 6px solid var(--danger-color);
+    animation: borderPulse 2s infinite;
+    padding: 3vh 3vw;
+}
+
+@keyframes borderPulse {
+    0%, 100% {
+        border-color: var(--danger-color);
+        box-shadow: inset 0 0 30px rgba(239, 71, 111, 0.3);
+    }
+    50% {
+        border-color: #ff6b8a;
+        box-shadow: inset 0 0 50px rgba(239, 71, 111, 0.5);
+    }
+}
+
 body.fullscreen-mode .budget-progress,
 body.fullscreen-mode .budget-info {
     display: block !important;
-    max-width: calc(35vw / var(--fullscreen-spacing));
-    margin: calc(2vh * var(--fullscreen-spacing)) auto;
+    max-width: 35vw;
+    margin: 2vh auto;
 }
 
 body.fullscreen-mode .meeting-info,
@@ -1428,7 +1468,8 @@ body.fullscreen-mode .history-section {
 
 body.fullscreen-mode.meeting-active .share-actions,
 body.fullscreen-mode.meeting-active .reset-button,
-body.fullscreen-mode.meeting-active .support-section {
+body.fullscreen-mode.meeting-active .support-section,
+body.fullscreen-mode.meeting-active .fullscreen-button {
     display: none !important;
 }
 
@@ -1471,22 +1512,6 @@ body.fullscreen-mode .stop-button {
     font-size: calc(1.4vw / var(--fullscreen-spacing));
 }
 
-body.fullscreen-mode.budget-exceeded .container {
-    border: 6px solid var(--danger-color);
-    animation: borderPulse 2s infinite;
-}
-
-@keyframes borderPulse {
-    0%, 100% {
-        border-color: var(--danger-color);
-        box-shadow: inset 0 0 30px rgba(239, 71, 111, 0.3);
-    }
-    50% {
-        border-color: #ff6b8a;
-        box-shadow: inset 0 0 50px rgba(239, 71, 111, 0.5);
-    }
-}
-
 body.fullscreen-mode.budget-exceeded .live-cost {
     animation: costBlink 1s infinite;
 }
@@ -1500,10 +1525,18 @@ body.fullscreen-mode.budget-exceeded .live-cost {
     }
 }
 
+/* ✨ 修復：全螢幕 dark mode Meeting Ended 顏色跟隨金額和時間 */
 body.fullscreen-mode:not(.dark-mode) .timer-label,
 body.fullscreen-mode:not(.dark-mode) .live-cost,
 body.fullscreen-mode:not(.dark-mode) .elapsed-time {
     color: var(--primary-dark) !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.fullscreen-mode.dark-mode .timer-label,
+body.fullscreen-mode.dark-mode .live-cost,
+body.fullscreen-mode.dark-mode .elapsed-time {
+    color: white !important;
     text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
 }
 

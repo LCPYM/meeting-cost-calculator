@@ -171,7 +171,7 @@ const app = {
         hasShownWarning: false,
         isFullscreen: false,
         budgetExceededShown: false,
-        isBudgetExceeded: false  // ✨ 新增：追蹤是否超支
+        isBudgetExceeded: false
     },
 
     elements: {},
@@ -202,14 +202,13 @@ const app = {
     }
 };
 
-// ✨ 新增：預算超支橫幅變量
 let budgetExceededBanner = null;
 
 // ==================== 初始化 ====================
 document.addEventListener('DOMContentLoaded', () => {
     app.initElements();
     initializeApp();
-    initBudgetBannerClickHandler();  // ✨ 新增：初始化橫幅點擊事件
+    initBudgetBannerClickHandler();
 });
 
 function initializeApp() {
@@ -227,7 +226,6 @@ function initializeApp() {
     calculateEstimate();
 }
 
-// ✨ 新增：預算超支橫幅點擊關閉功能
 function initBudgetBannerClickHandler() {
     document.addEventListener('click', (e) => {
         if (e.target.closest('.budget-exceeded-banner')) {
@@ -241,7 +239,6 @@ function initBudgetBannerClickHandler() {
     });
 }
 
-// ==================== 配色主題 ====================
 function initThemeSelector() {
     const savedTheme = localStorage.getItem('colorTheme') || 'ocean';
     switchColorTheme(savedTheme);
@@ -269,7 +266,6 @@ function switchColorTheme(theme) {
     localStorage.setItem('colorTheme', theme);
 }
 
-// ==================== 語言切換 ====================
 function initLanguageToggle() {
     const savedLang = localStorage.getItem('language') || 'en';
     switchLanguage(savedLang);
@@ -306,7 +302,6 @@ function updateCurrencyLabel() {
     label.textContent = `${translations[currentLang]['label-hourly-rate']} (${currentCurrency})`;
 }
 
-// ==================== 深色模式 ====================
 function initDarkMode() {
     const savedMode = localStorage.getItem('darkMode') === 'true';
     if (savedMode) {
@@ -328,7 +323,6 @@ function updateThemeIcon(isDark) {
     icon.textContent = isDark ? '☀️' : '🌙';
 }
 
-// ==================== 輸入監聽 ====================
 function initInputListeners() {
     const { attendeesInput, hourlyRateInput, durationInput, currencySelect } = app.elements;
 
@@ -344,7 +338,6 @@ function initInputListeners() {
     });
 }
 
-// ==================== 計算預估成本 ====================
 function calculateEstimate() {
     const { attendeesInput, hourlyRateInput, durationInput, estimateCostEl, perMinuteEl } = app.elements;
     const { currentCurrency } = app.state;
@@ -377,7 +370,6 @@ function updateMeetingInfo() {
     meetingInfo.innerHTML = infoText;
 }
 
-// ==================== 按鈕事件 ====================
 function initButtonEvents() {
     app.elements.startButton.addEventListener('click', startTimer);
     app.elements.stopButton.addEventListener('click', stopTimer);
@@ -416,7 +408,7 @@ function startTimer() {
     app.state.isPaused = false;
     app.state.hasShownWarning = false;
     app.state.budgetExceededShown = false;
-    app.state.isBudgetExceeded = false;  // ✨ 重置超支狀態
+    app.state.isBudgetExceeded = false;
 
     removeBudgetExceededBanner();
     updateMeetingInfo();
@@ -447,12 +439,11 @@ function updateTimer() {
     const budgetEnabled = app.elements.budgetEnabled.checked;
     const budgetTarget = parseFloat(app.elements.budgetTarget.value) || 0;
 
-    // ✨ 修復：計時器超支時變紅色（數字 + 背景）
     if (budgetEnabled && budgetTarget > 0 && currentCost > budgetTarget) {
         document.body.classList.add('budget-exceeded');
         liveCostEl.classList.add('exceeded');
         timerDisplay.classList.add('budget-warning');
-        app.state.isBudgetExceeded = true;  // ✨ 記錄超支狀態
+        app.state.isBudgetExceeded = true;
     } else {
         document.body.classList.remove('budget-exceeded');
         liveCostEl.classList.remove('exceeded');
@@ -509,10 +500,9 @@ function stopTimer() {
     const costPerSecond = (attendees * hourlyRate) / 3600;
     const finalCost = costPerSecond * elapsedSeconds;
 
-    // ✨ 修復：計時完畢後保持超支時的紅色背景
     timerDisplay.classList.add('stopped');
     if (app.state.isBudgetExceeded) {
-        timerDisplay.classList.add('budget-warning');  // 保持紅色
+        timerDisplay.classList.add('budget-warning');
     }
 
     document.querySelector('.status-indicator').classList.remove('running');
@@ -525,7 +515,13 @@ function stopTimer() {
 
     stopButton.style.display = 'none';
     pauseButton.style.display = 'none';
+
+    // ✨ 修復：確保 share-actions 在電腦版和手機版都顯示
     shareActions.style.display = 'grid';
+    shareActions.style.removeProperty('display'); // 移除 inline style，讓 CSS 控制
+    shareActions.removeAttribute('style');
+    shareActions.setAttribute('style', 'display: grid;');
+
     resetButton.style.display = 'block';
 
     document.querySelector('.support-section').style.display = 'block';
@@ -550,7 +546,6 @@ function showCostWarning() {
     }, 2000);
 }
 
-// ==================== 預算功能 ====================
 function initBudget() {
     const { budgetEnabled, budgetTarget, budgetInputGroup } = app.elements;
 
@@ -611,7 +606,6 @@ function updateBudgetInfo(currentCost, budgetTarget) {
     }
 }
 
-// ✨ 新增：預算超支橫幅
 function showBudgetExceededBanner() {
     if (budgetExceededBanner) return;
 
@@ -629,7 +623,6 @@ function removeBudgetExceededBanner() {
     }
 }
 
-// ==================== 全屏模式 ====================
 function toggleFullscreen() {
     if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen();
@@ -673,7 +666,6 @@ document.addEventListener('webkitfullscreenchange', () => {
     }
 });
 
-// ==================== 模板系統 ====================
 function initTemplates() {
     document.getElementById('save-template-btn').addEventListener('click', saveTemplate);
     loadTemplates();
@@ -743,7 +735,6 @@ function deleteTemplate(index) {
     showToast(translations[app.state.currentLang]['template-deleted']);
 }
 
-// ==================== 會議歷史 ====================
 function initHistory() {
     loadHistory();
     document.getElementById('clear-history-btn').addEventListener('click', clearHistory);
@@ -765,7 +756,7 @@ function saveMeetingRecord() {
         hourlyRate,
         currency: currentCurrency,
         duration: duration.toFixed(1),
-        cost: cost.toFixed(2)  // ✨ 修復：四捨五入至 2 decimal places
+        cost: cost.toFixed(2)
     });
 
     localStorage.setItem('meetingHistory', JSON.stringify(history));
@@ -827,7 +818,6 @@ function clearHistory() {
 
 // ==================== 導出功能 ====================
 
-// 下載圖片功能
 function downloadImage() {
     showToast(translations[app.state.currentLang]['downloading']);
 
@@ -938,7 +928,6 @@ function prepareAndCaptureImage() {
     });
 }
 
-// Export CSV 功能
 function exportToCSV() {
     const history = JSON.parse(localStorage.getItem('meetingHistory') || '[]');
 
@@ -996,7 +985,7 @@ function performExport(data, filename) {
         record.hourlyRate,
         record.currency,
         record.duration,
-        parseFloat(record.cost).toFixed(2)  // ✨ 修復：四捨五入至 2 decimal places
+        parseFloat(record.cost).toFixed(2)
     ]);
 
     const csvContent = [headers.join(','), ...rows.map(row => row.join(','))].join('\n');
@@ -1029,7 +1018,6 @@ function copyShareLink() {
     });
 }
 
-// QR Code 功能
 let qrModal = null;
 
 function showQRCode() {
@@ -1086,7 +1074,6 @@ function showQRCode() {
     }
 }
 
-// ==================== 快捷鍵 ====================
 function initKeyboardShortcuts() {
     document.addEventListener('keydown', (e) => {
         if ((e.key === 'Enter' || e.key === ' ') && !e.target.matches('input, select')) {
@@ -1115,7 +1102,6 @@ function initKeyboardShortcuts() {
     });
 }
 
-// ==================== URL 參數載入 ====================
 function loadFromURL() {
     const params = new URLSearchParams(window.location.search);
 
@@ -1139,7 +1125,6 @@ function loadFromURL() {
     calculateEstimate();
 }
 
-// ==================== 設置持久化 ====================
 function saveSettings() {
     const settings = {
         attendees: app.elements.attendeesInput.value,
@@ -1170,7 +1155,6 @@ function loadSettings() {
     if (settings.budgetTarget) app.elements.budgetTarget.value = settings.budgetTarget;
 }
 
-// ==================== Toast 提示 ====================
 function showToast(message) {
     const toast = document.createElement('div');
     toast.className = 'toast';
