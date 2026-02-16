@@ -22,9 +22,9 @@
     --shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.15);
     --transition: all 0.3s ease;
-        
+
     /* 疏密度控制變量（0.7 = 緊湊，1.0 = 正常，1.3 = 寬松）*/
-    --spacing-scale: 0.7;  /* ← 調整這個值即可！ */
+    --spacing-scale: 0.7;
     --fullscreen-spacing: 0.7;
 }
 
@@ -250,7 +250,7 @@ body.dark-mode .shortcuts-hint {
 header {
     text-align: center;
     margin-bottom: calc(30px * var(--spacing-scale)); 
-     padding-top: calc(20px * var(--spacing-scale));
+    padding-top: calc(20px * var(--spacing-scale));
 }
 
 h1 {
@@ -260,7 +260,6 @@ h1 {
     font-weight: 800;
 }
 
-/* Dark Mode 標題用白色 */
 body.dark-mode h1 {
     color: #ffffff;
 }
@@ -280,59 +279,11 @@ body.dark-mode h1 {
 
 label {
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: calc(8px * var(--spacing-scale));
     color: var(--text-color);
     font-size: 0.95rem;
+    min-height: 22px;
 }
-
-input[type="number"],
-select {
-    padding: calc(12px * var(--spacing-scale));
-    border: 2px solid var(--border-color);
-    border-radius: 10px;
-    font-size: 1rem;
-    transition: var(--transition);
-    background: var(--bg-color);
-    color: var(--text-color);
-    font-family: 'Euphemia UCAS', 'Noto Sans TC', sans-serif;
-    min-height: 44px;
-    width: 100%;
-    box-sizing: border-box;
-}
-
-input[type="number"]:focus,
-select:focus {
-    outline: none;
-    border-color: var(--primary-color);
-    background: white;
-    box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
-}
-
-/* ==================== 輸入區域 2x2 佈局 ==================== */
-
-.inputs-container {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: calc(20px * var(--spacing-scale));
-    margin-bottom: calc(20px * var(--spacing-scale));
-}
-
-/* 確保每個 input-group 高度一致 */
-.inputs-container .input-group {
-    display: flex;
-    flex-direction: column;
-    min-height: 74px;  /* label(22px) + gap(8px) + input(44px) */
-}
-
-/* 響應式 */
-@media (max-width: 768px) {
-    .inputs-container {
-        grid-template-columns: 1fr;
-        gap: 15px;
-    }
-}
-
-/* ==================== 統一 Input Box 尺寸 ==================== */
 
 input[type="number"],
 select {
@@ -344,17 +295,12 @@ select {
     background: var(--bg-color);
     color: var(--text-color);
     font-family: 'Euphemia UCAS', 'Noto Sans TC', sans-serif;
-    
-    /* 統一高度 */
     height: 44px;
     min-height: 44px;
-    
-    /* 統一寬度 */
     width: 100%;
     box-sizing: border-box;
 }
 
-/* 移除 number input 的箭頭（可選，更整潔）*/
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -362,13 +308,12 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 input[type="number"] {
-    appearance: textfield;  /* ← 使用標準屬性 */
+    appearance: textfield;
 }
 
-/* Select 下拉箭頭位置調整 */
 select {
-    appearance: none;  /* ← 標準屬性優先 */
-    -webkit-appearance: none;  /* ← 保留 webkit 兼容 */
+    appearance: none;
+    -webkit-appearance: none;
     background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
     background-repeat: no-repeat;
     background-position: right 10px center;
@@ -376,7 +321,6 @@ select {
     padding-right: 40px;
 }
 
-/* Focus 狀態 */
 input[type="number"]:focus,
 select:focus {
     outline: none;
@@ -385,7 +329,6 @@ select:focus {
     box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.1);
 }
 
-/* Dark Mode 適配 */
 body.dark-mode input[type="number"],
 body.dark-mode select {
     background: rgba(0, 119, 182, 0.2);
@@ -399,19 +342,150 @@ body.dark-mode select:focus {
     border-color: var(--secondary-color);
 }
 
-/* 確保 label 和 input 對齊 */
-.input-group {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 0;
+/* ==================== 輸入區域 2x2 佈局 ==================== */
+
+.inputs-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: calc(20px * var(--spacing-scale));
+    margin-bottom: calc(20px * var(--spacing-scale));
 }
 
-label {
+.inputs-container .input-group {
+    display: flex;
+    flex-direction: column;
+    min-height: 74px;
+}
+
+/* ==================== 預算區域 ==================== */
+
+.budget-section {
+    margin: calc(30px * var(--spacing-scale)) 0;
+    padding: calc(20px * var(--spacing-scale));
+    background: var(--secondary-color);
+    border-radius: 12px;
+}
+
+body.dark-mode .budget-section {
+    background: var(--secondary-color);
+}
+
+body.dark-mode .budget-toggle {
+    color: var(--primary-dark);
+}
+
+body.dark-mode .budget-input-group label {
+    color: #ffffffe9;
+}
+
+body.dark-mode .budget-input-group input {
+    color: #000000;
+}
+
+.budget-header {
+    margin-bottom: 15px;
+}
+
+.budget-toggle {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
     font-weight: 600;
-    margin-bottom: calc(8px * var(--spacing-scale));
-    color: var(--text-color);
-    font-size: 0.95rem;
-    min-height: 22px;  /* 統一 label 高度 */
+    color: var(--primary-dark);
+}
+
+.budget-toggle input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    margin-right: 10px;
+    cursor: pointer;
+}
+
+.budget-input-group {
+    margin-top: 15px;
+}
+
+.budget-input-group input {
+    width: 100%;
+}
+
+.budget-progress {
+    margin-top: 15px;
+}
+
+.budget-bar {
+    width: 100%;
+    height: 20px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.budget-fill {
+    height: 100%;
+    background: var(--success-color);
+    transition: width 0.3s ease, background-color 0.3s ease;
+    border-radius: 10px;
+}
+
+.budget-fill.warning {
+    background: var(--warning-color);
+}
+
+.budget-fill.danger {
+    background: var(--danger-color);
+}
+
+.budget-info {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.budget-exceeded-banner {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--danger-color);
+    color: white;
+    padding: 15px 30px;
+    border-radius: 10px;
+    font-weight: 700;
+    z-index: 1000;
+    box-shadow: var(--shadow-lg);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    animation: slideDown 0.5s ease;
+    cursor: pointer; 
+    transition: transform 0.2s ease;
+}
+
+.budget-exceeded-banner:hover {
+    transform: translateX(-50%) scale(1.05); 
+}
+
+.budget-exceeded-banner:active {
+    transform: translateX(-50%) scale(0.95);
+}
+
+.budget-icon {
+    font-size: 1.5rem;
+}
+
+@keyframes slideDown {
+    from {
+        top: -100px;
+        opacity: 0;
+    }
+    to {
+        top: 20px;
+        opacity: 1;
+    }
 }
 
 /* ==================== 模板區域 ==================== */
@@ -465,7 +539,6 @@ label {
     padding: 20px;
 }
 
-/* Dark Mode 模板空白提示更明顯 */
 body.dark-mode .template-empty {
     color: var(--primary-dark);
     background: rgba(255, 255, 255, 0.9);
@@ -567,110 +640,30 @@ body.dark-mode .template-empty {
     opacity: 0.9;
 }
 
-/* ==================== 預算區域 ==================== */
-
-.budget-section {
-    margin: calc(30px * var(--spacing-scale)) 0;
-    padding: calc(20px * var(--spacing-scale));
-    background: var(--secondary-color);
-    border-radius: 12px;
-}
-
-/* Dark Mode 預算區域更清楚 */
-body.dark-mode .budget-section {
-    background: var(--secondary-color);
-}
-
-body.dark-mode .budget-toggle {
-    color: var(--primary-dark);
-}
-
-/* 新增：Target Budget 標籤在 Dark Mode 顯示白色 */
-body.dark-mode .budget-input-group label {
-    color: #ffffffe9;
-}
-
-.budget-header {
-    margin-bottom: 15px;
-}
-
-.budget-toggle {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-weight: 600;
-    color: var(--primary-dark);
-}
-
-/* 確保 Dark Mode 預算標籤可讀 */
-body.dark-mode .budget-toggle {
-    color: var(--primary-dark);
-}
-
-.budget-toggle input[type="checkbox"] {
-    margin-right: 10px;
-    width: 20px;
-    height: 20px;
-    cursor: pointer;
-}
-
-.budget-input-group {
-    display: flex;
-    flex-direction: column;
-}
-
 /* ==================== 按鈕 ==================== */
 
 .start-button {
     width: 100%;
-    padding: 18px;
-    background: linear-gradient(135deg, var(--success-color) 0%, #05c799 100%);
+    padding: calc(16px * var(--spacing-scale));
+    background: var(--primary-color);
     color: white;
     border: none;
     border-radius: 12px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 700;
     cursor: pointer;
     transition: var(--transition);
-    box-shadow: var(--shadow);
     margin: calc(20px * var(--spacing-scale)) 0;
 }
 
-/* Ocean Blue - 藍色 Start Button（預設）*/
-body:not(.theme-purple):not(.theme-green) .start-button {
-    background: linear-gradient(135deg, #00b4d8 0%, #0077b6 100%);
-}
-
-body:not(.theme-purple):not(.theme-green) .start-button:hover {
-    background: linear-gradient(135deg, #0077b6 0%, #03045e 100%);
-}
-
-/* Purple Dream - 紫色 Start Button */
-body.theme-purple .start-button {
-    background: linear-gradient(135deg, #9d4edd 0%, #7b2cbf 100%);
-}
-
-body.theme-purple .start-button:hover {
-    background: linear-gradient(135deg, #7b2cbf 0%, #5a189a 100%);
-}
-
-/* Nature Green - 深綠色 Start Button */
-body.theme-green .start-button {
-    background: linear-gradient(135deg, #588157 0%, #3a5a40 100%);
-}
-
-body.theme-green .start-button:hover {
-    background: linear-gradient(135deg, #3a5a40 0%, #344e41 100%);
-}
-
-
 .start-button:hover {
-    transform: translateY(-3px);
+    background: var(--primary-dark);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
 }
 
 .start-button:active {
-    transform: translateY(-1px);
+    transform: translateY(0);
 }
 
 /* ==================== 計時器區域 ==================== */
@@ -684,63 +677,13 @@ body.theme-green .start-button:hover {
     display: block;
 }
 
-/* 非全螢幕時的正常大小 */
 .timer-display {
-    background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
-    padding: 40px;
-    border-radius: 20px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    padding: calc(40px * var(--spacing-scale));
+    border-radius: 15px;
     color: white;
-    margin-bottom: 25px;
+    margin-bottom: calc(20px * var(--spacing-scale));
     box-shadow: var(--shadow-lg);
-    position: relative;
-    overflow: hidden;
-}
-
-.live-cost {
-    font-size: 4rem;
-    font-weight: 800;
-    margin: 20px 0;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
-}
-
-.elapsed-time {
-    font-size: 2rem;
-    font-weight: 600;
-    margin: 15px 0;
-    opacity: 0.9;
-}
-
-.timer-label {
-    font-size: 1.1rem;
-    opacity: 0.9;
-}
-
-.timer-display::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
-    pointer-events: none;
-}
-
-.timer-display.stopped {
-    background: linear-gradient(135deg, #495057 0%, #6c757d 100%);
-}
-
-.timer-display.alert {
-    animation: alertPulse 1s ease-in-out infinite;
-}
-
-.timer-display.budget-warning {
-    background: linear-gradient(135deg, var(--danger-color) 0%, #e63946 100%);
-}
-
-@keyframes alertPulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.02); }
 }
 
 .timer-status {
@@ -748,7 +691,7 @@ body.theme-green .start-button:hover {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
 }
 
 .status-indicator {
@@ -759,79 +702,80 @@ body.theme-green .start-button:hover {
 }
 
 .status-indicator.running {
-    animation: pulse 1.5s ease-in-out infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.4; }
+    animation: pulse 2s infinite;
 }
 
 .status-indicator.stopped {
-    background: #6c757d;
+    background: var(--danger-color);
     animation: none;
 }
 
-
-
-.live-cost.final {
-    color: var(--warning-color);
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.5;
+        transform: scale(1.2);
+    }
 }
 
-.meeting-info {
-    margin-top: 15px;
+.timer-label {
     font-size: 1rem;
-    opacity: 0.8;
-}
-
-/* ==================== 預算進度條 ==================== */
-
-.budget-progress {
-    width: 100%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
-    margin: 20px 0 10px;
-    overflow: hidden;
-}
-
-.budget-progress-bar {
-    height: 100%;
-    background: var(--success-color);
-    transition: width 0.3s ease, background 0.3s ease;
-    border-radius: 10px;
-}
-
-.budget-progress-bar.warning {
-    background: var(--warning-color);
-}
-
-.budget-progress-bar.exceeded {
-    background: white;
-}
-
-.budget-info {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.9rem;
-    margin-top: 10px;
-}
-
-.budget-current,
-.budget-remaining {
+    font-weight: 600;
     opacity: 0.9;
 }
 
-.budget-remaining.warning {
-    color: var(--warning-color);
-    font-weight: 600;
+.live-cost {
+    font-size: 4rem;
+    font-weight: 800;
+    margin: 20px 0;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.budget-remaining.exceeded {
-    color: white;
-    font-weight: 700;
-    padding: 4px 8px;
-    border-radius: 4px;
+.live-cost.final {
+    color: var(--success-color);
+    animation: finalCostPulse 0.5s ease;
+}
+
+@keyframes finalCostPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+.elapsed-time {
+    font-size: 2rem;
+    font-weight: 600;
+    opacity: 0.9;
+    margin-top: 10px;
+}
+
+.meeting-info {
+    font-size: 0.95rem;
+    opacity: 0.8;
+    margin-top: 15px;
+}
+
+.timer-display.stopped {
+    background: linear-gradient(135deg, var(--text-light) 0%, var(--secondary-color) 100%);
+}
+
+.timer-display.alert {
+    animation: alertPulse 1s ease infinite;
+}
+
+@keyframes alertPulse {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(239, 71, 111, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 15px rgba(239, 71, 111, 0);
+    }
 }
 
 /* ==================== 全螢幕按鈕 ==================== */
@@ -839,47 +783,48 @@ body.theme-green .start-button:hover {
 .fullscreen-button {
     width: 100%;
     padding: 12px;
-    background: var(--primary-light);
-    color: white;
-    border: 2px solid var(--primary-color);
+    background: var(--secondary-color);
+    color: var(--primary-dark);
+    border: 2px solid var(--primary-light);
     border-radius: 10px;
-    cursor: pointer;
     font-size: 1rem;
     font-weight: 600;
+    cursor: pointer;
     transition: var(--transition);
-    margin-bottom: 20px;
+    margin-bottom: calc(15px * var(--spacing-scale));
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
 }
 
 .fullscreen-button:hover {
-    background: var(--primary-color);
-    border-color: var(--primary-dark);
+    background: var(--primary-light);
+    color: white;
     transform: translateY(-2px);
+    box-shadow: var(--shadow);
 }
 
 .fullscreen-icon {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
 }
 
-/* ==================== 計時器控制 ==================== */
+/* ==================== 計時器控制按鈕 ==================== */
 
 .timer-actions {
     display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: calc(15px * var(--spacing-scale));
 }
 
 .pause-button,
 .stop-button {
     flex: 1;
-    padding: 15px;
+    padding: 12px;
     border: none;
     border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
     display: flex;
@@ -895,11 +840,15 @@ body.theme-green .start-button:hover {
 
 .pause-button:hover {
     background: #e67700;
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
 
 .pause-button.paused {
     background: var(--success-color);
+}
+
+.pause-button.paused:hover {
+    background: #05c799;
 }
 
 .stop-button {
@@ -909,70 +858,69 @@ body.theme-green .start-button:hover {
 
 .stop-button:hover {
     background: #e63946;
-    transform: translateY(-3px);
+    transform: translateY(-2px);
 }
 
 /* ==================== 分享按鈕 ==================== */
 
 .share-actions {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: calc(15px * var(--spacing-scale));
 }
 
 .share-button,
 .export-csv-button,
 .copy-link-button,
 .qr-button {
-    flex: 1;
-    min-width: calc(50% - 5px);
     padding: 12px;
-    background: var(--primary-light);
-    color: white;
     border: none;
-    border-radius: 8px;
-    cursor: pointer;
+    border-radius: 10px;
     font-size: 0.95rem;
     font-weight: 600;
+    cursor: pointer;
     transition: var(--transition);
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 8px;
+    background: var(--primary-color);
+    color: white;
 }
 
 .share-button:hover,
 .export-csv-button:hover,
 .copy-link-button:hover,
 .qr-button:hover {
-    background: var(--primary-color);
+    background: var(--primary-dark);
     transform: translateY(-2px);
+    box-shadow: var(--shadow);
 }
 
 .reset-button {
     width: 100%;
-    padding: 15px;
-    background: var(--primary-color);
+    padding: 12px;
+    background: var(--text-light);
     color: white;
     border: none;
     border-radius: 10px;
-    font-size: 1.1rem;
-    font-weight: 700;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
     transition: var(--transition);
 }
 
 .reset-button:hover {
-    background: var(--primary-dark);
-    transform: translateY(-3px);
+    background: var(--primary-color);
+    transform: translateY(-2px);
 }
 
-/* ==================== 支持區域 ==================== */
+/* ==================== Buy Me a Coffee ==================== */
 
 .support-section {
     text-align: center;
-    margin: 30px 0;
+    margin: calc(30px * var(--spacing-scale)) 0;
 }
 
 .bmc-button {
@@ -985,6 +933,7 @@ body.theme-green .start-button:hover {
     text-decoration: none;
     border-radius: 10px;
     font-weight: 700;
+    font-size: 1rem;
     transition: var(--transition);
     box-shadow: var(--shadow);
 }
@@ -996,38 +945,38 @@ body.theme-green .start-button:hover {
 }
 
 .bmc-icon {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
 }
 
 /* ==================== 會議歷史 ==================== */
 
 .history-section {
-    margin-top: 30px;
-    padding: 25px;
+    margin: calc(30px * var(--spacing-scale)) 0;
+    padding: calc(20px * var(--spacing-scale));
     background: var(--accent-color);
-    border-radius: 15px;
+    border-radius: 12px;
 }
 
 .history-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
 }
 
 .history-header h3 {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     color: var(--primary-dark);
 }
 
 .clear-history-btn {
-    padding: 8px 16px;
+    padding: 6px 12px;
     background: var(--danger-color);
     color: white;
     border: none;
-    border-radius: 8px;
+    border-radius: 6px;
     cursor: pointer;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     font-weight: 600;
     transition: var(--transition);
 }
@@ -1040,27 +989,27 @@ body.theme-green .start-button:hover {
 .history-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 15px;
-    margin-bottom: 20px;
+    gap: 10px;
+    margin-bottom: 15px;
 }
 
 .history-stat {
     background: white;
-    padding: 15px;
-    border-radius: 10px;
+    padding: 12px;
+    border-radius: 8px;
     text-align: center;
 }
 
-.history-stat-label {
-    font-size: 0.85rem;
-    color: #495057;
-    margin-bottom: 8px;
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-light);
+    margin-bottom: 5px;
 }
 
-.history-stat-value {
-    font-size: 1.5rem;
+.stat-value {
+    font-size: 1.2rem;
     font-weight: 700;
-    color: #03045e;
+    color: var(--primary-dark);
 }
 
 .history-list {
@@ -1071,47 +1020,35 @@ body.theme-green .start-button:hover {
 
 .history-item {
     background: white;
-    padding: 15px;
-    border-radius: 10px;
-    transition: var(--transition);
-}
-
-.history-item:hover {
-    transform: translateX(5px);
-    box-shadow: var(--shadow);
-}
-
-.history-item-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
 }
 
 .history-date {
-    font-size: 0.9rem;
-    color: #495057;
-}
-
-.history-cost {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #03045e;
+    font-size: 0.85rem;
+    color: var(--text-light);
+    margin-bottom: 5px;
 }
 
 .history-details {
-    display: flex;
-    gap: 15px;
-    font-size: 0.85rem;
-    color: #495057;
+    font-size: 0.9rem;
+    color: var(--text-color);
 }
 
-/* ==================== Footer ==================== */
+.history-cost {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-top: 5px;
+}
+
+/* ==================== 頁尾 ==================== */
 
 footer {
     text-align: center;
     margin-top: 30px;
-    color: var(--primary-dark);
+    color: var(--text-color);
 }
 
 footer p {
@@ -1120,105 +1057,218 @@ footer p {
 }
 
 .shortcuts-hint {
-    opacity: 0.7;
     font-size: 0.85rem;
+    opacity: 0.8;
 }
 
-/* ==================== 成本警告 ==================== */
+/* ==================== Toast 提示 ==================== */
 
-.cost-warning {
+.toast {
     position: fixed;
-    top: 20px;
+    bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
-    background: var(--danger-color);
+    background: var(--primary-dark);
     color: white;
     padding: 15px 30px;
     border-radius: 10px;
-    font-weight: 700;
+    font-weight: 600;
     z-index: 1000;
+    animation: toastSlide 0.3s ease;
     box-shadow: var(--shadow-lg);
-    animation: slideDown 0.5s ease;
 }
 
-@keyframes slideDown {
+@keyframes toastSlide {
     from {
-        transform: translate(-50%, -100%);
+        bottom: -50px;
         opacity: 0;
     }
     to {
-        transform: translate(-50%, 0);
+        bottom: 30px;
         opacity: 1;
     }
 }
 
-@keyframes slideUp {
-    from {
-        transform: translate(-50%, 0);
-        opacity: 1;
-    }
-    to {
-        transform: translate(-50%, -100%);
-        opacity: 0;
-    }
-}
+/* ==================== QR Code Modal ==================== */
 
-@keyframes warningPulse {
-    0%, 100% { transform: translate(-50%, 0) scale(1); }
-    50% { transform: translate(-50%, 0) scale(1.05); }
-}
-
-/* ==================== 預算超支橫幅 ==================== */
-
-.budget-exceeded-banner {
+.qr-modal {
     position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: var(--danger-color);
-    color: white;
-    padding: 15px 30px;
-    border-radius: 10px;
-    font-weight: 700;
-    z-index: 1000;
-    box-shadow: var(--shadow-lg);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
+    justify-content: center;
     align-items: center;
-    gap: 10px;
-    animation: slideDown 0.5s ease;
-    cursor: pointer; 
-    transition: transform 0.2s ease;
+    z-index: 2000;
+    animation: fadeIn 0.3s ease;
 }
 
-.budget-exceeded-banner:hover {
-    transform: translateX(-50%) scale(1.05); 
+.qr-content {
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    text-align: center;
+    max-width: 90%;
 }
 
-.budget-exceeded-banner:active {
-    transform: translateX(-50%) scale(0.95);
+.qr-content h3 {
+    margin-bottom: 20px;
+    color: var(--primary-dark);
 }
 
-.budget-icon {
-    font-size: 1.5rem;
+#qrcode {
+    margin: 20px auto;
 }
 
-/* ==================== 全螢幕模式（修正滾動）==================== */
+.qr-close {
+    margin-top: 20px;
+    padding: 10px 30px;
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.qr-close:hover {
+    background: var(--primary-dark);
+}
+
+/* ==================== 全螢幕模式 ==================== */
 
 body.fullscreen-mode {
-    overflow: auto !important;
+    overflow: hidden !important;
 }
 
 body.fullscreen-mode .container {
-    max-width: 800px;
-    min-height: auto;
-    margin: 40px auto;
-    padding: 40px;
-    border-radius: 20px;
+    max-width: none;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--card-bg);
+    position: relative;
 }
 
-body.fullscreen-mode .reset-button {
-    margin-top: 30px;
-    margin-bottom: 30px;
+body.fullscreen-mode .budget-progress,
+body.fullscreen-mode .budget-info {
+    display: block !important;
+    max-width: calc(35vw / var(--fullscreen-spacing));
+    margin: calc(2vh * var(--fullscreen-spacing)) auto;
+}
+
+body.fullscreen-mode .meeting-info,
+body.fullscreen-mode .history-section {
+    display: none !important;
+}
+
+body.fullscreen-mode.meeting-active .share-actions,
+body.fullscreen-mode.meeting-active .reset-button,
+body.fullscreen-mode.meeting-active .support-section {
+    display: none !important;
+}
+
+body.fullscreen-mode .timer-display {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: none;
+}
+
+body.fullscreen-mode .timer-label {
+    font-size: calc(1.8vw / var(--fullscreen-spacing));
+}
+
+body.fullscreen-mode .live-cost {
+    font-size: calc(6.5vw / var(--fullscreen-spacing));
+    margin: calc(3vh * var(--fullscreen-spacing)) 0;
+}
+
+body.fullscreen-mode .elapsed-time {
+    font-size: calc(3.2vw / var(--fullscreen-spacing));
+}
+
+body.fullscreen-mode .timer-actions {
+    margin-top: calc(4vh * var(--fullscreen-spacing));
+    justify-content: center;
+    gap: calc(2vw / var(--fullscreen-spacing));
+}
+
+body.fullscreen-mode .pause-button,
+body.fullscreen-mode .stop-button {
+    min-width: calc(12vw / var(--fullscreen-spacing));
+    padding: calc(1.5vh * var(--fullscreen-spacing)) calc(2vw * var(--fullscreen-spacing));
+    font-size: calc(1.4vw / var(--fullscreen-spacing));
+}
+
+body.fullscreen-mode.budget-exceeded .container {
+    border: calc(8px / var(--fullscreen-spacing)) solid var(--danger-color);
+    animation: borderPulse 2s infinite;
+}
+
+@keyframes borderPulse {
+    0%, 100% {
+        border-color: var(--danger-color);
+        box-shadow: 0 0 0 0 var(--danger-color);
+    }
+    50% {
+        border-color: #ff6b8a;
+        box-shadow: 0 0 30px 10px rgba(239, 71, 111, 0.5);
+    }
+}
+
+body.fullscreen-mode.budget-exceeded .live-cost {
+    animation: costBlink 1s infinite;
+}
+
+@keyframes costBlink {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.6;
+    }
+}
+
+body.fullscreen-mode:not(.dark-mode) .timer-label,
+body.fullscreen-mode:not(.dark-mode) .live-cost,
+body.fullscreen-mode:not(.dark-mode) .elapsed-time {
+    color: var(--primary-dark) !important;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .live-cost,
+body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .elapsed-time {
+    color: #03045e !important;
+}
+
+body.fullscreen-mode.theme-purple:not(.dark-mode) .live-cost,
+body.fullscreen-mode.theme-purple:not(.dark-mode) .elapsed-time {
+    color: #240046 !important;
+}
+
+body.fullscreen-mode.theme-green:not(.dark-mode) .live-cost,
+body.fullscreen-mode.theme-green:not(.dark-mode) .elapsed-time {
+    color: #344e41 !important;
+}
+
+body.fullscreen-mode.budget-exceeded .live-cost {
+    color: var(--danger-color) !important;
 }
 
 .exit-fullscreen-hint {
@@ -1241,92 +1291,105 @@ body.fullscreen-mode .reset-button {
     opacity: 1;
 }
 
+/* ✨ 新增：預算超支時整個背景變色 */
+body.budget-exceeded {
+    background: linear-gradient(135deg, rgba(239, 71, 111, 0.2) 0%, var(--secondary-color) 100%);
+}
+
 /* ==================== 響應式設計 ==================== */
 
+/* ✨ 修改：完整的手機版響應式設計 */
 @media (max-width: 768px) {
     body {
         padding: 10px;
     }
-    
+
     .container {
         padding: 25px;
     }
-    
+
+    /* ✨ 新增：增加標題頂部空間，避免被按鈕遮擋 */
+    header {
+        padding-top: calc(70px * var(--spacing-scale));
+        margin-bottom: calc(20px * var(--spacing-scale));
+    }
+
+    /* ✨ 新增：縮小標題字體 */
     h1 {
-        font-size: 1.6rem;
+        font-size: 1.4rem;
     }
-    
+
     .subtitle {
-        font-size: 0.95rem;
+        font-size: 0.9rem;
     }
-    
+
+    /* ✨ 新增：調整頂部按鈕位置和大小 */
     .theme-selector {
-        top: 15px;
-        left: 15px;
+        top: 10px;
+        left: 10px;
+        gap: 6px;
     }
-    
+
     .theme-option {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
+    .language-toggle {
+        top: 10px;
+        right: 60px;
+        gap: 4px;
+    }
+
+    .lang-btn {
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+
+    .theme-toggle {
+        top: 10px;
+        right: 10px;
+        width: 38px;
+        height: 38px;
         font-size: 18px;
     }
-    
-    .language-toggle {
-        top: 15px;
-        right: 70px;
+
+    /* ✨ 新增：手機版隱藏全屏按鈕 */
+    .fullscreen-button {
+        display: none !important;
     }
-    
-    .lang-btn {
-        padding: 6px 12px;
-        font-size: 0.85rem;
+
+    /* 輸入區域改為單列 */
+    .inputs-container {
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
-    
-    .theme-toggle {
-        top: 15px;
-        right: 15px;
-        width: 42px;
-        height: 42px;
-        font-size: 20px;
-    }
-    
+
     .estimate-cost {
         font-size: 2.5rem;
     }
-    
+
     .live-cost {
         font-size: 3rem;
     }
-    
+
     .elapsed-time {
         font-size: 1.5rem;
     }
-    
+
     .timer-actions {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .share-actions {
-        flex-direction: column;
+        grid-template-columns: 1fr;
+        gap: 10px;
     }
-    
-    .share-button,
-    .export-csv-button,
-    .copy-link-button,
-    .qr-button {
-        min-width: 100%;
-    }
-    
+
     .history-stats {
         grid-template-columns: 1fr;
-    }
-    
-    body.fullscreen-mode .live-cost {
-        font-size: 4rem;
-    }
-    
-    body.fullscreen-mode .elapsed-time {
-        font-size: 2rem;
     }
 }
 
@@ -1334,24 +1397,24 @@ body.fullscreen-mode .reset-button {
     .container {
         padding: 20px;
     }
-    
+
     h1 {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
     }
-    
+
     .estimate-cost {
         font-size: 2rem;
     }
-    
+
     .live-cost {
         font-size: 2.5rem;
     }
-    
+
     .template-item {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .template-actions {
         width: 100%;
         justify-content: space-between;
@@ -1381,7 +1444,7 @@ body.fullscreen-mode .reset-button {
     body {
         background: white;
     }
-    
+
     .theme-selector,
     .language-toggle,
     .theme-toggle,
@@ -1392,633 +1455,9 @@ body.fullscreen-mode .reset-button {
     .fullscreen-button {
         display: none !important;
     }
-    
+
     .container {
         box-shadow: none;
         max-width: 100%;
     }
-}
-/* Target Budget 輸入框在 Dark Mode 文字為黑色 */
-body.dark-mode .budget-input-group input {
-    color: #000000;
-}
-
-/* ==================== 全螢幕模式（完整修正版）==================== */
-
-body.fullscreen-mode {
-    overflow: hidden !important;
-}
-
-body.fullscreen-mode .container {
-    max-width: none;
-    width: 100vw;
-    height: 100vh;
-    margin: 0;
-    padding: 0;
-    border-radius: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    background: var(--card-bg);
-    position: relative;
-}
-
-/* 全螢幕時也顯示 Budget 進度條 */
-body.fullscreen-mode .budget-progress,
-body.fullscreen-mode .budget-info {
-    display: block !important;
-    max-width: calc(35vw / var(--fullscreen-spacing));
-    margin: calc(2vh * var(--fullscreen-spacing)) auto;
-}
-
-/* 隱藏不需要的元素 */
-body.fullscreen-mode .meeting-info,
-body.fullscreen-mode .history-section {
-    display: none !important;
-}
-
-/* 會議進行中時隱藏 */
-body.fullscreen-mode.meeting-active .share-actions,
-body.fullscreen-mode.meeting-active .reset-button,
-body.fullscreen-mode.meeting-active .support-section {
-    display: none !important;
-}
-
-/* 計時器顯示區域 */
-body.fullscreen-mode .timer-display {
-    background: transparent;
-    box-shadow: none;
-    padding: 0;
-    margin: 0;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    flex: none;
-}
-
-/* ==================== Bright Mode 全屏 Timer 深色 ==================== */
-
-/* 非 Dark Mode 時，全屏 Timer 數字使用深色 */
-body.fullscreen-mode:not(.dark-mode) .timer-label,
-body.fullscreen-mode:not(.dark-mode) .live-cost,
-body.fullscreen-mode:not(.dark-mode) .elapsed-time {
-    color: var(--primary-dark) !important;
-    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
-}
-
-/* Ocean Blue - 深藍色 */
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .live-cost,
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .elapsed-time {
-    color: #03045e !important;
-}
-
-/* Purple Dream - 深紫色 */
-body.fullscreen-mode.theme-purple:not(.dark-mode) .live-cost,
-body.fullscreen-mode.theme-purple:not(.dark-mode) .elapsed-time {
-    color: #240046 !important;
-}
-
-/* Nature Green - 深綠色 */
-body.fullscreen-mode.theme-green:not(.dark-mode) .live-cost,
-body.fullscreen-mode.theme-green:not(.dark-mode) .elapsed-time {
-    color: #344e41 !important;
-}
-
-/* 超支時保持紅色 */
-body.fullscreen-mode.budget-exceeded .live-cost {
-    color: var(--danger-color) !important;
-}
-
-
-body.fullscreen-mode .timer-display::before {
-    display: none;
-}
-
-/* 狀態指示器和標籤 */
-body.fullscreen-mode .timer-status {
-    margin-bottom: calc(1.5vh * var(--fullscreen-spacing));
-}
-
-body.fullscreen-mode .status-indicator {
-    width: 14px;
-    height: 14px;
-}
-
-body.fullscreen-mode .timer-label {
-    font-size: 1.6vw;
-}
-
-/* 成本數字 - 縮小 */
-body.fullscreen-mode .live-cost {
-    font-size: calc(5.5vw * var(--fullscreen-spacing) * 1.2);
-    margin: calc(1.5vh * var(--fullscreen-spacing)) 0;
-}
-
-/* 時間顯示 - 縮小 */
-body.fullscreen-mode .elapsed-time {
-    font-size: calc(3.2vw * var(--fullscreen-spacing) * 1.2);
-    margin: calc(1vh * var(--fullscreen-spacing)) 0 calc(1.5vh * var(--fullscreen-spacing));
-}
-
-/* Budget 進度條樣式（全螢幕） */
-body.fullscreen-mode .budget-progress {
-    height: 10px;
-}
-
-body.fullscreen-mode .budget-info {
-    font-size: 1.2vw;
-}
-
-/* Exit 按鈕（會議進行中）- 與 Pause/End 按鈕對齊 */
-body.fullscreen-mode.meeting-active .fullscreen-button {
-    position: static;
-    width: calc(35vw / var(--fullscreen-spacing));
-    padding: calc(1.2vh * var(--fullscreen-spacing)) calc(3vw * var(--fullscreen-spacing));
-    font-size: calc(1.3vw * var(--fullscreen-spacing) * 1.3);
-    margin: calc(2vh * var(--fullscreen-spacing)) auto calc(1vh * var(--fullscreen-spacing));
-    z-index: 1000;
-    background: rgba(0, 180, 216, 0.9);
-}
-
-/* 會議進行中的控制按鈕 */
-body.fullscreen-mode.meeting-active .timer-actions {
-    display: flex;
-    gap: calc(1.5vw * var(--fullscreen-spacing));
-    margin-top: calc(1.5vh * var(--fullscreen-spacing));
-    position: static;
-    width: calc(35vw / var(--fullscreen-spacing));
-}
-
-body.fullscreen-mode .pause-button,
-body.fullscreen-mode .stop-button {
-    padding: calc(1.2vh * var(--fullscreen-spacing)) calc(2.5vw * var(--fullscreen-spacing));
-    font-size: calc(1.4vw * var(--fullscreen-spacing) * 1.2);
-    min-width: auto;
-    flex: 1;
-}
-
-body.fullscreen-mode .pause-button span,
-body.fullscreen-mode .stop-button span {
-    font-size: 1.4vw;
-}
-
-/* 會議結束後的佈局 */
-body.fullscreen-mode.meeting-ended {
-    overflow: auto !important;
-}
-
-body.fullscreen-mode.meeting-ended .container {
-    justify-content: flex-start;
-    padding: calc(4vh * var(--fullscreen-spacing)) calc(5vw * var(--fullscreen-spacing));
-}
-
-body.fullscreen-mode.meeting-ended .timer-display {
-    margin-bottom: calc(2vh * var(--fullscreen-spacing));
-}
-
-/* Exit 按鈕（會議結束）- 與四大功能鍵對齊 */
-body.fullscreen-mode.meeting-ended .fullscreen-button {
-    position: static;
-    width: calc(38vw / var(--fullscreen-spacing));
-    margin: calc(2vh * var(--fullscreen-spacing)) auto;
-    padding: calc(1.3vh * var(--fullscreen-spacing)) calc(3vw * var(--fullscreen-spacing));
-    font-size: 1.4vw;
-}
-
-/* 結束後顯示功能按鈕區域 - 與 Exit 對齊 */
-body.fullscreen-mode.meeting-ended .share-actions {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr);
-    gap: calc(1.2vw * var(--fullscreen-spacing));
-    width: calc(38vw / var(--fullscreen-spacing));
-    margin: 0 auto calc(1.5vh * var(--fullscreen-spacing));
-}
-
-body.fullscreen-mode.meeting-ended .share-actions button {
-    font-size: 1.3vw;
-    padding: calc(1.2vh * var(--fullscreen-spacing)) calc(1.8vw * var(--fullscreen-spacing));
-    min-width: auto;
-}
-
-body.fullscreen-mode.meeting-ended .reset-button {
-    display: block !important;
-    width: calc(38vw / var(--fullscreen-spacing));
-    margin: calc(1.5vh * var(--fullscreen-spacing)) auto;
-    padding: calc(1.5vh * var(--fullscreen-spacing));
-    font-size: 1.6vw;
-}
-
-/* Buy Me a Coffee 按鈕在角落 */
-body.fullscreen-mode.meeting-ended .support-section {
-    display: block !important;
-    position: fixed;
-    bottom: 2vh;
-    right: 2vw;
-    margin: 0;
-}
-
-body.fullscreen-mode.meeting-ended .bmc-button {
-    padding: 0.8vh 1.3vw;
-    font-size: 1vw;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-body.fullscreen-mode.meeting-ended .bmc-icon {
-    font-size: 1.3vw;
-}
-
-/* 響應式調整 - 小螢幕 */
-@media (max-height: 800px) {
-    body.fullscreen-mode .live-cost {
-        font-size: 5.5vw;
-    }
-    
-    body.fullscreen-mode .elapsed-time {
-        font-size: 2.8vw;
-    }
-    
-    body.fullscreen-mode .timer-label {
-        font-size: 1.4vw;
-    }
-}
-
-/* 響應式調整 - 大螢幕 */
-@media (min-height: 1440px) {
-    body.fullscreen-mode .live-cost {
-        font-size: 5.5vw;
-    }
-    
-    body.fullscreen-mode .elapsed-time {
-        font-size: 2.8vw;
-    }
-}
-
-/* ==================== QR Code 彈窗 ==================== */
-
-.qr-modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.8);
-    z-index: 10000;
-    justify-content: center;
-    align-items: center;
-}
-
-.qr-modal.show {
-    display: flex;
-}
-
-.qr-modal-content {
-    background: white;
-    padding: 40px;
-    border-radius: 20px;
-    text-align: center;
-    max-width: 500px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-
-body.dark-mode .qr-modal-content {
-    background: var(--card-bg);
-    color: white;
-}
-
-.qr-modal-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--primary-dark);
-    margin-bottom: 20px;
-}
-
-body.dark-mode .qr-modal-title {
-    color: white;
-}
-
-.qr-code-container {
-    background: white;
-    padding: 20px;
-    border-radius: 12px;
-    margin: 20px 0;
-    display: inline-block;
-}
-
-.qr-code-container canvas {
-    display: block;
-}
-
-.qr-modal-url {
-    font-size: 0.9rem;
-    color: var(--text-light);
-    word-break: break-all;
-    margin: 15px 0;
-    padding: 10px;
-    background: var(--bg-color);
-    border-radius: 8px;
-}
-
-body.dark-mode .qr-modal-url {
-    background: rgba(255, 255, 255, 0.1);
-    color: var(--accent-color);
-}
-
-.qr-modal-close {
-    padding: 12px 30px;
-    background: var(--primary-color);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-    margin-top: 10px;
-}
-
-.qr-modal-close:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-}
-
-
-/* ==================== 全局縮小輸入界面 ==================== */
-
-/* 縮小 90%（可調整 0.85-0.95 之間）*/
-.container {
-    transform: scale(0.99);
-    transform-origin: top center;
-    margin-top: 0;
-    margin-bottom: 0;
-}
-
-/* 修正縮放後的間距 */
-body {
-    padding: 7px;
-}
-
-/* ==================== 全屏超支時：邊框警告（不刺眼但醒目）==================== */
-
-/* 移除全紅背景，改用粗邊框 */
-body.fullscreen-mode.budget-exceeded {
-    background: var(--card-bg) !important;  /* 保持原背景 */
-}
-
-body.fullscreen-mode.budget-exceeded .container {
-    background: var(--card-bg) !important;
-    border: 8px solid var(--danger-color);  /* 粗紅邊框 */
-    box-shadow: 
-        inset 0 0 50px rgba(239, 71, 111, 0.2),  /* 內發光 */
-        0 0 60px rgba(239, 71, 111, 0.4);  /* 外發光 */
-    animation: borderPulse 2s ease-in-out infinite;  /* 脈衝動畫 */
-}
-
-/* 邊框脈衝動畫 */
-@keyframes borderPulse {
-    0%, 100% { 
-        border-color: var(--danger-color);
-        box-shadow: 
-            inset 0 0 50px rgba(239, 71, 111, 0.2),
-            0 0 60px rgba(239, 71, 111, 0.4);
-    }
-    50% { 
-        border-color: #ff6b8a;
-        box-shadow: 
-            inset 0 0 80px rgba(239, 71, 111, 0.3),
-            0 0 100px rgba(239, 71, 111, 0.6);
-    }
-}
-
-/* 成本數字變成醒目的橙紅色 */
-body.fullscreen-mode.budget-exceeded .live-cost {
-    color: var(--danger-color) !important;
-    text-shadow: 
-        0 0 20px rgba(239, 71, 111, 0.6),
-        2px 2px 8px rgba(0, 0, 0, 0.3);
-    animation: costBlink 1.5s ease-in-out infinite;
-}
-
-/* 成本數字閃爍（輕微）*/
-@keyframes costBlink {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.85; transform: scale(1.03); }
-}
-
-/* 添加大警告圖標 */
-body.fullscreen-mode.budget-exceeded .timer-status::before {
-    content: '⚠️';
-    font-size: 3vw;
-    margin-right: 1vw;
-    animation: warningShake 0.5s ease-in-out infinite;
-}
-
-@keyframes warningShake {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-5deg); }
-    75% { transform: rotate(5deg); }
-}
-
-/* 預算進度條變紅並加粗 */
-body.fullscreen-mode.budget-exceeded .budget-progress {
-    height: 15px;  /* 加粗 */
-    border: 2px solid var(--danger-color);
-}
-
-body.fullscreen-mode.budget-exceeded .budget-progress-bar {
-    background: var(--danger-color) !important;
-}
-
-/* 時間也變成淡紅色提示 */
-body.fullscreen-mode.budget-exceeded .elapsed-time {
-    color: #ff8fa3;
-}
-
-/* ==================== Export CSV 選擇彈窗 ==================== */
-
-.export-modal {
-    display: flex;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: rgba(0, 0, 0, 0.7);
-    z-index: 10000;
-    justify-content: center;
-    align-items: center;
-}
-
-.export-modal-content {
-    background: white;
-    padding: 30px;
-    border-radius: 16px;
-    text-align: center;
-    max-width: 400px;
-    width: 90%;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-
-body.dark-mode .export-modal-content {
-    background: var(--card-bg);
-    color: white;
-}
-
-.export-modal-content h3 {
-    font-size: 1.4rem;
-    color: var(--primary-dark);
-    margin-bottom: 15px;
-}
-
-body.dark-mode .export-modal-content h3 {
-    color: white;
-}
-
-.export-modal-content p {
-    color: var(--text-light);
-    margin-bottom: 20px;
-}
-
-.export-modal-buttons {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.export-all-btn,
-.export-current-btn,
-.export-cancel-btn {
-    padding: 12px 20px;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 600;
-    cursor: pointer;
-    transition: var(--transition);
-}
-
-.export-all-btn {
-    background: var(--primary-color);
-    color: white;
-}
-
-.export-all-btn:hover {
-    background: var(--primary-dark);
-    transform: translateY(-2px);
-}
-
-.export-current-btn {
-    background: var(--success-color);
-    color: white;
-}
-
-.export-current-btn:hover {
-    background: #05c799;
-    transform: translateY(-2px);
-}
-
-.export-cancel-btn {
-    background: #6c757d;
-    color: white;
-}
-
-.export-cancel-btn:hover {
-    background: #5a6268;
-    transform: translateY(-2px);
-}
-
-/* ==================== Bright Mode 全屏配色方案 ==================== */
-
-/* Ocean Blue - 淺藍背景 + 深藍文字 */
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .container {
-    background: linear-gradient(135deg, #caf0f8 0%, #90e0ef 100%) !important;
-}
-
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .budget-info {
-    color: #03045e !important;
-}
-
-/* Purple Dream - 淺紫背景 + 深紫文字 */
-body.fullscreen-mode.theme-purple:not(.dark-mode) .container {
-    background: linear-gradient(135deg, #e0aaff 0%, #c77dff 100%) !important;
-}
-
-body.fullscreen-mode.theme-purple:not(.dark-mode) .budget-info {
-    color: #240046 !important;
-}
-
-/* Nature Green - 淺綠背景 + 深綠文字 */
-body.fullscreen-mode.theme-green:not(.dark-mode) .container {
-    background: linear-gradient(135deg, #dad7cd 0%, #a3b18a 100%) !important;
-}
-
-body.fullscreen-mode.theme-green:not(.dark-mode) .budget-info {
-    color: #344e41 !important;
-}
-
-/* 統一處理其他文字顏色 */
-body.fullscreen-mode:not(.dark-mode) .timer-label,
-body.fullscreen-mode:not(.dark-mode) .live-cost,
-body.fullscreen-mode:not(.dark-mode) .elapsed-time,
-body.fullscreen-mode:not(.dark-mode) .budget-info {
-    text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.5);
-}
-
-/* Ocean Blue 深色文字 */
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .timer-label,
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .live-cost,
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .elapsed-time,
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .budget-info {
-    color: #03045e !important;
-}
-
-/* Purple Dream 深色文字 */
-body.fullscreen-mode.theme-purple:not(.dark-mode) .timer-label,
-body.fullscreen-mode.theme-purple:not(.dark-mode) .live-cost,
-body.fullscreen-mode.theme-purple:not(.dark-mode) .elapsed-time,
-body.fullscreen-mode.theme-purple:not(.dark-mode) .budget-info {
-    color: #240046 !important;
-}
-
-/* Nature Green 深色文字 */
-body.fullscreen-mode.theme-green:not(.dark-mode) .timer-label,
-body.fullscreen-mode.theme-green:not(.dark-mode) .live-cost,
-body.fullscreen-mode.theme-green:not(.dark-mode) .elapsed-time,
-body.fullscreen-mode.theme-green:not(.dark-mode) .budget-info {
-    color: #344e41 !important;
-}
-
-/* 確保背景保持正常（不變淺）*/
-body.fullscreen-mode:not(.dark-mode) .container {
-    opacity: 1 !important;
-    filter: none !important;
-}
-
-/* Ocean Blue 背景保持清晰 */
-body.fullscreen-mode:not(.dark-mode):not(.theme-purple):not(.theme-green) .container {
-    background: linear-gradient(135deg, #caf0f8 0%, #90e0ef 100%) !important;
-}
-
-/* Purple Dream 背景保持清晰 */
-body.fullscreen-mode.theme-purple:not(.dark-mode) .container {
-    background: linear-gradient(135deg, #e0aaff 0%, #c77dff 100%) !important;
-}
-
-/* Nature Green 背景保持清晰 */
-body.fullscreen-mode.theme-green:not(.dark-mode) .container {
-    background: linear-gradient(135deg, #dad7cd 0%, #a3b18a 100%) !important;
-}
-
-/* 只有真正超支的數字才變紅（不影響 "Over:" 文字）*/
-body.fullscreen-mode.budget-exceeded .budget-remaining.exceeded {
-    color: var(--danger-color) !important;
-}
-
-/* Budget Used 和剩餘金額默認使用主題深色 */
-body.fullscreen-mode:not(.dark-mode) .budget-current,
-body.fullscreen-mode:not(.dark-mode) .budget-remaining {
-    color: var(--primary-dark);
 }
