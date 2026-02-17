@@ -2356,3 +2356,34 @@ body.fullscreen-mode .budget-info {
 @keyframes pulse-glow-warning {
     /* 禁用 */
 }
+/* ==================== 🎯 最後修復：Budget Bar 問題 ==================== */
+
+/* 修復 1: Full screen 時 budget bar 對齊問題 */
+body.fullscreen-mode .budget-progress {
+    max-width: 500px !important; /* 與其他元素寬度一致 */
+    width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+
+/* 確保 budget bar 容器居中 */
+body.fullscreen-mode .budget-bar {
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+/* 修復 2: Full screen 時沒有設定預算則隱藏 budget bar */
+/* 默認：有設定預算時才顯示 */
+body.fullscreen-mode .budget-progress,
+body.fullscreen-mode .budget-info {
+    display: none !important; /* 默認隱藏 */
+}
+
+/* 當預算啟用時才顯示（需要 JavaScript 添加 budget-enabled class）*/
+body.fullscreen-mode.budget-enabled .budget-progress,
+body.fullscreen-mode.budget-enabled .budget-info {
+    display: block !important;
+    max-width: 500px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
