@@ -6,11 +6,11 @@
 
 :root {
     /* 🎛️ 全螢幕縮放控制（調整這一個參數即可控制整體大小）*/
-    --fullscreen-scale: 0.75;  /* 範圍：0.6 - 1.0，預設 0.9 */
+    --fullscreen-scale: 0.8;  /* 範圍：0.6 - 1.0，預設 0.9 */
 
     /* 🎛️ 全螢幕佈局控制 */
     /* 疏密度（新增的獨立參數）*/
-    --fs-spacing: 0.85;  /* 改為 0.7 更緊湊，1.3 更寬鬆 */
+    --fs-spacing: 0.7;  /* 改為 0.7 更緊湊，1.3 更寬鬆 */
     --fs-padding: calc(2vh * var(--fs-spacing));        /* 紅框與螢幕邊緣距離 */
     --fs-gap: calc(1.5vh * var(--fs-spacing));         /* 元素之間的間距 */
     --fs-border-width: 6px;   /* 紅框寬度 */
