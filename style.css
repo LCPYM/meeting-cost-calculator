@@ -6,7 +6,7 @@
 
 :root {
     /* 🎛️ 全螢幕縮放控制（調整這一個參數即可控制整體大小）*/
-    --fullscreen-scale: 0.8;  /* 範圍：0.6 - 1.0，預設 0.9 */
+    --fullscreen-scale: 0.85;  /* 範圍：0.6 - 1.0，預設 0.9 */
 
     /* 🎛️ 全螢幕佈局控制 */
     /* 疏密度（新增的獨立參數）*/
@@ -34,7 +34,7 @@
     --transition: all 0.3s ease;
 
     /* 疏密度控制變量 */
-    --spacing-scale: 0.8;
+    --spacing-scale: 0.75;
 }
 
 /* 方案 2: Purple Dream */
