@@ -4,41 +4,85 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- 多語言標題 -->
-    <title>會議成本計算機 | Meeting Cost Calculator | Real-Time Meeting Cost Tracker</title>
+    <!-- ===== 標題（優化後）===== -->
+    <title>Meeting Cost Calculator | 會議成本計算機</title>
 
-    <!-- 英文 Description（預設）-->
-    <meta name="description" content="Free real-time meeting cost calculator. Track meeting expenses instantly by attendees and hourly rate. Improve time efficiency and reduce unnecessary meeting costs. Support multiple currencies.">
+    <!-- ===== Canonical URL（新增）===== -->
+    <link rel="canonical" href="https://meeting-cost-calculator-fawn.vercel.app/">
 
-    <!-- 中文 Description -->
-    <meta name="description" lang="zh-TW" content="免費即時會議成本計算機。根據參與人數和時薪即時追蹤會議花費，提高時間效率，減少不必要的會議成本。支援多種貨幣。">
-    <meta name="description" lang="zh-CN" content="免费实时会议成本计算器。根据参与人数和时薪即时追踪会议花费，提高时间效率，减少不必要的会议成本。支持多种货币。">
+    <!-- ===== Meta Description（優化後）===== -->
+    <meta name="description" content="Track meeting costs in real-time. See exactly how much your meetings cost and improve team efficiency. Free tool with budget alerts & analytics.">
+    <meta name="description" lang="zh-TW" content="即時追蹤會議成本。精確計算會議花費，提高團隊效率。免費工具，支援預算警示和分析報表。">
 
-    <!-- Keywords -->
-    <meta name="keywords" content="meeting cost calculator, meeting timer, meeting expense, productivity tool, time tracker, 會議成本, 會議計時器, 生產力工具">
+    <!-- ===== Robots（新增）===== -->
+    <meta name="robots" content="index, follow">
+    <meta name="googlebot" content="index, follow">
 
-    <!-- Open Graph（社交媒體分享）-->
-    <meta property="og:title" content="Meeting Cost Calculator | 會議成本計算機">
-    <meta property="og:description" content="Free real-time meeting cost calculator. Track meeting expenses and improve productivity.">
+    <!-- ===== Open Graph（完整版）===== -->
+    <meta property="og:title" content="Meeting Cost Calculator | Real-Time Tracker">
+    <meta property="og:description" content="Track meeting costs in real-time. Free tool with budget alerts & analytics.">
     <meta property="og:type" content="website">
     <meta property="og:url" content="https://meeting-cost-calculator-fawn.vercel.app">
+    <meta property="og:site_name" content="Meeting Cost Calculator">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="zh_TW">
+    <meta property="og:image" content="https://meeting-cost-calculator-fawn.vercel.app/og-image.jpg">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="Meeting Cost Calculator interface">
+    <meta property="og:image:type" content="image/jpeg">
 
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Meeting Cost Calculator">
-    <meta name="twitter:description" content="Free real-time meeting cost calculator. Track expenses and boost productivity.">
+    <!-- ===== Twitter Card（完整版）===== -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Meeting Cost Calculator - Real-Time Tracker">
+    <meta name="twitter:description" content="Track meeting costs in real-time. Free tool with budget alerts & analytics.">
+    <meta name="twitter:image" content="https://meeting-cost-calculator-fawn.vercel.app/twitter-card.jpg">
+    <meta name="twitter:image:alt" content="Meeting Cost Calculator interface showing real-time tracking">
+    <!-- <meta name="twitter:site" content="@YourHandle"> -->
+    <!-- <meta name="twitter:creator" content="@LCPYM"> -->
 
-    <!-- 語言標記 -->
-    <meta name="language" content="English, Chinese">
-    <script type="text/javascript" nonce="a135965ce9564b118ff5a926b39" src="//local.adguard.org?ts=1771250487568&amp;type=content-script&amp;dmn=ppl-ai-code-interpreter-files.s3.amazonaws.com&amp;url=https%3A%2F%2Fppl-ai-code-interpreter-files.s3.amazonaws.com%2Fweb%2Fdirect-files%2F90871c7e8e391af708993d7e3352fe63%2F4d08b866-dc4f-430e-90ec-40a7f63a5f77%2F34c26115.html%3Fresponse-content-disposition%3Dattachment%253B%2520filename%253Dindex_final_fixed.html%253B%2520filename%252A%253DUTF-8%2527%2527index_final_fixed.html%26AWSAccessKeyId%3DASIA2F3EMEYESZPLWWBL%26Signature%3DEbqz9dY59V5YPkrUEHt0ANyRYPg%253D%26x-amz-security-token%3DIQoJb3JpZ2luX2VjEG8aCXVzLWVhc3QtMSJHMEUCIDxpBHWfIqzUMnpFqqHzHQaSDmQnD%252FPbAlX1Xwhzljl1AiEAugG%252FSFuAu6h0gkm1MQSVO9bgwbe6B5P9O3VEXTqFfP8q8wQIOBABGgw2OTk3NTMzMDk3MDUiDN9rX0lHk9XP01jFkirQBFV9IyG9oOdpkNUkwyEPBVoDbKaePAKsynv7JbP0lp4SDL1%252F4LeaPBl%252Fbtjh7uOj%252BF7TFqVGPG6cyTa9OwF%252F9k3cfgIE%252BPU90QWqy%252BGctc5q7EwqD4NmAh9Au9CFUw3BE2tp6YmCNfEyrOqIKZFdkZ%252B2sja0I3zo64AER8qEI9iT9ZW6u4%252BI1ajGRefZk1yDP%252Btv5hLhL2KPcKoaRBpTKm3MIQwyj4lRIiu6XbVJ2JPP8kcVaC4ibxJCvwpwqGmb9hWchxFwc1ZcddczgxxG9pThWPwagL2X%252F66a1nPuusgfrcmvUYvhToltZ7Z8k0db4yuJmB1%252BTiimmtxmj3bieRI4AuSkf7nxCOzrRqNfwEeNPYge25cUQTKLVNk1vRumMValkYHNeth3A7SsMVlvvlUx0y27B3LuV3MK3CGLeF%252FsBQulY97TfJqpZRuRbQ4%252FmTfP3xVbHNiPdGQxef3%252BK2rx4ZyV8H9LD%252BtGwO8oeDX0BnCyg1HVS04PTJUpMA%252BSmve%252FFopgpWGQWU9TxfuOJU5y%252FkWCkULFQkrZAGrhxvTxGjn78jpNUcHKqb5gQTuYg07MEfoxuLUnrSdw3FGyBxVPzMjzoDtGjUbjLU4qE0X9%252FiqVbkZfsHnjMWXvrnVDev52LMS0vzJ99auGN%252Fl8Ww6CDa2b9waUsuqoPkYxUDxf3XhzdEPUm79xtrBNOcgwpou0BGRcJOS1zUu0ovaSADKnc1eVjwcAqDbD8O8oMDyofem%252FaN4%252B397CJIr9Nfq%252BJ8R2Z9g4K%252BsV%252FEw%252Bp1CNlmUww9XMzAY6mAHQik1EuEup3SdZrm65FvYwicRyALckOkFH6spKxBc2hNxJhV3L9j500Uocp2mTpHj6BAfC1EaZ9HfX2Jk%252BkeOETqTkAwcP8S53c9NilobNUkii6mvXyJMYdy517ugIfFFMb3nVcldoQmXEFx7Rg4YI%252BF3CK%252FyTubY%252BaM3l9YbmTIkuIDT1OwXm6d3ZAJlizhW8t%252FvL4lBU6A%253D%253D%26Expires%3D1771255271&amp;app=com.apple.Safari&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1&amp;stealth=1&amp;st-push&amp;st-loc&amp;st-java&amp;st-dnt"></script><script type="text/javascript" nonce="a135965ce9564b118ff5a926b39" src="//local.adguard.org?ts=1771250487568&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;name=Web%20of%20Trust&amp;name=AdGuard%20Popup%20Blocker&amp;type=user-script"></script><link rel="alternate" hreflang="en" href="https://meeting-cost-calculator-fawn.vercel.app?lang=en">
+    <!-- ===== Hreflang（已有）===== -->
+    <link rel="alternate" hreflang="en" href="https://meeting-cost-calculator-fawn.vercel.app?lang=en">
     <link rel="alternate" hreflang="zh-TW" href="https://meeting-cost-calculator-fawn.vercel.app?lang=zh">
+    <link rel="alternate" hreflang="x-default" href="https://meeting-cost-calculator-fawn.vercel.app">
 
-    <!-- 作者資訊 -->
+    <!-- ===== Favicon（新增）===== -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+
+    <!-- ===== 作者和主題（已有）===== -->
     <meta name="author" content="LCPYM">
-
-    <!-- 主題顏色 -->
     <meta name="theme-color" content="#0077b6">
 
+    <!-- ===== Google Search Console（新增）===== -->
+    <meta name="google-site-verification" content="_mLRatRLmYfSw4v_P65nCkqS0vWXmAJ-egO4pCxynYQ" />
+
+    <!-- ===== 結構化數據（新增）===== -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Meeting Cost Calculator",
+      "alternateName": "會議成本計算機",
+      "url": "https://meeting-cost-calculator-fawn.vercel.app",
+      "description": "Free real-time meeting cost calculator. Track meeting expenses instantly.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "author": {
+        "@type": "Person",
+        "name": "LCPYM"
+      },
+      "inLanguage": ["en", "zh-TW"]
+    }
+    </script>
+
+    <!-- ===== CSS 和 JS（已有）===== -->
     <link rel="stylesheet" href="style.css">
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
