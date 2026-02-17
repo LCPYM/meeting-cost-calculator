@@ -635,6 +635,10 @@ function toggleFullscreen() {
     const { currentLang } = app.state;
 
     if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+
+        // ✅ 新增這行：滾動到頂部
+        window.scrollTo(0, 0);
+        
         // 進入全螢幕
         const elem = document.documentElement;
         if (elem.requestFullscreen) {
@@ -644,6 +648,7 @@ function toggleFullscreen() {
         }
 
         document.body.classList.add('fullscreen-mode');
+
 
         // ✅ 新增：檢查是否啟用預算
         const budgetEnabled = document.getElementById('budget-enabled').checked;
