@@ -629,6 +629,8 @@ function removeBudgetExceededBanner() {
     }
 }
 
+// ==================== 完整的 toggleFullscreen 函數（可直接複製替換）====================
+
 function toggleFullscreen() {
     const { currentLang } = app.state;
 
@@ -642,7 +644,7 @@ function toggleFullscreen() {
         }
 
         document.body.classList.add('fullscreen-mode');
-        
+
         // ✅ 新增：檢查是否啟用預算
         const budgetEnabled = document.getElementById('budget-enabled').checked;
         if (budgetEnabled) {
@@ -650,7 +652,7 @@ function toggleFullscreen() {
         } else {
             document.body.classList.remove('budget-enabled');
         }
-        
+
         app.state.isFullscreen = true;
         app.elements.fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-exit-fullscreen">${translations[currentLang]['btn-exit-fullscreen']}</span>`;
 
@@ -662,22 +664,6 @@ function toggleFullscreen() {
         } else if (document.webkitExitFullscreen) {
             document.webkitExitFullscreen();
         }
-    }
-}
-
-// ✅ 新增：監聽全螢幕變化事件（處理 ESC 退出）
-document.addEventListener('fullscreenchange', handleFullscreenChange);
-document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
-
-function handleFullscreenChange() {
-    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-        // 退出全螢幕時清理
-        document.body.classList.remove('fullscreen-mode');
-        document.body.classList.remove('budget-enabled'); // ✅ 新增
-        app.state.isFullscreen = false;
-        
-        const { currentLang } = app.state;
-        app.elements.fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[currentLang]['btn-fullscreen']}</span>`;
     }
 }
 
@@ -701,6 +687,7 @@ document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
 function handleFullscreenChange() {
     if (!document.fullscreenElement && !document.webkitFullscreenElement) {
         document.body.classList.remove('fullscreen-mode');
+        document.body.classList.remove('budget-enabled'); // ✅ 新增這行
         app.state.isFullscreen = false;
         app.elements.fullscreenButton.innerHTML = `<span class="fullscreen-icon">⛶</span><span data-i18n="btn-fullscreen">${translations[app.state.currentLang]['btn-fullscreen']}</span>`;
     }
