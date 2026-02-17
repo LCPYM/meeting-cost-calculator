@@ -6,7 +6,7 @@
 
 :root {
     /* 🎛️ 全螢幕縮放控制（調整這一個參數即可控制整體大小）*/
-    --fullscreen-scale: 0.85;  /* 範圍：0.6 - 1.0，預設 0.9 */
+    --fullscreen-scale: 0.8;  /* 範圍：0.6 - 1.0，預設 0.9 */
 
     /* 🎛️ 全螢幕佈局控制 */
     /* 疏密度（新增的獨立參數）*/
@@ -215,7 +215,7 @@ body.budget-exceeded::after {
 /* ==================== 容器 ==================== */
 
 .container {
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 auto;
     background: var(--card-bg);
     padding: 40px;
@@ -2386,4 +2386,8 @@ body.fullscreen-mode.budget-enabled .budget-info {
     max-width: 500px !important;
     margin-left: auto !important;
     margin-right: auto !important;
+}
+/* Full screen 時隱藏 footer（tip 和 shortcuts）*/
+body.fullscreen-mode footer {
+    display: none !important;
 }
